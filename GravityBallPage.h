@@ -319,5 +319,4 @@ void GravityBallPage::button(int dir,int index) {
 
 }
 
-
 #endif
