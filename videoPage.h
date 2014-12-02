@@ -11,42 +11,32 @@
 
 class VideoPlayerPage : public Page {
 
-    protected:
-    
-        int mode;
-    
-        SdFile videoFile;
-        
-        int videoFrameTotal = 0;
-        int currentFrame = 0;
-        int videoState = VIDEO_IDLE;
-        
-        int firstTouchID = -1;
-        bool seekTouch = false;
-        int touchTime = 0;
-        int lastMovePos = -1;
-        
-        int vidX,vidY;
-        
-        int oldResponseRate = 0;
-        
-    public:
+protected:
 
-        VideoPlayerPage() {}
-        
-        VideoPlayerPage CONSTRUCTOR_MACRO
+int mode;
 
-        void initalize();
-        void leavingPage();
-        void loop();
-        void touch(int touchType,int finePos,int activeTouches,int touchIndex);
-        void button(int dir,int index);
-        
-        void loadVideo(char * name,int x,int y);
+SdFile videoFile;
 
-};
+int videoFrameTotal = 0;
+int currentFrame = 0;
+int videoState = VIDEO_IDLE;
 
-void VideoPlayerPage::initalize() {
+int firstTouchID = -1;
+bool seekTouch = false;
+int touchTime = 0;
+int lastMovePos = -1;
+
+int vidX,vidY;
+
+int oldResponseRate = 0;
+
+public:
+
+VideoPlayerPage() {}
+
+VideoPlayerPage CONSTRUCTOR_MACRO
+
+void initalize() {
 
     // if(!videoFile.open("shipVid.Gci",O_READ)) if(D) USB.println("Error: video file didn't open"); 
     
@@ -72,7 +62,7 @@ void VideoPlayerPage::initalize() {
     
 }
 
-void VideoPlayerPage::leavingPage() {
+void leavingPage() {
 
     // Return the response rate to the previous condition
     touchCtrl->setResponseRateRaw(oldResponseRate);
@@ -81,7 +71,7 @@ void VideoPlayerPage::leavingPage() {
 
 }
 
-void VideoPlayerPage::loadVideo(char * name,int x,int y) {
+void loadVideo(char * name,int x,int y) {
 
     const char ext[] = ".Gci";
     int extC = 0;
@@ -136,7 +126,7 @@ void VideoPlayerPage::loadVideo(char * name,int x,int y) {
 
 }
 
-void VideoPlayerPage::loop() {
+void loop() {
 
     static elapsedMillis frameUpdateTime;
 
@@ -161,9 +151,9 @@ void VideoPlayerPage::loop() {
 
 }
 
-void VideoPlayerPage::touch(int touchType,int finePos,int activeTouches,int touchIndex) {
+void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
     
-    if(D && touchType != MOVING) USB.printf("VideoPlayerPage::touch\r\n");
+    if(D && touchType != MOVING) USB.printf("touch\r\n");
     
     switch(touchType) {
     
@@ -239,9 +229,12 @@ void VideoPlayerPage::touch(int touchType,int finePos,int activeTouches,int touc
 
 }
 
-void VideoPlayerPage::button(int dir,int index) {
+void button(int dir,int index) {
 
 }
+
+
+};
 
 
 #endif
