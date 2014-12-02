@@ -8,6 +8,8 @@ class TouchDemoPage : public Page {
 
     protected:
     
+        int oldResponseRate = 0;
+    
     public:
 
         TouchDemoPage() {}
@@ -32,9 +34,16 @@ void TouchDemoPage::initalize() {
     
     lcd->fillRect(0,0,220,220);
     
+    // Set response rate to as fast as possible
+    oldResponseRate = touchCtrl->getResponseRateRaw();
+    touchCtrl->setResponseRateRaw(0);
+    
 }
 
 void TouchDemoPage::leavingPage() {
+
+    // Return the response rate to the previous condition
+    touchCtrl->setResponseRateRaw(oldResponseRate);
 
 }
 

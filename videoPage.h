@@ -28,6 +28,8 @@ class VideoPlayerPage : public Page {
         
         int vidX,vidY;
         
+        int oldResponseRate = 0;
+        
     public:
 
         VideoPlayerPage() {}
@@ -64,10 +66,17 @@ void VideoPlayerPage::initalize() {
     touchTime = 0;
     lastMovePos = -1;
     
+    // Max response rate on the touch for buttery smoothness while navigating the video
+    oldResponseRate = touchCtrl->getResponseRateRaw();
+    touchCtrl->setResponseRate(100);
+    
 }
 
 void VideoPlayerPage::leavingPage() {
 
+    // Return the response rate to the previous condition
+    touchCtrl->setResponseRateRaw(oldResponseRate);
+    
     stopAction();
 
 }
