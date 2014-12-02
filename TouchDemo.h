@@ -7,29 +7,17 @@
 
 class TouchDemoPage : public Page {
 
-    protected:
-    
-        int oldResponseRate = 0;
-    
-    public:
+private:
 
-        TouchDemoPage() {}
-        
-        TouchDemoPage CONSTRUCTOR_MACRO
+int oldResponseRate = 0;
 
-        void initalize();
-        void leavingPage();
-        void loop();
-        void touch(int touchType,int finePos,int activeTouches,int touchIndex);
-        void button(int dir,int index);
-        
-        void drawCapacitanceValue(int sizeValue,int sensor,int color);
-        void testBubbles();
-        
+public:
 
-};
+TouchDemoPage() {}
 
-void TouchDemoPage::initalize() {
+TouchDemoPage CONSTRUCTOR_MACRO
+
+void initalize() {
     
     lcd->setColor(0); 
     
@@ -41,20 +29,20 @@ void TouchDemoPage::initalize() {
     
 }
 
-void TouchDemoPage::leavingPage() {
+void leavingPage() {
 
     // Return the response rate to the previous condition
     touchCtrl->setResponseRateRaw(oldResponseRate);
 
 }
 
-void TouchDemoPage::loop() {
+void loop() {
 
     testBubbles();
 
 }
 
-void TouchDemoPage::touch(int touchType,int finePos,int activeTouches,int touchIndex) {
+void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
     
     static int lastDrawnDots[10];
 
@@ -80,11 +68,11 @@ void TouchDemoPage::touch(int touchType,int finePos,int activeTouches,int touchI
 
 }
 
-void TouchDemoPage::button(int dir,int index) {
+void button(int dir,int index) {
 
 }
 
-void TouchDemoPage::drawCapacitanceValue(int sizeValue,int sensor,int color) {
+void drawCapacitanceValue(int sizeValue,int sensor,int color) {
 
     int angle;
     int radius = 90;
@@ -111,7 +99,7 @@ void TouchDemoPage::drawCapacitanceValue(int sizeValue,int sensor,int color) {
     
 }
 
-void TouchDemoPage::testBubbles() {
+void testBubbles() {
 
     static int lastSensorValue[PI_TOUCH_PIN_TOTAL] {0,0,0,0,0,0,0,0,0,0};
     
@@ -136,5 +124,8 @@ void TouchDemoPage::testBubbles() {
     }
     
 }
+
+
+};
 
 #endif
