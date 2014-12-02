@@ -183,7 +183,7 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
 
                     int difference = finePos - lastMovePos;
                     
-                    currentFrame += difference * 2;
+                    currentFrame += difference * 3 / 2;
                     
                     if(currentFrame >= videoFrameTotal) currentFrame -= videoFrameTotal;
                     if(currentFrame < 0) currentFrame += videoFrameTotal;
