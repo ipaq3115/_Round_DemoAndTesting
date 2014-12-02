@@ -2,8 +2,6 @@
 #define HARDWARE_REVA
 // #define HARDWARE_REVB
 
-#define PI_TOUCH_PIN_TOTAL 10
-    
 // #include <Audio.h>
 #include <BC127.h>
 #include "myUtils.h"

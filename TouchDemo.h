@@ -1,6 +1,7 @@
 
 
-// #if 1
+#ifndef TOUCH_DEMO_
+#define TOUCH_DEMO_
 
 #include "roundUtil.h"
 
@@ -135,3 +136,5 @@ void TouchDemoPage::testBubbles() {
     }
     
 }
+
+#endif
