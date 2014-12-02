@@ -10,14 +10,32 @@ class SettingsPageB : public Page {
 
 public:
 
+    enum {
+    
+        VIBRATE,
+        TIME,
+        BRIGHTNESS,
+        VOLUME,
+        BLUETOOTH
+    
+    };
+
+    int oldResponseRate = 0;
+
     SdFile 
     backgroundImageFile,
     knobFile,
     vibrateFile,
     volumeFile;
+    
+    // Touch
+    int lastTouchPos;
+    int touchMode = -1;
+    int touchTime = 0;
+    bool repeat = false;
+    
 
     int firstTouch = -1;
-    // int brightness;
     int knobPos = 0;
     int iconID = 0;
 
@@ -50,6 +68,10 @@ void initalize() {
     
     if(D) USB.println("SettingsPageB page initalize is done");
     
+    // Set response rate
+    oldResponseRate = touchCtrl->getResponseRateRaw();
+    touchCtrl->setResponseRate(50);
+    
 }
 
 void leavingPage() {
@@ -58,6 +80,9 @@ void leavingPage() {
     knobFile.close();
     vibrateFile.close();
     volumeFile.close();
+
+    // Return the response rate to the previous condition
+    touchCtrl->setResponseRateRaw(oldResponseRate);
 
 }
 
@@ -111,13 +136,6 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
     
     if(D && touchType != MOVING) USB.printf("homePageTouch\r\n");
     
-    int const iconPosions[5] {0,50,115,175,229};
-    
-    static int lastTouchPos;
-    static int touchMode = -1;
-    static int touchTime = 0;
-    static bool repeat = false;
-    
     switch(touchType) {
     
         case PRESSED:
@@ -147,128 +165,120 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
             break;
         case MOVING:
             
-            if(firstTouch == touchIndex) {
+            if(firstTouch == touchIndex) touchMoving(finePos);
             
-                if(touchMode == 1) {
-                
-                    if(finePos - lastTouchPos > 180) lastTouchPos += 360;
-                    if(lastTouchPos - finePos > 180) lastTouchPos -= 360;
-                    
-                    // if(D) USB.printf("mv %d %d\r\n",finePos,lastTouchPos);
-                    
-                    // brightness -= (finePos - lastTouchPos);
-                    knobPos += (finePos - lastTouchPos);
-                    // brightness -= (finePos - lastTouchPos) * 3 / 4;
-                    lastTouchPos = finePos;
-                    
-                    if(knobPos > 229) knobPos = 229;
-                    if(knobPos < 0) knobPos = 0;
-                    // if(brightness < 0) brightness = 0;
-                    
-                    lcd->printGci(knobFile,44,44,knobPos);
-                    
-                    // printBrightness(brightness);
-                    // printBrightness(brightness/5*5);
-                    
-                    // checkBrightness();                
-                    
-                } else {
-                
-                    // Volume
-                    if(iconID == 3 && millis() - touchTime > 750 || (repeat && millis()-touchTime>20)) {
-                    
-                        updateVolume(finePos > 180 ? DOWN : UP);
-                    
-                        repeat = true;
-                        
-                        touchTime = millis();
-                        
-                    
-                    // Brightness
-                    } else if(iconID == 2 && millis() - touchTime > 750 || (repeat && millis()-touchTime>20)) {
-                    
-                        // if(finePos - lastTouchPos > 180) lastTouchPos += 360;
-                        // if(lastTouchPos - finePos > 180) lastTouchPos -= 360;
-                        // 
-                        // // if(D) USB.printf("mv %d %d\r\n",finePos,lastTouchPos);
-                        // 
-                        // // brightness -= (finePos - lastTouchPos) / 2;
-                        // // brightness -= (finePos - lastTouchPos) * 3 / 4;
-                        // lastTouchPos = finePos;
-                        // 
-                        // if(knobPos > 100) knobPos = 100;
-                        // if(brightness < 0) brightness = 0;
-                        // 
-                        // // printBrightness(brightness);
-                        // // printBrightness(brightness/5*5);
-                        // 
-                        // checkBrightness(); 
-                        
-                        watch->setBrightness(watch->getBrightness() + (finePos > 180 ? -5 : 5));
-                        
-                        repeat = true;
-                        
-                        touchTime = millis();
-                        
-                    }
-                
-                
-                }
-                
-            }
-
             break;
         case RELEASED: 
             
             if(firstTouch == touchIndex) {
             
-                if(touchMode == 1) {
+                touchReleased(finePos);
             
-                    if(millis() - touchTime < 100) {
-                    
-                        knobPos = finePos + 115;
-                        if(knobPos >= 360) knobPos -= 360;
-                        
-                    }
-                    
-                    touchMode = -1;
-                    
-                    int lastDistance = 0;
-                    fori(5) {
-                        
-                        int distance = abs(knobPos - iconPosions[i]);
-                        
-                        if(lastDistance < distance && i != 0) {
-                        
-                            
-                        
-                        } else {
-                            
-                            iconID = i;
-                            lastDistance = distance;
-                        
-                        }
-                    
-                    }
-                    
-                    knobPos = iconPosions[iconID];
-                    lcd->printGci(knobFile,44,44,knobPos);
-                    
-                } else {
-                
-                    if(iconID == 2 && millis() - touchTime < 200) watch->setBrightness(watch->getBrightness() + (finePos > 180 ? -10 : 10));
-                    
-                    if(iconID == 3) updateVolume(finePos > 180 ? DOWN : UP);
-                    
-                }
-                
                 firstTouch = -1;
+        
+                touchMode = -1;
                 
             }
        
             break;
     
     }
+}
+
+void touchMoving(int finePos) {
+
+    // Outside of the 'tap to change' button
+    if(touchMode == 1) {
+    
+        // Calculate the dragging of the knob
+    
+        if(finePos - lastTouchPos > 180) lastTouchPos += 360;
+        if(lastTouchPos - finePos > 180) lastTouchPos -= 360;
+        
+        knobPos += (finePos - lastTouchPos);
+        lastTouchPos = finePos;
+        
+        if(knobPos > 229) knobPos = 229;
+        if(knobPos < 0) knobPos = 0;
+        
+        lcd->printGci(knobFile,44,44,knobPos);
+        
+    // Touched the 'tap to change' button
+    } else {
+        
+        if(millis() - touchTime > 750 || (repeat && millis()-touchTime>20)) {
+        
+            switch(iconID) {
+                case BRIGHTNESS:    
+                    watch->setBrightness(watch->getBrightness() + (finePos > 180 ? -5 : 5)); break;
+                case VOLUME:        
+                    updateVolume(finePos > 180 ? DOWN : UP); break;
+            }
+            
+            repeat = true;
+            
+            touchTime = millis();
+
+        }
+        
+    }
+    
+}
+
+void touchReleased(int finePos) {
+
+    int const iconPosions[5] {0,50,115,175,229};
+    
+    // Outside of the 'tap to change' button
+    if(touchMode == 1) {
+
+        // Button press, move the knob to the position that was pressed
+        if(millis() - touchTime < 200) {
+        
+            knobPos = finePos + 115;
+            if(knobPos >= 360) knobPos -= 360;
+            
+        }
+        
+        // Find the icon that the knob is closest to
+        int lastDistance = 0;
+        fori(5) {
+            
+            int distance = abs(knobPos - iconPosions[i]);
+            
+            // Comparing this distance and the last distance, if
+            // this index is closer set the iconID and continue searching
+            if(lastDistance > distance || i == 0) {
+            
+                iconID = i;
+                lastDistance = distance;
+            
+            }
+        
+        }
+        
+        // Snap the knob to the icon that was determined to be the closest
+        // to the position it was realesed at
+        knobPos = iconPosions[iconID];
+        lcd->printGci(knobFile,44,44,knobPos);
+    
+    // Touched the 'tap to change' button
+    } else {
+
+        // Only looking for a tap action
+        if(millis() - touchTime < 200) {
+            
+            switch(iconID) {            
+                case BRIGHTNESS:    
+                    watch->setBrightness(watch->getBrightness() + (finePos > 180 ? -10 : 10)); break;
+                case VOLUME:
+                    updateVolume(finePos > 180 ? DOWN : UP); break;
+            }
+
+        }
+        
+    }
+
 }
 
 void button(int dir,int index) {
