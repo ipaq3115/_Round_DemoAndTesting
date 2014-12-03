@@ -40,7 +40,7 @@ void initalize() {
 
     // if(!videoFile.open("shipVid.Gci",O_READ)) if(D) USB.println("Error: video file didn't open"); 
     
-    if(videoState != VIDEO_PLAYING) {
+    // if(videoState != VIDEO_PLAYING) {
         
         loadVideo("rally",0,0);
         // loadVideo("ep28",0,0);
@@ -48,7 +48,7 @@ void initalize() {
         // loadVideo("drift",0,110-62);
         // loadVideo("drift2",0,110-62);
         
-    }
+    // }
     
     // Touch
     firstTouchID = -1;

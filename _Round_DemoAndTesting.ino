@@ -117,8 +117,9 @@ namespace PAGE {
     APPS            = 13,
     SETTINGS        = 14,
     SETTINGS_B      = 15,
+    BLUISH_CLOCK    = 16,
     
-    TOTAL           = 16;
+    TOTAL           = 17;
     
     const char names[TOTAL][20] {
     
@@ -137,8 +138,9 @@ namespace PAGE {
         "VIDEO",
         "APPS",
         "SETTINGS",
-        "SETTINGS_B"
-    
+        "SETTINGS_B",
+        "BLUISH_CLOCK"
+        
     };
 
 }
@@ -631,5 +633,6 @@ bool checkFilename(char* filename) { // Adds .WAV extension and gets rid of any 
 #include "apps.h"
 #include "settings.h"
 #include "settingsB.h"
+#include "bluishClock.h"
 
 #include "roundUtil.h"

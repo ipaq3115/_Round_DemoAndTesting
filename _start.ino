@@ -45,6 +45,7 @@ void setup() {
     pageArray[PAGE::APPS]               = new AppsPage(ARGS_MACRO);
     pageArray[PAGE::SETTINGS]           = new SettingsPage(ARGS_MACRO);
     pageArray[PAGE::SETTINGS_B]         = new SettingsPageB(ARGS_MACRO);
+    pageArray[PAGE::BLUISH_CLOCK]       = new BluishClockPage(ARGS_MACRO);
     
     showSplash();
     

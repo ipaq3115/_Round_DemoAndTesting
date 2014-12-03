@@ -83,7 +83,7 @@ void ClockSelectPage::touch(int touchType,int finePos,int activeTouches,int touc
                 
                 switch(iconIndex) {
                 
-                    case 0: return;
+                    case 0: goPage(PAGE::BLUISH_CLOCK);return;
                     case 1: goPage(PAGE::XKCD_CLOCK); return;
                     case 2: goPage(PAGE::BLUE_CLOCK); return;
                     case 3: goPage(PAGE::BAR_CLOCK); return;
