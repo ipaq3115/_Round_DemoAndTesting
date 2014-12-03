@@ -106,6 +106,20 @@ void animateNotificationTest() {
 
 void loop() {
 
+    // static elapsedMillis time;
+    // static bool state;
+    // 
+    // if(time > 200) {
+    //     
+    //     time = 0;
+    //     
+    //     pinMode(26, OUTPUT);
+    //     digitalWrite(26, state);
+    // 
+    //     state = !state;
+    // 
+    // }
+
     touchCtrl.loop();
 
     pollButtons();

@@ -212,8 +212,18 @@ void GravityBallPage::loop() {
         // if(D) USB.printf("%f\r\n",ballSpeed);
         
         compass->read();
-        lastAccelerationX = compass->a.y;
-        lastAccelerationY = compass->a.x;
+        
+        #ifdef HARDWARE_REVB
+        
+            lastAccelerationX = compass->a.x * -1;
+            lastAccelerationY = compass->a.y * -1;
+        
+        #else 
+        
+            lastAccelerationX = compass->a.y;
+            lastAccelerationY = compass->a.x;
+        
+        #endif
         
         speedUpdateTime = 0;
     
