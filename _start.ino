@@ -1,4 +1,6 @@
 
+IntervalTimer blinktimer;
+
 void setup() {
 
     // Make sure this is the first thing you do because it sets
@@ -86,6 +88,23 @@ void setup() {
 
     touchCtrl.init(touch);
     
+    #ifdef HARDWARE_REVB
+
+        blinktimer.begin(blinkled, 200000);
+        
+    #endif
+
+}
+
+void blinkled() {
+
+    static bool state;
+    
+    pinMode(26, OUTPUT);
+    digitalWrite(26, state);
+
+    state = !state;
+    
 }
 
 time_t getTeensy3Time() {
@@ -153,24 +172,6 @@ void loop() {
     
     }
     
-    #ifdef HARDWARE_REVB
-
-        static elapsedMillis time;
-        static bool state;
-        
-        if(time > 200) {
-            
-            time = 0;
-            
-            pinMode(26, OUTPUT);
-            digitalWrite(26, state);
-        
-            state = !state;
-        
-        }
-        
-    #endif
-
     touchCtrl.loop();
 
     pollButtons();
@@ -702,8 +703,14 @@ void buttonEvent(int dir,int index) {
         
             if(!dir) {
             
-                watch.rampBrightness(DOWN);
+                // watch.rampBrightness(DOWN);
                 
+                #ifdef HARDWARE_REVB
+
+                    blinktimer.begin(blinkled, 100000);
+
+                #endif
+
                 watch.powerDown();
             
             }
