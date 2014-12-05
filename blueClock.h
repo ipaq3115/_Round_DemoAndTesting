@@ -7,138 +7,96 @@
 
 class BlueClockPage : public Page {
 
-    protected:
-    
-        int touchIndex = -1;
-        
-        int touches[10];
-        bool repeatTouch[10];
-        
-        SdFile numbFile;
-        SdFile ampmFile;
-        SdFile weekdayFile;
-        SdFile monthFile;
-        SdFile dayAFile;
-        SdFile dayBFile;
-        SdFile yearFile;
-        
-        SdFile backgroundImageFile;
-    
-        enum time_array {
-            
-            TIME_HOUR,
-            TIME_MINUTE_A,
-            TIME_MINUTE_B,
-            TIME_AMPM,
-            TIME_MONTH,
-            TIME_DAY,
-            TIME_YEAR,
-            
-            TIME_TOTAL
-        
-        };
-    
-        int timeArray[TIME_TOTAL];
-    
-        // Set Page vars
-        int currentEdit = 0;
-        int currentEditOld = 0;
-        bool blinkState = false;
-        elapsedMillis blinkTime;
-    
-        enum pgmode_t {
-            
-            MODE_MAIN,
-            MODE_SET,
-            MODE_STOPWATCH,
-            MODE_TIMER
-        
-        } pageMode = MODE_MAIN;
-        
-        enum btn_t {
-        
-            MAIN_SET,
-            MAIN_TIMER,
-            MAIN_STOPWATCH,
-            MAIN_HOME,
-            
-            SET_UP,
-            SET_DONE,
-            SET_RIGHT,
-            SET_DOWN,
-            SET_LEFT,
-            SET_CANCEL,
-            
-        };
-        
-        const char buttonNames[10][20] {
-        
-            "MAIN_SET",
-            "MAIN_STOPWATCH",
-            "MAIN_TIMER",
-            "MAIN_HOME",
-            
-            "SET_UP",
-            "SET_DONE",
-            "SET_RIGHT",
-            "SET_DOWN",
-            "SET_LEFT",
-            "SET_CANCEL",
-        
-        };
-        
-    public:
+public:
 
-        BlueClockPage CONSTRUCTOR_MACRO
-        
-        void initalize();
-        void initalize(int,int);
-        void leavingPage();
-        void loop();
-        void touch(int touchType,int finePos,int activeTouches,int touchIndex);
-        void button(int dir,int index);
-        
-        void mainLoop();
-        void setLoop();
-        
-        void printSetItem(int index,bool state);
-        
-        void buttonPress(int btn,bool longPress,bool repeatPress);
-        
-        void printTime(int hours,int minutes);
-        void printHour(int hours);
-        void printDate(int day,int month,int year);
-        void printDay(int day);
-        void printMonth(int month);
-        void printWeekday(int day,int month,int year);
-        void printYear(int year);
-        
-        int  buttonID(int finePos);
-        void init();
-        void currentEditIncrement(int dir);
-        void currentEditIncrement(int dir,bool force);
-        void editIncrement(bool dir);
-        void printBack() {
-        
-            // using namespace pgmode_t;
-        
-            switch(pageMode) {
-            
-                case MODE_SET: lcd->printGci(backgroundImageFile,0,0,1); break;
-                case MODE_STOPWATCH:
-                case MODE_TIMER:
-                case MODE_MAIN: lcd->printGci(backgroundImageFile,0,0,0); break;
-            
-            }
-            
-        }
-        
-        
+time_t editTime;
+
+int touchIndex = -1;
+
+int touches[10];
+bool repeatTouch[10];
+
+SdFile numbFile;
+SdFile ampmFile;
+SdFile weekdayFile;
+SdFile monthFile;
+SdFile dayAFile;
+SdFile dayBFile;
+SdFile yearFile;
+
+SdFile backgroundImageFile;
+
+enum time_array {
+
+    TIME_HOUR,
+    TIME_MINUTE_A,
+    TIME_MINUTE_B,
+    TIME_AMPM,
+    TIME_MONTH,
+    TIME_DAY,
+    TIME_YEAR,
+
+    TIME_TOTAL
+
 };
 
-void BlueClockPage::initalize() {
+int timeArray[TIME_TOTAL];
 
-    if(D) USB.println("BlueClockPage::initalize");
+// Set Page vars
+int currentEdit = 0;
+int currentEditOld = 0;
+bool blinkState = false;
+elapsedMillis blinkTime;
+
+enum pgmode_t {
+
+    MODE_MAIN,
+    MODE_SET,
+    MODE_STOPWATCH,
+    MODE_TIMER
+
+} pageMode = MODE_MAIN;
+
+enum btn_t {
+
+    MAIN_SET,
+    MAIN_TIMER,
+    MAIN_STOPWATCH,
+    MAIN_HOME,
+
+    SET_UP,
+    SET_DONE,
+    SET_RIGHT,
+    SET_DOWN,
+    SET_LEFT,
+    SET_CANCEL,
+
+};
+
+const char buttonNames[10][20] {
+
+    "MAIN_SET",
+    "MAIN_STOPWATCH",
+    "MAIN_TIMER",
+    "MAIN_HOME",
+
+    "SET_UP",
+    "SET_DONE",
+    "SET_RIGHT",
+    "SET_DOWN",
+    "SET_LEFT",
+    "SET_CANCEL",
+
+};
+
+
+
+BlueClockPage CONSTRUCTOR_MACRO
+
+
+void initalize() {
+
+    if(D) USB.println("initalize");
 
     if(backgroundImageFile.isOpen()) backgroundImageFile.close();
     if(numbFile.isOpen()) numbFile.close();
@@ -165,7 +123,7 @@ void BlueClockPage::initalize() {
 
 }
 
-void BlueClockPage::init() {
+void init() {
     
     fori(10) touches[i] = -1;
     
@@ -193,11 +151,11 @@ void BlueClockPage::init() {
     
 }
 
-void BlueClockPage::leavingPage() {
+void leavingPage() {
 
 }
 
-void BlueClockPage::loop() {
+void loop() {
 
     switch(pageMode) {
         case MODE_MAIN: mainLoop(); break;
@@ -206,7 +164,7 @@ void BlueClockPage::loop() {
 
 }
 
-void BlueClockPage::mainLoop() {
+void mainLoop() {
 
     static elapsedMillis updateTime;
     if(updateTime > 100) {
@@ -217,15 +175,18 @@ void BlueClockPage::mainLoop() {
         
         // printTime(curTime.second,curTime.hundredth);
         // printTime(curTime.minute,curTime.second);
-        printTime(curTime.hour,curTime.minute);
         
-        printDate(curTime.day,curTime.month,curTime.year);
+        printTime(hour(),minute());
+        printDate(day(),month(),year());
+        
+        // printTime(curTime.hour,curTime.minute);
+        // printDate(curTime.day,curTime.month,curTime.year);
         
     }
 
 }
 
-void BlueClockPage::setLoop() {
+void setLoop() {
 
     if(blinkTime > 500) {
         
@@ -239,14 +200,14 @@ void BlueClockPage::setLoop() {
 
 }
 
-void BlueClockPage::printSetItem(int index,bool state) {
+void printSetItem(int index,bool state) {
 
     switch(index) {
     
         case TIME_HOUR:     printHour(state ? timeArray[TIME_HOUR] : -1); break;
         case TIME_MINUTE_A: lcd->printGci(numbFile,128,77,11 * 2 + (!state ? 10 : timeArray[TIME_MINUTE_A])); break;
         case TIME_MINUTE_B: lcd->printGci(numbFile,160,77,11 * 3 + (!state ? 10 : timeArray[TIME_MINUTE_B])); break;
-        case TIME_AMPM:     
+        case TIME_AMPM:
             if(state)   lcd->printGci(ampmFile,190,104,timeArray[TIME_AMPM]); 
             else        lcd->printGci(backgroundImageFile,0,0,1,190,104,211,117,false);
             break;
@@ -266,11 +227,11 @@ void BlueClockPage::printSetItem(int index,bool state) {
 
 }
 
-void BlueClockPage::touch(int touchType,int finePos,int activeTouches,int touchIndex) {
+void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
 
     static int touchPressedTime = 0;
     
-    if(touchType != MOVING) if(D) USB.printf("BlueClockPage::touch() finePos %d\r\n",finePos);
+    if(touchType != MOVING) if(D) USB.printf("touch() finePos %d\r\n",finePos);
 
     switch(touchType) {
     
@@ -328,7 +289,7 @@ void BlueClockPage::touch(int touchType,int finePos,int activeTouches,int touchI
 
 }
 
-void BlueClockPage::buttonPress(int btn,bool longPress,bool repeatPress) {
+void buttonPress(int btn,bool longPress,bool repeatPress) {
 
     if(btn == -1) {
         if(D) USB.println("Invalid button");
@@ -343,7 +304,8 @@ void BlueClockPage::buttonPress(int btn,bool longPress,bool repeatPress) {
             
             if(longPress) {
                 
-                pageMode = MODE_SET; 
+                pageMode = MODE_SET;
+                editTime = now();
                 init(); 
             
             }
@@ -386,18 +348,20 @@ void BlueClockPage::buttonPress(int btn,bool longPress,bool repeatPress) {
 
 }
 
-void BlueClockPage::currentEditIncrement(int dir) {
+void currentEditIncrement(int dir) {
 
     currentEditIncrement(dir,false);
 
 }
 
-void BlueClockPage::currentEditIncrement(int dir,bool force) {
+void currentEditIncrement(int dir,bool force) {
 
     if(dir == UP) {
-        currentEdit++; if(currentEdit >= TIME_TOTAL) currentEdit = 0;
+        currentEdit++; 
+        if(currentEdit >= TIME_TOTAL) currentEdit = 0;
     } else if(dir == DOWN) {
-        currentEdit--; if(currentEdit < 0) currentEdit = TIME_TOTAL - 1;
+        currentEdit--; 
+        if(currentEdit < 0) currentEdit = TIME_TOTAL - 1;
     }
     
     if(currentEditOld != currentEdit || force) {
@@ -408,14 +372,14 @@ void BlueClockPage::currentEditIncrement(int dir,bool force) {
         blinkState = false;
         
         currentEditOld = currentEdit;
-    
+        
         blinkTime = 250;
         
     }
     
 }
 
-void BlueClockPage::editIncrement(bool dir) {
+void editIncrement(bool dir) {
 
     int incr = dir ? 1 : -1;
     
@@ -479,9 +443,71 @@ void BlueClockPage::editIncrement(bool dir) {
     
     }
     
+//     int incr = dir ? 1 : -1;
+//     
+//     timeArray[currentEdit] += incr;
+//     
+//     if(currentEdit == TIME_HOUR) {
+//     
+//         if(timeArray[currentEdit] > 12) timeArray[currentEdit] = 1;
+//         if(timeArray[currentEdit] < 1) timeArray[currentEdit] = 12;
+//         
+//     } else if(currentEdit == TIME_AMPM) {
+//     
+//         if(timeArray[currentEdit] > 1) timeArray[currentEdit] = 0;
+//         if(timeArray[currentEdit] < 0) timeArray[currentEdit] = 1;
+//         
+//     } else if(currentEdit == TIME_MINUTE_A) {
+//     
+//         if(timeArray[currentEdit] > 5) timeArray[currentEdit] = 0;
+//         if(timeArray[currentEdit] < 0) timeArray[currentEdit] = 5;
+//     
+//     } else if(currentEdit == TIME_MINUTE_B) {
+//     
+//         if(timeArray[currentEdit] > 9) timeArray[currentEdit] = 0;
+//         if(timeArray[currentEdit] < 0) timeArray[currentEdit] = 9;
+//     
+//     } else if(currentEdit == TIME_MONTH) {
+//     
+//         if(timeArray[currentEdit] > 12) timeArray[currentEdit] = 1;
+//         if(timeArray[currentEdit] < 1) timeArray[currentEdit] = 12;
+//     
+//     } else if(currentEdit == TIME_DAY) {
+//     
+//         int monthLen = monthLength(timeArray[TIME_MONTH],curTime.year);
+//     
+//         if(timeArray[currentEdit] > monthLen + 1) timeArray[currentEdit] = 1;
+//         if(timeArray[currentEdit] < 1) timeArray[currentEdit] = monthLen + 1;
+//     
+//     } else if(currentEdit == TIME_YEAR) {
+//     
+//         if(timeArray[currentEdit] > 9999) timeArray[currentEdit] = 9999;
+//         if(timeArray[currentEdit] < 0) timeArray[currentEdit] = 0;
+//     
+//     }
+//     
+//     printSetItem(currentEdit,true);
+//     
+//     blinkState = true;
+//     
+//     blinkTime = 250;
+//     
+//     if(timeArray[TIME_DAY] > monthLength(timeArray[TIME_MONTH],curTime.year) + 1) {
+//         
+//         timeArray[TIME_DAY] = monthLength(timeArray[TIME_MONTH],curTime.year) + 1;
+//         printSetItem(TIME_DAY,true);
+//     
+//     }
+//     
+//     if(currentEdit == TIME_DAY || currentEdit == TIME_MONTH || currentEdit == TIME_YEAR) {
+//     
+//         printWeekday(timeArray[TIME_DAY],timeArray[TIME_MONTH],timeArray[TIME_YEAR]);
+//     
+//     }
+//     
 }
 
-int BlueClockPage::buttonID(int d) {
+int buttonID(int d) {
 
     // if(D) 
 
@@ -545,11 +571,11 @@ int BlueClockPage::buttonID(int d) {
     
 }
 
-void BlueClockPage::button(int dir,int index) {
+void button(int dir,int index) {
 
 }
 
-void BlueClockPage::printTime(int hours,int minutes) {
+void printTime(int hours,int minutes) {
     
     // Hour
     if(timeArray[TIME_HOUR] != hours) printHour(hours);
@@ -574,7 +600,7 @@ void BlueClockPage::printTime(int hours,int minutes) {
 
 }
 
-void BlueClockPage::printHour(int hours) {
+void printHour(int hours) {
 
     if(hours == -1) {
     
@@ -597,7 +623,7 @@ void BlueClockPage::printHour(int hours) {
     
 }
 
-void BlueClockPage::printDate(int day,int month,int year) {
+void printDate(int day,int month,int year) {
 
     printWeekday(day,month,year);
     printMonth(month);
@@ -606,7 +632,7 @@ void BlueClockPage::printDate(int day,int month,int year) {
    
 }
 
-void BlueClockPage::printDay(int day) {
+void printDay(int day) {
 
     if(day == -1) {
     
@@ -626,7 +652,7 @@ void BlueClockPage::printDay(int day) {
     
 }
 
-void BlueClockPage::printMonth(int month) {
+void printMonth(int month) {
 
     lcd->printGci(monthFile,45,157,month - 1);
     
@@ -634,7 +660,7 @@ void BlueClockPage::printMonth(int month) {
     
 }
 
-void BlueClockPage::printWeekday(int day,int month,int year) {
+void printWeekday(int day,int month,int year) {
 
     int weekDay = getDayOfTheWeek(day,month - 1,year) - 1;
     if(weekDay < 0) weekDay += 7;
@@ -643,7 +669,7 @@ void BlueClockPage::printWeekday(int day,int month,int year) {
     
 }
 
-void BlueClockPage::printYear(int year) {
+void printYear(int year) {
 
     char yearstring[10];
     
@@ -657,6 +683,22 @@ void BlueClockPage::printYear(int year) {
     timeArray[TIME_YEAR] = year;
     
 }
+
+void printBack() {
+
+    switch(pageMode) {
+    
+        case MODE_SET: lcd->printGci(backgroundImageFile,0,0,1); break;
+        case MODE_STOPWATCH:
+        case MODE_TIMER:
+        case MODE_MAIN: lcd->printGci(backgroundImageFile,0,0,0); break;
+    
+    }
+    
+}
+
+
+};
 
 #endif
 

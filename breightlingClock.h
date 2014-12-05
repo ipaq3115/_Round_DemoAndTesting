@@ -1,18 +1,17 @@
 
 
-#ifndef BLUISH_CLOCK_PAGE_
-#define BLUISH_CLOCK_PAGE_
+#ifndef BREIGHTLING_CLOCK_PAGE_
+#define BREIGHTLING_CLOCK_PAGE_
 
-class BluishClockPage : public Page {
-
+class BreightlingClockPage : public Page {
+    
 public:
 
-BluishClockPage CONSTRUCTOR_MACRO
+BreightlingClockPage CONSTRUCTOR_MACRO
 
 SdFile backFile,secondsFile;
 
 void initalize() {
-
     
     // SdFile backfile,frontfile,newfile;
     // 
@@ -48,7 +47,7 @@ void initalize() {
     // return;
     
     
-    if(D) USB.println("initalize");
+    if(D) USB.println("initalize breightling");
 
     // if(backFile.isOpen()) backFile.close();
     if(secondsFile.isOpen()) secondsFile.close();
@@ -102,15 +101,14 @@ void loop() {
         
         sd.remove("test.gci");
         
+        // if(!backfile.open("bluish.bmp",O_RDWR)) Serial.println("bluish didn't load");
         // if(!frontfile.open("blusec.gci",O_RDWR)) Serial.println("blusec didn't load");
         // if(!frontfile.open("bluhour.gci",O_RDWR)) Serial.println("bluhour didn't load");
-        
-        // if(!backfile.open("bluish.bmp",O_RDWR)) Serial.println("bluish didn't load");
         // if(!backfile.open("PiSplash.gci",O_RDWR)) Serial.println("bluish didn't load");
-        if(!backfile.open("bluish.gci",O_RDWR)) Serial.println("bluish didn't load");
-        // if(!backfile.open("bently.gci",O_RDWR)) Serial.println("bluish didn't load");
-        // if(!frontfile.open("bentlyM.gci",O_RDWR)) Serial.println("blumin didn't load");
-        if(!frontfile.open("blumin.gci",O_RDWR)) Serial.println("blumin didn't load");
+        
+        if(!backfile.open("bently.gci",O_RDWR)) Serial.println("bluish didn't load");
+        if(!frontfile.open("bentlyM.gci",O_RDWR)) Serial.println("blumin didn't load");
+        // if(!frontfile.open("blumin.gci",O_RDWR)) Serial.println("blumin didn't load");
         if(!newfile.open("tmp.gci",O_RDWR | O_CREAT)) Serial.println("test didn't load");
         
         lcd->mergeImages(&newfile,&backfile,&frontfile,0,0,countb);
@@ -120,8 +118,8 @@ void loop() {
         newfile.close();
         
         if(!backfile.open("tmp.gci",O_RDWR)) Serial.println("bluish didn't load");
-        // if(!frontfile.open("bentlyH.gci",O_RDWR)) Serial.println("bluhour didn't load");
-        if(!frontfile.open("bluhour.gci",O_RDWR)) Serial.println("bluhour didn't load");
+        if(!frontfile.open("bentlyH.gci",O_RDWR)) Serial.println("bluhour didn't load");
+        // if(!frontfile.open("bluhour.gci",O_RDWR)) Serial.println("bluhour didn't load");
         if(!newfile.open("test.gci",O_RDWR | O_CREAT)) Serial.println("test didn't load");
         
         lcd->mergeImages(&newfile,&backfile,&frontfile,0,0,count);
@@ -137,8 +135,6 @@ void loop() {
         // if(!frontfile.open("blumin.gci",O_RDWR)) Serial.println("blumin didn't load");
         // if(!backfile.open("bluish.bmp",O_RDWR)) Serial.println("bluish didn't load");
         // if(!frontfile.open("blusec.gci",O_RDWR)) Serial.println("blusec didn't load");
-    
-    
     
     
         lcd->printImage(&lcd->backgroundInfo);

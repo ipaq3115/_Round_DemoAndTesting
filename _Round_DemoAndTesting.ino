@@ -1,6 +1,6 @@
 
-#define HARDWARE_REVA
-// #define HARDWARE_REVB
+// #define HARDWARE_REVA
+#define HARDWARE_REVB
     
 // #include <Audio.h>
 #include <BC127.h>
@@ -16,11 +16,12 @@
 #include "customUtils.h"
 #include <LowPower_Teensy3.h>
 #include "PiTouch.h"
+#include <Time.h>
 
 
-#include <ctime>
-#define min(x,y) (x < y ? x : y)
-#define max(x,y) (x > y ? x : y)
+// #include <ctime>
+// #define min(x,y) (x < y ? x : y)
+// #define max(x,y) (x > y ? x : y)
 
 #define fori(x) for(int i=0;i<x;i++)
 #define ARGS_MACRO &btooth,&lcd,&compass,&touchCtrl,&watch,D,E
@@ -118,8 +119,9 @@ namespace PAGE {
     SETTINGS        = 14,
     SETTINGS_B      = 15,
     BLUISH_CLOCK    = 16,
+    BREIGHTLING_CLOCK = 17,
     
-    TOTAL           = 17;
+    TOTAL           = 18;
     
     const char names[TOTAL][20] {
     
@@ -139,7 +141,8 @@ namespace PAGE {
         "APPS",
         "SETTINGS",
         "SETTINGS_B",
-        "BLUISH_CLOCK"
+        "BLUISH_CLOCK",
+        "BREIGHTLING_CLOCK",
         
     };
 
@@ -634,5 +637,6 @@ bool checkFilename(char* filename) { // Adds .WAV extension and gets rid of any 
 #include "settings.h"
 #include "settingsB.h"
 #include "bluishClock.h"
+#include "breightlingClock.h"
 
 #include "roundUtil.h"

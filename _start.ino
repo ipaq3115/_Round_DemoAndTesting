@@ -46,6 +46,7 @@ void setup() {
     pageArray[PAGE::SETTINGS]           = new SettingsPage(ARGS_MACRO);
     pageArray[PAGE::SETTINGS_B]         = new SettingsPageB(ARGS_MACRO);
     pageArray[PAGE::BLUISH_CLOCK]       = new BluishClockPage(ARGS_MACRO);
+    pageArray[PAGE::BREIGHTLING_CLOCK]  = new BreightlingClockPage(ARGS_MACRO);
     
     showSplash();
     
@@ -73,9 +74,32 @@ void setup() {
     // startPlay("drift2");
     
     btooth.power(OFF);
+    
+    // set the Time library to use Teensy 3.0's RTC to keep time
+    setSyncProvider(getTeensy3Time);
+    
+    if (timeStatus() != timeSet) {
+        Serial.println("Unable to sync with the RTC");
+    } else {
+        Serial.println("RTC has set the system time");
+    }
 
     touchCtrl.init(touch);
     
+}
+
+time_t getTeensy3Time() {
+
+    return Teensy3Clock.get();
+
+}
+
+void printDigits(int digits){
+    // utility function for digital clock display: prints preceding colon and leading 0
+    Serial.print(":");
+    if(digits < 10)
+        Serial.print('0');
+    Serial.print(digits);
 }
 
 void animateNotificationTest() {
@@ -104,21 +128,48 @@ void animateNotificationTest() {
 
 }
 
+void digitalClockDisplay() {
+    // digital clock display of the time
+    Serial.print(hour());
+    printDigits(minute());
+    printDigits(second());
+    Serial.print(" ");
+    Serial.print(day());
+    Serial.print(" ");
+    Serial.print(month());
+    Serial.print(" ");
+    Serial.print(year()); 
+    Serial.println(); 
+}
+
 void loop() {
 
-    // static elapsedMillis time;
-    // static bool state;
-    // 
-    // if(time > 200) {
-    //     
-    //     time = 0;
-    //     
-    //     pinMode(26, OUTPUT);
-    //     digitalWrite(26, state);
-    // 
-    //     state = !state;
-    // 
-    // }
+    static elapsedMillis printtime;
+    
+    if(printtime > 1000) {
+    
+        printtime = 0;
+        digitalClockDisplay();
+    
+    }
+    
+    #ifdef HARDWARE_REVB
+
+        static elapsedMillis time;
+        static bool state;
+        
+        if(time > 200) {
+            
+            time = 0;
+            
+            pinMode(26, OUTPUT);
+            digitalWrite(26, state);
+        
+            state = !state;
+        
+        }
+        
+    #endif
 
     touchCtrl.loop();
 
@@ -1252,13 +1303,13 @@ int analogReadR(int index){
 int getDayOfTheWeek(int day,int month,int year) {
 
     // 1-based day, 0-based month, year since 1900
-    std::tm time_in = { 0, 0, 0, day, month, year - 1900 }; 
-
-    std::time_t time_temp = std::mktime( & time_in );
-
-    std::tm const *time_out = std::localtime( & time_temp );
-
-    return time_out->tm_wday;
+    // std::tm time_in = { 0, 0, 0, day, month, year - 1900 }; 
+    // 
+    // std::time_t time_temp = std::mktime( & time_in );
+    // 
+    // std::tm const *time_out = std::localtime( & time_temp );
+    // 
+    // return time_out->tm_wday;
 
 }
 
