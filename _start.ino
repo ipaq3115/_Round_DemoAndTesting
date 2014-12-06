@@ -1,17 +1,37 @@
 
 IntervalTimer blinktimer;
 
+
+bool timeSetWorked = false;
+
 void setup() {
+    
+    // set the Time library to use Teensy 3.0's RTC to keep time
+    setSyncProvider((long int (*)())Teensy3Clock.get);
 
     // Make sure this is the first thing you do because it sets
     // pin states up for the device
     watch.init();
     
+    #ifdef HARDWARE_REVB
+
+        blinktimer.begin(blinkled, 200000);
+        
+    #endif
+
     USB.begin(300000); 
     // while(!USB); // Wait for PC to open the USB serial port before running this program
     delay(100);
     
     if(D) USB.println("## SETUP START ##");
+    
+    if (timeStatus() != timeSet) {
+        Serial.println("Unable to sync with the RTC");
+        timeSetWorked = false;
+    } else {
+        Serial.println("RTC has set the system time");
+        timeSetWorked = true;
+    }
     
     // while(true);
 
@@ -76,24 +96,9 @@ void setup() {
     // startPlay("drift2");
     
     btooth.power(OFF);
-    
-    // set the Time library to use Teensy 3.0's RTC to keep time
-    setSyncProvider(getTeensy3Time);
-    
-    if (timeStatus() != timeSet) {
-        Serial.println("Unable to sync with the RTC");
-    } else {
-        Serial.println("RTC has set the system time");
-    }
 
     touchCtrl.init(touch);
     
-    #ifdef HARDWARE_REVB
-
-        blinktimer.begin(blinkled, 200000);
-        
-    #endif
-
 }
 
 void blinkled() {
@@ -169,6 +174,12 @@ void loop() {
     
         printtime = 0;
         digitalClockDisplay();
+        
+        if (!timeSetWorked) {
+            Serial.println("Unable to sync with the RTC");
+        } else {
+            Serial.println("RTC has set the system time");
+        }
     
     }
     
@@ -181,8 +192,6 @@ void loop() {
     pageArray[page]->loop();
     
     checkPhoneState();
-    
-    updateTime();
     
     audioLoop();
     
@@ -321,67 +330,7 @@ void checkPhoneState() {
 
 }
 
-void updateTime() {
-
-    static int lastUpdateTime = 0;
-    int timeSinceLastUpdate = millis() - lastUpdateTime;
-    if(timeSinceLastUpdate > 10) {
-        lastUpdateTime = millis();
-        
-        // Add the hundreth's of a second
-        curTime.hundredth += timeSinceLastUpdate / 10;
-        
-        // Check for overflow and add to the seconds
-        while(curTime.hundredth > 99) {
-        
-            curTime.hundredth -= 100;
-            curTime.second += 1;
-        
-        }
-        
-        // Check for overflow and add to the minutes
-        while(curTime.second > 59) {
-        
-            curTime.second -= 60;
-            curTime.minute += 1;
-        
-        }
-        
-        // Check for overflow and add to the hours
-        while(curTime.minute > 59) {
-        
-            curTime.minute -= 60;
-            curTime.hour += 1;
-        
-        }
-        
-        // Check for overflow and add to the days
-        while(curTime.hour > 23) {
-        
-            curTime.hour -= 24;
-            curTime.day += 1;
-        
-        }
-    
-        while(curTime.day >= monthLength(curTime.month,curTime.year + 2000)) {
-        
-            curTime.day -= monthLength(curTime.month,curTime.year + 2000);
-            curTime.month += 1;
-        
-        }
-        
-        while(curTime.month > 12) {
-        
-            curTime.month -= 12;
-            curTime.year += 1;
-        
-        }
-    
-    }
-
-}
-
-int monthLength(int month,int year) {
+int monthLength(time_t time) {
 
     int const 
     
@@ -398,13 +347,13 @@ int monthLength(int month,int year) {
     NOVEMBER        = 11,
     DECEMBER        = 12;
     
-    switch(month) {
+    switch(month(time)) {
     
         case JANUARY:   return 31;
         case FEBRUARY:  
-            if(year % 4)            return 28;
-            else if(year % 100)     return 29;
-            else if(year % 400)     return 28;
+            if(year(time) % 4)            return 28;
+            else if(year(time) % 100)     return 29;
+            else if(year(time) % 400)     return 28;
             else                    return 29;
         case MARCH:     return 31;
         case APRIL:     return 30;

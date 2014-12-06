@@ -7,6 +7,10 @@ class BreightlingClockPage : public Page {
     
 public:
 
+int currentHour = -1;
+int currentMinute = -1;
+int currentSecond = -1;
+
 BreightlingClockPage CONSTRUCTOR_MACRO
 
 SdFile backFile,secondsFile;
@@ -69,6 +73,10 @@ void initalize() {
     
     lcd->printGci(secondsFile,0,0,0);
     
+    currentHour = -1;
+    currentMinute = -1;
+    currentSecond = -1;
+    
 }
 
 void leavingPage() {
@@ -80,90 +88,109 @@ void leavingPage() {
 
 void loop() {
 
+    static int secondsValueToPrint = -1;
+    static unsigned long secondsTimeToPrint = 0;
+
     static elapsedMillis time;
-    static int count = 0;
-    static int countb = 0;
-    static int countc = 0;
     
-    if(time > 1000) {
-        
+    if(time > 10) {
         time = 0;
         
+        time_t newTime = now();
+        tmElements_t timeHolder;
+        
+        breakTime(newTime, timeHolder);
+        
+        bool somethingPrinted = false;
         int timeA = micros();
         
+        if(timeHolder.Second == 59) {
+        
+            time_t tmpTime = newTime + 1;
+            tmElements_t timeHolderTwo;
+            
+            breakTime(tmpTime, timeHolderTwo);
+        
+        
+        // if(timeHolder.Minute != currentMinute) {
+        
+            // currentMinute = timeHolder.Minute;
+            
+            lcd->backgroundInfo.file.close();
+            
+            SdFile backfile,frontfile,newfile;
+            
+            sd.remove("test.gci");
+            
+            // if(!backfile.open("bluish.bmp",O_RDWR)) Serial.println("bluish didn't load");
+            // if(!frontfile.open("blusec.gci",O_RDWR)) Serial.println("blusec didn't load");
+            // if(!frontfile.open("bluhour.gci",O_RDWR)) Serial.println("bluhour didn't load");
+            // if(!backfile.open("PiSplash.gci",O_RDWR)) Serial.println("bluish didn't load");
+            
+            if(!backfile.open("bently.gci",O_RDWR)) Serial.println("bluish didn't load");
+            if(!frontfile.open("bentlyM.gci",O_RDWR)) Serial.println("blumin didn't load");
+            // if(!frontfile.open("blumin.gci",O_RDWR)) Serial.println("blumin didn't load");
+            if(!newfile.open("tmp.gci",O_RDWR | O_CREAT)) Serial.println("test didn't load");
+            
+            lcd->mergeImages(&newfile,&backfile,&frontfile,0,0,timeHolderTwo.Minute);
+            
+            backfile.close();
+            frontfile.close();
+            newfile.close();
+            
+            if(!backfile.open("tmp.gci",O_RDWR)) Serial.println("bluish didn't load");
+            if(!frontfile.open("bentlyH.gci",O_RDWR)) Serial.println("bluhour didn't load");
+            // if(!frontfile.open("bluhour.gci",O_RDWR)) Serial.println("bluhour didn't load");
+            if(!newfile.open("test.gci",O_RDWR | O_CREAT)) Serial.println("test didn't load");
+            
+            lcd->mergeImages(&newfile,&backfile,&frontfile,0,0,(timeHolderTwo.Hour % 12)  * 5);
+            
+            backfile.close();
+            frontfile.close();
+            newfile.close();
+            
+            sd.remove("tmp.gci");
+            
+            lcd->setBackgroundImage("test.gci",0,0);
+            
+            // if(!frontfile.open("blumin.gci",O_RDWR)) Serial.println("blumin didn't load");
+            // if(!backfile.open("bluish.bmp",O_RDWR)) Serial.println("bluish didn't load");
+            // if(!frontfile.open("blusec.gci",O_RDWR)) Serial.println("blusec didn't load");
+        
+            somethingPrinted = true;
+        
+        }
     
-    
-    
-    
-        lcd->backgroundInfo.file.close();
+        if(timeHolder.Second != currentSecond) {
         
-        SdFile backfile,frontfile,newfile;
+            secondsTimeToPrint = millis() + 800;
+            secondsValueToPrint = timeHolder.Second + 1;
+            if(secondsValueToPrint >= 60) secondsValueToPrint -= 60;
         
-        sd.remove("test.gci");
+            currentSecond = timeHolder.Second;
         
-        // if(!backfile.open("bluish.bmp",O_RDWR)) Serial.println("bluish didn't load");
-        // if(!frontfile.open("blusec.gci",O_RDWR)) Serial.println("blusec didn't load");
-        // if(!frontfile.open("bluhour.gci",O_RDWR)) Serial.println("bluhour didn't load");
-        // if(!backfile.open("PiSplash.gci",O_RDWR)) Serial.println("bluish didn't load");
+            // lcd->printImage(&lcd->backgroundInfo);
+            // 
+            // lcd->printGci(secondsFile,0,0,timeHolder.Second);
+            // 
+            // somethingPrinted = true;
         
-        if(!backfile.open("bently.gci",O_RDWR)) Serial.println("bluish didn't load");
-        if(!frontfile.open("bentlyM.gci",O_RDWR)) Serial.println("blumin didn't load");
-        // if(!frontfile.open("blumin.gci",O_RDWR)) Serial.println("blumin didn't load");
-        if(!newfile.open("tmp.gci",O_RDWR | O_CREAT)) Serial.println("test didn't load");
-        
-        lcd->mergeImages(&newfile,&backfile,&frontfile,0,0,countb);
-        
-        backfile.close();
-        frontfile.close();
-        newfile.close();
-        
-        if(!backfile.open("tmp.gci",O_RDWR)) Serial.println("bluish didn't load");
-        if(!frontfile.open("bentlyH.gci",O_RDWR)) Serial.println("bluhour didn't load");
-        // if(!frontfile.open("bluhour.gci",O_RDWR)) Serial.println("bluhour didn't load");
-        if(!newfile.open("test.gci",O_RDWR | O_CREAT)) Serial.println("test didn't load");
-        
-        lcd->mergeImages(&newfile,&backfile,&frontfile,0,0,count);
-        
-        backfile.close();
-        frontfile.close();
-        newfile.close();
-        
-        sd.remove("tmp.gci");
-        
-        lcd->setBackgroundImage("test.gci",0,0);
-        
-        // if(!frontfile.open("blumin.gci",O_RDWR)) Serial.println("blumin didn't load");
-        // if(!backfile.open("bluish.bmp",O_RDWR)) Serial.println("bluish didn't load");
-        // if(!frontfile.open("blusec.gci",O_RDWR)) Serial.println("blusec didn't load");
-    
-    
-        lcd->printImage(&lcd->backgroundInfo);
-    
-        lcd->printGci(secondsFile,0,0,countc);
-        
-        
-        count++;
-        countb+=2;
-        countc+=3;
-        if(count >= 60) count = 0;
-        if(countb >= 60) countb = 0;
-        if(countc >= 60) countc = 0;
-        
-        
-        // count++;
-        // if(count > 10 && count < 50) count+=5;
-        // if(count >= 60) {
-        // 
-        //     count = 0;
-        //     countb++;
-        //     if(countb > 60) countb = 0;
-        //     
-        // }
+        }
         
         int timeB = micros();
-        
-        Serial.printf("time total %d\r\n",timeB-timeA);
 
+        if(somethingPrinted) Serial.printf("time total %d\r\n",timeB-timeA);
+        
+    }
+    
+    if(secondsTimeToPrint != 0 && millis() >= secondsTimeToPrint) {
+        
+        secondsTimeToPrint = 0;
+    
+        lcd->printImage(&lcd->backgroundInfo);
+        
+        lcd->printGci(secondsFile,0,0,secondsValueToPrint);
+        
     }
 
 }

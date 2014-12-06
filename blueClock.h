@@ -137,14 +137,17 @@ void init() {
     timeArray[TIME_DAY]         = -1;
     timeArray[TIME_YEAR]        = -1;
 
-    printTime(curTime.hour,curTime.minute);
-    printDate(curTime.day,curTime.month,curTime.year);
-    
     if(pageMode == MODE_SET) {
         
         currentEdit = 0;
         currentEditOld = 0;
     
+        printTime(editTime);
+        
+    } else {
+        
+        printTime(now());
+        
     }
     
     // if(D) USB.printf("curTime %d\r\n",curTime.hour,curTime.minute,curTime.second,curTime.hundredth);
@@ -176,8 +179,7 @@ void mainLoop() {
         // printTime(curTime.second,curTime.hundredth);
         // printTime(curTime.minute,curTime.second);
         
-        printTime(hour(),minute());
-        printDate(day(),month(),year());
+        printTime(now());
         
         // printTime(curTime.hour,curTime.minute);
         // printDate(curTime.day,curTime.month,curTime.year);
@@ -304,8 +306,9 @@ void buttonPress(int btn,bool longPress,bool repeatPress) {
             
             if(longPress) {
                 
-                pageMode = MODE_SET;
                 editTime = now();
+                
+                pageMode = MODE_SET;
                 init(); 
             
             }
@@ -325,18 +328,12 @@ void buttonPress(int btn,bool longPress,bool repeatPress) {
         
         case SET_DONE:
         
-            curTime.month = timeArray[TIME_MONTH];
-            curTime.day = timeArray[TIME_DAY];
-            curTime.year = timeArray[TIME_YEAR];
-            
-            curTime.hour = timeArray[TIME_HOUR];
-            if(timeArray[TIME_AMPM] == 1) curTime.hour += 12;
-            
-            curTime.minute = timeArray[TIME_MINUTE_A] * 10;
-            curTime.minute += timeArray[TIME_MINUTE_B];
-            curTime.second = 0;
-            curTime.hundredth = 0;
-            
+            // Make sure the time is alligned on the minute
+            editTime -= editTime % 60;
+        
+            Teensy3Clock.set(editTime);
+            setTime(editTime);
+        
         case SET_CANCEL: 
             if(!repeatPress || longPress) {
                 pageMode = MODE_MAIN; 
@@ -381,67 +378,53 @@ void currentEditIncrement(int dir,bool force) {
 
 void editIncrement(bool dir) {
 
+    tmElements_t time;
+
+    breakTime(editTime,time);
+
     int incr = dir ? 1 : -1;
     
-    timeArray[currentEdit] += incr;
+    #define INCREMENT(VAR,INC,MAX,MIN) { int _a = VAR; _a += incr * (INC); if((_a) < (MIN)) _a += (MAX) - (MIN); if((_a) >= (MAX)) _a -= (MAX) - (MIN); VAR = _a; }
     
-    if(currentEdit == TIME_HOUR) {
+    if(currentEdit == TIME_HOUR)            INCREMENT(time.Hour,    1,  24, 0)
+    else if(currentEdit == TIME_AMPM)       INCREMENT(time.Hour,   12,  24, 0)
+    else if(currentEdit == TIME_MINUTE_A)   INCREMENT(time.Minute, 10,  60, 0)
+    else if(currentEdit == TIME_MINUTE_B)   INCREMENT(time.Minute,  1,  time.Minute-(time.Minute%10)+10,    time.Minute-(time.Minute%10))
+    else if(currentEdit == TIME_DAY)        INCREMENT(time.Day,     1,  monthLength(editTime), 0)
+    else if(currentEdit == TIME_YEAR)       INCREMENT(time.Year,    1,  2105-1970, 0)
+    else if(currentEdit == TIME_MONTH)      INCREMENT(time.Month,   1,  13, 1)
     
-        if(timeArray[currentEdit] > 12) timeArray[currentEdit] = 1;
-        if(timeArray[currentEdit] < 1) timeArray[currentEdit] = 12;
-        
-    } else if(currentEdit == TIME_AMPM) {
+    editTime = makeTime(time);
     
-        if(timeArray[currentEdit] > 1) timeArray[currentEdit] = 0;
-        if(timeArray[currentEdit] < 0) timeArray[currentEdit] = 1;
-        
-    } else if(currentEdit == TIME_MINUTE_A) {
-    
-        if(timeArray[currentEdit] > 5) timeArray[currentEdit] = 0;
-        if(timeArray[currentEdit] < 0) timeArray[currentEdit] = 5;
-    
-    } else if(currentEdit == TIME_MINUTE_B) {
-    
-        if(timeArray[currentEdit] > 9) timeArray[currentEdit] = 0;
-        if(timeArray[currentEdit] < 0) timeArray[currentEdit] = 9;
-    
-    } else if(currentEdit == TIME_MONTH) {
-    
-        if(timeArray[currentEdit] > 12) timeArray[currentEdit] = 1;
-        if(timeArray[currentEdit] < 1) timeArray[currentEdit] = 12;
-    
-    } else if(currentEdit == TIME_DAY) {
-    
-        int monthLen = monthLength(timeArray[TIME_MONTH],curTime.year);
-    
-        if(timeArray[currentEdit] > monthLen + 1) timeArray[currentEdit] = 1;
-        if(timeArray[currentEdit] < 1) timeArray[currentEdit] = monthLen + 1;
-    
-    } else if(currentEdit == TIME_YEAR) {
-    
-        if(timeArray[currentEdit] > 9999) timeArray[currentEdit] = 9999;
-        if(timeArray[currentEdit] < 0) timeArray[currentEdit] = 0;
-    
-    }
-    
-    printSetItem(currentEdit,true);
+    printTime(editTime);
     
     blinkState = true;
     
     blinkTime = 250;
     
-    if(timeArray[TIME_DAY] > monthLength(timeArray[TIME_MONTH],curTime.year) + 1) {
-        
-        timeArray[TIME_DAY] = monthLength(timeArray[TIME_MONTH],curTime.year) + 1;
-        printSetItem(TIME_DAY,true);
     
-    }
+    /*
     
-    if(currentEdit == TIME_DAY || currentEdit == TIME_MONTH || currentEdit == TIME_YEAR) {
+    int incr = dir ? 1 : -1;
     
-        printWeekday(timeArray[TIME_DAY],timeArray[TIME_MONTH],timeArray[TIME_YEAR]);
+    if(currentEdit == TIME_HOUR)            editTime += incr * SECS_PER_HOUR;
+    else if(currentEdit == TIME_AMPM)       editTime += (isPM(editTime) ? -1 : 1) * 12 * SECS_PER_HOUR;
+    else if(currentEdit == TIME_MINUTE_A)   editTime += incr * SECS_PER_MIN * 10; 
+    else if(currentEdit == TIME_MINUTE_B)   editTime += incr * SECS_PER_MIN;
+    else if(currentEdit == TIME_DAY)        editTime += incr * SECS_PER_DAY; 
+    else if(currentEdit == TIME_YEAR)       editTime += incr * SECS_PER_YEAR;
+    else if(currentEdit == TIME_MONTH)      editTime += incr * SECS_PER_DAY * monthLength(month(editTime),year(editTime));
     
-    }
+    printTime(editTime);
+    
+    blinkState = true;
+    
+    blinkTime = 250;
+    
+    */
+    
+    
+    /*
     
 //     int incr = dir ? 1 : -1;
 //     
@@ -505,6 +488,9 @@ void editIncrement(bool dir) {
 //     
 //     }
 //     
+
+*/
+
 }
 
 int buttonID(int d) {
@@ -575,14 +561,14 @@ void button(int dir,int index) {
 
 }
 
-void printTime(int hours,int minutes) {
+void printTime(time_t tmpTime) {
     
     // Hour
-    if(timeArray[TIME_HOUR] != hours) printHour(hours);
+    if(timeArray[TIME_HOUR] != hour(tmpTime)) printHour(hour(tmpTime));
 
     // Minute
-    byte minuteA = minutes / 10;
-    byte minuteB = minutes - minuteA * 10;
+    byte minuteA = minute(tmpTime) / 10;
+    byte minuteB = minute(tmpTime) - minuteA * 10;
     
     if(minuteA != timeArray[TIME_MINUTE_A]) lcd->printGci(numbFile,128,77,11 * 2 + minuteA);
     if(minuteB != timeArray[TIME_MINUTE_B]) lcd->printGci(numbFile,160,77,11 * 3 + minuteB);
@@ -591,13 +577,14 @@ void printTime(int hours,int minutes) {
     timeArray[TIME_MINUTE_B] = minuteB; 
     
     // AM/PM
-    byte ampm = 0;
-    if(hours > 12) ampm = 1;
+    byte ampm = isPM(tmpTime);
     
     if(timeArray[TIME_AMPM] != ampm) lcd->printGci(ampmFile,190,104,ampm);
     
     timeArray[TIME_AMPM] = ampm;
 
+    printDate(tmpTime);
+    
 }
 
 void printHour(int hours) {
@@ -623,13 +610,13 @@ void printHour(int hours) {
     
 }
 
-void printDate(int day,int month,int year) {
+void printDate(time_t tmpTime) {
 
-    printWeekday(day,month,year);
-    printMonth(month);
-    printDay(day);
-    if(timeArray[TIME_YEAR] != year) printYear(year);
-   
+    printWeekday(weekday(tmpTime));
+    printMonth(month(tmpTime));
+    printDay(day(tmpTime));
+    if(timeArray[TIME_YEAR] != year(tmpTime)) printYear(year(tmpTime));
+    
 }
 
 void printDay(int day) {
@@ -654,18 +641,23 @@ void printDay(int day) {
 
 void printMonth(int month) {
 
-    lcd->printGci(monthFile,45,157,month - 1);
+    if(D) USB.printf("printMonth %d\r\n",month);
+
+    if(timeArray[TIME_MONTH] != month) lcd->printGci(monthFile,45,157,month - 1);
     
     timeArray[TIME_MONTH] = month;
     
 }
 
-void printWeekday(int day,int month,int year) {
+void printWeekday(int wkday) {
 
-    int weekDay = getDayOfTheWeek(day,month - 1,year) - 1;
-    if(weekDay < 0) weekDay += 7;
+    // This number is 1 indexed and it starts at Sunday whereas the file is 
+    // zero indexed and it starts with monday, therefore we subtract two here
+    wkday -= 2;
     
-    lcd->printGci(weekdayFile,60,136,weekDay);
+    if(wkday < 0) wkday += 7;
+
+    lcd->printGci(weekdayFile,60,136,wkday);
     
 }
 
