@@ -15,7 +15,7 @@ void setup() {
     
     #ifdef HARDWARE_REVB
 
-        blinktimer.begin(blinkled, 200000);
+        // blinktimer.begin(blinkled, 200000);
         
     #endif
 
@@ -70,13 +70,15 @@ void setup() {
     pageArray[PAGE::BLUISH_CLOCK]       = new BluishClockPage(ARGS_MACRO);
     pageArray[PAGE::BREIGHTLING_CLOCK]  = new BreightlingClockPage(ARGS_MACRO);
     
-    showSplash();
+    // showSplash();
     
     // goPage(PAGE::VIDEO);
     // goPage(PAGE::TOUCH_DEMO);
     goPage(PAGE::BLUE_CLOCK);
     // goPage(PAGE::HOME);
     // goPage(PAGE::SETTINGS);
+    
+    // digitalWrite(PIN::LCD_BACKLIGHT, HIGH);
     
     // animateNotificationTest();
     
@@ -526,7 +528,14 @@ void pollButtons() {
     
     instantButtonState[POWER_BUTTON] = value > 250;
     
-    // if(D) USB.printf("%d\r\n",value);
+    static elapsedMillis printTM;
+    if(printTM > 100) {
+    
+        printTM = 0;
+    
+        if(D) USB.printf("%d\r\n",value);
+    
+    }
     
     for(int i=0;i<TOTAL;i++) {
     
@@ -550,14 +559,28 @@ void pollButtons() {
         
         // if the state is pressed and the debounce curTime is over
         } else if(buttonStates[i] >= GOING_DOWN && millis() - lastButtonTime[i] > DEBOUNCE_TIME) {
-        
-            if(buttonStates[i] != instantButtonState[i]) {
             
-                buttonStates[i] = instantButtonState[i];
+            if(buttonStates[i] == GOING_DOWN) {
+            
+                buttonStates[i] = STATE_DOWN;
+                
+                if(D) USB.println("STATE_DOWN");
+                
+            } else if(buttonStates[i] == GOING_UP) {
+            
+                buttonStates[i] = STATE_UP;
+
+                if(D) USB.println("STATE_UP");
+                
+            }
+            
+            // if(buttonStates[i] != instantButtonState[i]) {
+            
+                // buttonStates[i] = instantButtonState[i];
                 
                 buttonEvent(buttonStates[i],i);
             
-            }
+            // }
         
         }
     
@@ -650,16 +673,19 @@ void buttonEvent(int dir,int index) {
     
         case BUTTON::POWER_BUTTON:
         
+            // pinMode(26, OUTPUT);
+            // digitalWrite(26, dir);
+        
             if(!dir) {
             
                 // watch.rampBrightness(DOWN);
                 
                 #ifdef HARDWARE_REVB
-
+            
                     blinktimer.begin(blinkled, 100000);
-
+            
                 #endif
-
+            
                 watch.powerDown();
             
             }
