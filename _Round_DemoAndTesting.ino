@@ -223,7 +223,9 @@ namespace { // Library inits
 
     PiScreen lcd(27,28,29);
 
-    BC127 btooth(btStrt,btConnected,btDisconnected,btAvailibleDevice);
+    BC127 btooth(&Serial2);
+
+    // BC127 btooth(&Serial2,btStrt,btConnected,btDisconnected,btAvailibleDevice);
 
     SdFat sd;
     

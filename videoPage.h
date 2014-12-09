@@ -42,8 +42,8 @@ void initalize() {
     
     // if(videoState != VIDEO_PLAYING) {
         
-        loadVideo("rally",0,0);
-        // loadVideo("ep28",0,0);
+        // loadVideo("rally",0,0);
+        loadVideo("ep28",0,0);
         // loadVideo("shipVid",0,0);
         // loadVideo("drift",0,110-62);
         // loadVideo("drift2",0,110-62);
@@ -111,7 +111,7 @@ void loadVideo(char * name,int x,int y) {
     }
     
     // startPlay("drift2");
-    // startPlay(name);
+    startPlay(name);
 
     videoFrameTotal = lcd->loadVideo(videoFile,0,0);
     currentFrame = 0;

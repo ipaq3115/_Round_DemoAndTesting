@@ -641,7 +641,7 @@ void printDay(int day) {
 
 void printMonth(int month) {
 
-    if(D) USB.printf("printMonth %d\r\n",month);
+    // if(D) USB.printf("printMonth %d\r\n",month);
 
     if(timeArray[TIME_MONTH] != month) lcd->printGci(monthFile,45,157,month - 1);
     

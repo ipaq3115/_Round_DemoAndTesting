@@ -23,6 +23,8 @@ void setup() {
     // while(!USB); // Wait for PC to open the USB serial port before running this program
     delay(100);
     
+    // elapsedMillis time; while(1) { if(time > 500) { Serial.println("Send char to start"); time = 0; } if(Serial.read() != -1) break; }
+    
     if(D) USB.println("## SETUP START ##");
     
     if (timeStatus() != timeSet) {
@@ -43,8 +45,13 @@ void setup() {
     // setupCompass();
     compass.init(LSM303C_DEVICE);
     
+    
+    // Serial2.begin(38400);
     btooth.init();
-    btooth.discoverable(ON);
+    // btooth.factoryReset();
+    // btooth.discoverable(ON);
+    // btooth.getConfig(BC127::BAUD);
+    // btooth.power(OFF);
     
     lcd.InitLCD(currentRotation);
     touchCtrl.setOrientation(currentRotation);
@@ -96,8 +103,6 @@ void setup() {
     // startPlay("rdkill3");
     // startPlay("drift");
     // startPlay("drift2");
-    
-    btooth.power(OFF);
 
     touchCtrl.init(touch);
     
@@ -170,20 +175,47 @@ void digitalClockDisplay() {
 
 void loop() {
 
-    static elapsedMillis printtime;
+    static elapsedMillis timey;
+    if(timey > 3000) {
     
-    if(printtime > 1000) {
-    
-        printtime = 0;
-        digitalClockDisplay();
+        timey = 0;
         
-        if (!timeSetWorked) {
-            Serial.println("Unable to sync with the RTC");
-        } else {
-            Serial.println("RTC has set the system time");
-        }
+        // Serial2.print("GET BAUD\r");
+        // Serial.println("sent GET BAUD");
+    
+        btooth.getBattery();
     
     }
+
+    static elapsedMillis timeb;
+    if(timeb > 10) {
+    
+        timeb = 0;
+        
+        lcd.setColor(VGA_WHITE);
+        lcd.setBackColor(VGA_BLACK);
+        lcd.setFont(BigFont);
+        lcd.printNumI(analogRead(PIN::POWER_BUTTON),CENTER,50,5,'0');
+        
+    }
+    
+    // int s2char = Serial2.read();
+    // if(s2char != -1) Serial.write(s2char);
+
+    // static elapsedMillis printtime;
+    // 
+    // if(printtime > 1000) {
+    // 
+    //     printtime = 0;
+    //     digitalClockDisplay();
+    //     
+    //     if (!timeSetWorked) {
+    //         Serial.println("Unable to sync with the RTC");
+    //     } else {
+    //         Serial.println("RTC has set the system time");
+    //     }
+    // 
+    // }
     
     touchCtrl.loop();
 
@@ -526,16 +558,16 @@ void pollButtons() {
     
     int value = analogRead(PIN::POWER_BUTTON);
     
-    instantButtonState[POWER_BUTTON] = value > 250;
+    instantButtonState[POWER_BUTTON] = value > 50;
     
-    static elapsedMillis printTM;
-    if(printTM > 100) {
-    
-        printTM = 0;
-    
-        if(D) USB.printf("%d\r\n",value);
-    
-    }
+    // static elapsedMillis printTM;
+    // if(printTM > 100) {
+    // 
+    //     printTM = 0;
+    // 
+    //     if(D) USB.printf("%d\r\n",value);
+    // 
+    // }
     
     for(int i=0;i<TOTAL;i++) {
     
