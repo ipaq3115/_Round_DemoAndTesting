@@ -32,7 +32,7 @@ void initalize() {
     // lcd->setBackgroundImage("test.gci",0,0);
     // // lcd->setBackgroundImage("bluish.bmp",0,0);
     
-    // mergeBackground(now());
+    mergeBackground(now());
     
     lcd->setBackgroundImage(cacheFilename,0,0);
     lcd->printImage(&lcd->backgroundInfo);
@@ -64,7 +64,9 @@ void mergeBackground(time_t tmpTime) {
     sd.remove(cacheFilename);
     
     // if(!backfile.open("PiSplash.gci",O_RDWR)) Serial.println("bluish didn't load");
-    if(!backfile.open("bluish.gci",O_RDWR)) Serial.println("bluish didn't load");
+    // if(!backfile.open("bluish.gci",O_RDWR)) Serial.println("bluish didn't load");
+    // if(!backfile.open("radBack.gci",O_RDWR)) Serial.println("radBack didn't load");
+    if(!backfile.open("kickBack.gci",O_RDWR)) Serial.println("kickBack didn't load");
     if(!frontfile.open("blumin.gci",O_RDWR)) Serial.println("blumin didn't load");
     if(!newfile.open("tmp.gci",O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
