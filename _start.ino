@@ -74,12 +74,15 @@ void setup() {
     pageArray[PAGE::SETTINGS_B]         = new SettingsPageB(ARGS_MACRO);
     pageArray[PAGE::BLUISH_CLOCK]       = new BluishClockPage(ARGS_MACRO);
     pageArray[PAGE::BREIGHTLING_CLOCK]  = new BreightlingClockPage(ARGS_MACRO);
+    pageArray[PAGE::KICKSTARTER_CLOCK]  = new KickstarterClockPage(ARGS_MACRO);
+    pageArray[PAGE::RADIAN_CLOCK]       = new RadianClockPage(ARGS_MACRO);
     
     // showSplash();
     
     // goPage(PAGE::VIDEO);
     // goPage(PAGE::TOUCH_DEMO);
-    goPage(PAGE::BLUE_CLOCK);
+    goPage(PAGE::KICKSTARTER_CLOCK);
+    // goPage(PAGE::BLUE_CLOCK);
     // goPage(PAGE::HOME);
     // goPage(PAGE::SETTINGS);
     
@@ -526,16 +529,23 @@ void bluetoothMessage(bt_event event) {
         case REJECT_CALL: break;
         case ANSWER_CALL: break;
         case SET_POWER: break;
-        case GET_CONFIG: break;
+        case GET_CONFIG: 
+        
+            if(D) db.printf("GET_CONFIG returned %s with a raw value of %s\r\n",
+            CFG::names[event.cfg.id],event.cfg.rawString);
+
+            if(D) db.printf("baud %d\r\n",event.cfg.baud);
+            
+            break;
         case BATTERY: 
             
-            if(event.batCharging) {
+            if(event.bat.charging) {
                 
                 if(D) db.printf("Battery charging\r\n");
             
             } else {
                 
-                if(D) db.printf("Battery %d/3\r\n",event.batLevel);
+                if(D) db.printf("Battery %d/3\r\n",event.bat.level);
             
             }
             

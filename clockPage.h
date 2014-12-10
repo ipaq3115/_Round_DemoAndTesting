@@ -8,44 +8,43 @@
 
 class ClockSelectPage : public Page {
 
-    protected:
+public:
+
+int page = 0;
+
+ClockSelectPage() {}
+
+ClockSelectPage CONSTRUCTOR_MACRO
+
+void initalize() {
     
-    public:
-
-        ClockSelectPage() {}
-        
-        ClockSelectPage CONSTRUCTOR_MACRO
-
-        void initalize();
-        void leavingPage();
-        void loop();
-        void touch(int touchType,int finePos,int activeTouches,int touchIndex);
-        void button(int dir,int index);
-
-};
-
-
-void ClockSelectPage::initalize() {
+    page = 0;
     
+    init();
+    
+}
+
+void init() {
+
     SdFile backgroundImageFile;
     
-    if(!backgroundImageFile.open("clkBack.bmp",O_RDWR)) if(D) USB.println("File open fail");
+    if(!backgroundImageFile.open("clkBack.gci",O_RDWR)) if(D) USB.println("File open fail");
     
-    lcd->printBitmap(backgroundImageFile,0,0);
+    lcd->printGci(backgroundImageFile,0,0,page);
     
     backgroundImageFile.close();
     
 }
 
-void ClockSelectPage::leavingPage() {
+void leavingPage() {
 
 }
 
-void ClockSelectPage::loop() {
+void loop() {
 
 }
 
-void ClockSelectPage::touch(int touchType,int finePos,int activeTouches,int touchIndex) {
+void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
 
     int iconIndex = finePos / 36;
     if(iconIndex == 0 || iconIndex == 9) {
@@ -81,16 +80,36 @@ void ClockSelectPage::touch(int touchType,int finePos,int activeTouches,int touc
             
                 iconState[iconIndex] = false;
                 
-                switch(iconIndex) {
+                    if(iconIndex == 0) {
+                        page = !page; 
+                        init(); 
+                        return;
+                    }
+                    
+                    if(page == 0) {
+                        
+                        switch(iconIndex) {
+                        
+                            case 1: goPage(PAGE::XKCD_CLOCK); return;
+                            case 2: goPage(PAGE::BLUE_CLOCK); return;
+                            case 3: goPage(PAGE::BAR_CLOCK); return;
+                            case 4: goPage(PAGE::KICKSTARTER_CLOCK); return;
+                            
+                        }
+                    
+                    } else if(page == 1) {
+                     
+                        switch(iconIndex) {
+                        
+                            case 1: goPage(PAGE::BREIGHTLING_CLOCK); return;
+                            case 2: /* this clock face still needs to be created */ return;
+                            case 3: goPage(PAGE::RADIAN_CLOCK); return;
+                            case 4: goPage(PAGE::BLUISH_CLOCK); return;
+                            
+                        }
+                    
+                    }
                 
-                    case 0: goPage(PAGE::BREIGHTLING_CLOCK); return;
-                    case 1: goPage(PAGE::XKCD_CLOCK); return;
-                    case 2: goPage(PAGE::BLUE_CLOCK); return;
-                    case 3: goPage(PAGE::BAR_CLOCK); return;
-                    case 4: goPage(PAGE::BLUISH_CLOCK); return;
-                
-                }
-            
             }
             
             break;
@@ -98,7 +117,7 @@ void ClockSelectPage::touch(int touchType,int finePos,int activeTouches,int touc
     }
 }
 
-void ClockSelectPage::button(int dir,int index) {
+void button(int dir,int index) {
 
     using namespace BUTTON;
     
@@ -121,6 +140,9 @@ void ClockSelectPage::button(int dir,int index) {
     }
 
 }
+
+};
+
 
 
 #endif

@@ -88,60 +88,26 @@ void mergeBackground(time_t tmpTime) {
 
 void loop() {
 
-    static int secondsValueToPrint = -1;
-    static unsigned long secondsTimeToPrint = 0;
-
     if(time > 10) {
+        
         time = 0;
         
         time_t newTime = now();
-        tmElements_t timeHolder;
         
-        breakTime(newTime, timeHolder);
-        
-        bool somethingPrinted = false;
-        int timeA = micros();
-        
-        if(timeHolder.Second == 59 || !lcd->backgroundInfo.file.isOpen()) {
-        
-            mergeBackground(newTime + 1);
-           
-            somethingPrinted = true;
-        
-        }
-    
-        if(timeHolder.Second != currentSecond) {
-        
-            secondsTimeToPrint = millis() + 800;
-            secondsValueToPrint = timeHolder.Second + 1;
-            if(secondsValueToPrint >= 60) secondsValueToPrint -= 60;
-        
-            currentSecond = timeHolder.Second;
-        
-            // lcd->printImage(&lcd->backgroundInfo);
-            // 
-            // lcd->printGci(secondsFile,0,0,timeHolder.Second);
-            // 
-            // somethingPrinted = true;
-        
+        if(second(newTime) != currentSecond) {
+            
+            currentSecond = second(newTime);
+            
+            lcd->printImage(&lcd->backgroundInfo);
+
+            lcd->printGci(secondsFile,0,0,second(newTime));
+            
+            if(second(newTime) == 59) mergeBackground(newTime + 1);
+            
         }
         
-        int timeB = micros();
-
-        if(somethingPrinted) Serial.printf("time total %d\r\n",timeB-timeA);
-        
     }
-    
-    if(secondsTimeToPrint != 0 && millis() >= secondsTimeToPrint) {
-        
-        secondsTimeToPrint = 0;
-    
-        lcd->printImage(&lcd->backgroundInfo);
-        
-        lcd->printGci(secondsFile,0,0,secondsValueToPrint);
-        
-    }
-
+   
 }
 
 void touch(int touchType,int finePos,int activeTouches,int touchIndex) {

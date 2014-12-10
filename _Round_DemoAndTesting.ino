@@ -101,26 +101,28 @@ namespace PAGE {
 
     const uint8_t
 
-    HOME            = 0,
-    NUMBER_PAD      = 1,
-    TOUCH_DEMO      = 2,
-    CONTROL_SIMPLE  = 3,
-    GRAVITY_BALL    = 4,
-    PHONE           = 5,
-    CALL            = 6,
-    CONTACTS        = 7,
-    BLUE_CLOCK      = 8,
-    XKCD_CLOCK      = 9,
-    BAR_CLOCK       = 10,
-    CLOCKS          = 11,
-    VIDEO           = 12,
-    APPS            = 13,
-    SETTINGS        = 14,
-    SETTINGS_B      = 15,
-    BLUISH_CLOCK    = 16,
-    BREIGHTLING_CLOCK = 17,
+    HOME                = 0,
+    NUMBER_PAD          = 1,
+    TOUCH_DEMO          = 2,
+    CONTROL_SIMPLE      = 3,
+    GRAVITY_BALL        = 4,
+    PHONE               = 5,
+    CALL                = 6,
+    CONTACTS            = 7,
+    BLUE_CLOCK          = 8,
+    XKCD_CLOCK          = 9,
+    BAR_CLOCK           = 10,
+    CLOCKS              = 11,
+    VIDEO               = 12,
+    APPS                = 13,
+    SETTINGS            = 14,
+    SETTINGS_B          = 15,
+    BLUISH_CLOCK        = 16,
+    BREIGHTLING_CLOCK   = 17,
+    KICKSTARTER_CLOCK   = 18,
+    RADIAN_CLOCK        = 19,
     
-    TOTAL           = 18;
+    TOTAL               = 20;
     
     const char names[TOTAL][20] {
     
@@ -142,6 +144,8 @@ namespace PAGE {
         "SETTINGS_B",
         "BLUISH_CLOCK",
         "BREIGHTLING_CLOCK",
+        "KICKSTARTER_CLOCK",
+        "RADIAN_CLOCK",
         
     };
 
@@ -639,5 +643,7 @@ bool checkFilename(char* filename) { // Adds .WAV extension and gets rid of any 
 #include "settingsB.h"
 #include "bluishClock.h"
 #include "breightlingClock.h"
+#include "kickstarterClock.h"
+#include "radianClock.h"
 
 #include "roundUtil.h"

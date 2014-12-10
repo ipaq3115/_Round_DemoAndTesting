@@ -1,19 +1,19 @@
 
 
-#ifndef BLUISH_CLOCK_PAGE_
-#define BLUISH_CLOCK_PAGE_
+#ifndef KICKSTARTER_CLOCK_PAGE_
+#define KICKSTARTER_CLOCK_PAGE_
 
-#define cacheFilename "bluishCH.gci"
+#define cacheFilename "kickCH.gci"
 
-class BluishClockPage : public Page {
+class KickstarterClockPage : public Page {
 
 public:
 
-int currentHour = -1;
+int currentHour = -1;   
 int currentMinute = -1;
 int currentSecond = -1;
 
-BluishClockPage CONSTRUCTOR_MACRO
+KickstarterClockPage CONSTRUCTOR_MACRO
 
 SdFile secondsFile;
 
@@ -21,7 +21,7 @@ elapsedMillis time;
 
 void initalize() {
 
-    if(D) USB.println("initalize BluishClockPage");
+    if(D) USB.println("initalize KickstarterClockPage");
 
     if(secondsFile.isOpen()) secondsFile.close();
 
@@ -63,10 +63,7 @@ void mergeBackground(time_t tmpTime) {
     
     sd.remove(cacheFilename);
     
-    // if(!backfile.open("PiSplash.gci",O_RDWR)) Serial.println("bluish didn't load");
-    if(!backfile.open("bluish.gci",O_RDWR)) Serial.println("bluish didn't load");
-    // if(!backfile.open("radBack.gci",O_RDWR)) Serial.println("radBack didn't load");
-    // if(!backfile.open("kickBack.gci",O_RDWR)) Serial.println("kickBack didn't load");
+    if(!backfile.open("kickBack.gci",O_RDWR)) Serial.println("kickBack didn't load");
     if(!frontfile.open("blumin.gci",O_RDWR)) Serial.println("blumin didn't load");
     if(!newfile.open("tmp.gci",O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
@@ -128,6 +125,8 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
         case RELEASED: break;
     
     }
+    
+    goPage(PAGE::HOME);
 
 }
 
@@ -138,27 +137,6 @@ void button(int dir,int index) {
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

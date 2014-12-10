@@ -1,11 +1,11 @@
 
 
-#ifndef BLUISH_CLOCK_PAGE_
-#define BLUISH_CLOCK_PAGE_
+#ifndef RADIAN_CLOCK_PAGE_
+#define RADIAN_CLOCK_PAGE_
 
-#define cacheFilename "bluishCH.gci"
+#define cacheFilename "radianCH.gci"
 
-class BluishClockPage : public Page {
+class RadianClockPage : public Page {
 
 public:
 
@@ -13,7 +13,7 @@ int currentHour = -1;
 int currentMinute = -1;
 int currentSecond = -1;
 
-BluishClockPage CONSTRUCTOR_MACRO
+RadianClockPage CONSTRUCTOR_MACRO
 
 SdFile secondsFile;
 
@@ -21,7 +21,7 @@ elapsedMillis time;
 
 void initalize() {
 
-    if(D) USB.println("initalize BluishClockPage");
+    if(D) USB.println("initalize RadianClockPage");
 
     if(secondsFile.isOpen()) secondsFile.close();
 
@@ -63,10 +63,7 @@ void mergeBackground(time_t tmpTime) {
     
     sd.remove(cacheFilename);
     
-    // if(!backfile.open("PiSplash.gci",O_RDWR)) Serial.println("bluish didn't load");
-    if(!backfile.open("bluish.gci",O_RDWR)) Serial.println("bluish didn't load");
-    // if(!backfile.open("radBack.gci",O_RDWR)) Serial.println("radBack didn't load");
-    // if(!backfile.open("kickBack.gci",O_RDWR)) Serial.println("kickBack didn't load");
+    if(!backfile.open("radBack.gci",O_RDWR)) Serial.println("radBack didn't load");
     if(!frontfile.open("blumin.gci",O_RDWR)) Serial.println("blumin didn't load");
     if(!newfile.open("tmp.gci",O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
@@ -89,7 +86,6 @@ void mergeBackground(time_t tmpTime) {
     sd.remove("tmp.gci");
     
     lcd->setBackgroundImage(cacheFilename,0,0);
-    
 
 }
 
