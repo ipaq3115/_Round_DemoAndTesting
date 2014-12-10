@@ -23,7 +23,7 @@
 // #define max(x,y) (x > y ? x : y)
 
 #define fori(x) for(int i=0;i<x;i++)
-#define ARGS_MACRO &btooth,&lcd,&compass,&touchCtrl,&watch,D,E
+#define ARGS_MACRO &bt,&lcd,&compass,&touchCtrl,&watch,D,E
 #define CONSTRUCTOR_MACRO (BC127* a,PiScreen* b,LSM303_custom* c,PiTouch* d,PiWatch* d2,int e,int f):Page(a,b,c,d,d2,e,f) {}
     
 // #include <SPI.h>
@@ -223,9 +223,9 @@ namespace { // Library inits
 
     PiScreen lcd(27,28,29);
 
-    BC127 btooth(&Serial2);
+    BC127 bt(&Serial2,bluetoothMessage);
 
-    // BC127 btooth(&Serial2,btStrt,btConnected,btDisconnected,btAvailibleDevice);
+    // BC127 bt(&Serial2,btStrt,btConnected,btDisconnected,btAvailibleDevice);
 
     SdFat sd;
     

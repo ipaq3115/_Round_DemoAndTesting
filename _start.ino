@@ -35,8 +35,6 @@ void setup() {
         timeSetWorked = true;
     }
     
-    // while(true);
-
     loadCompileTime();
     
     Wire.begin(I2C_MASTER,0,0,I2C_PINS_18_19,I2C_PULLUP_EXT,I2C_RATE_400);
@@ -47,11 +45,11 @@ void setup() {
     
     
     // Serial2.begin(38400);
-    btooth.init();
-    // btooth.factoryReset();
-    // btooth.discoverable(ON);
-    // btooth.getConfig(BC127::BAUD);
-    // btooth.power(OFF);
+    bt.init();
+    // bt.factoryReset();
+    // bt.discoverable(ON);
+    // bt.getConfig(BC127::BAUD);
+    // bt.power(OFF);
     
     lcd.InitLCD(currentRotation);
     touchCtrl.setOrientation(currentRotation);
@@ -125,54 +123,6 @@ time_t getTeensy3Time() {
 
 }
 
-void printDigits(int digits){
-    // utility function for digital clock display: prints preceding colon and leading 0
-    Serial.print(":");
-    if(digits < 10)
-        Serial.print('0');
-    Serial.print(digits);
-}
-
-void animateNotificationTest() {
-
-    for(int i=0;i<70;i++) {
-    
-        for(int n=0;n<5;n++) {
-        
-        
-        }
-    
-        lcd.setColor(0xFFFF);
-        lcd.fillRect(0,219 - i,219,219);
-        
-        lcd.setColor(0);
-        lcd.setBackColor(0xFFFF);
-        lcd.setFont(BigFont);
-        lcd.print("Hello",CENTER,219 - i + 10);
-        lcd.print("World!",CENTER,219 - i + 25);
-        
-        delay(2);
-        
-    }
-    
-    while(1);
-
-}
-
-void digitalClockDisplay() {
-    // digital clock display of the time
-    Serial.print(hour());
-    printDigits(minute());
-    printDigits(second());
-    Serial.print(" ");
-    Serial.print(day());
-    Serial.print(" ");
-    Serial.print(month());
-    Serial.print(" ");
-    Serial.print(year()); 
-    Serial.println(); 
-}
-
 void loop() {
 
     static elapsedMillis timey;
@@ -183,45 +133,15 @@ void loop() {
         // Serial2.print("GET BAUD\r");
         // Serial.println("sent GET BAUD");
     
-        btooth.getBattery();
+        bt.getBattery();
     
     }
-
-    static elapsedMillis timeb;
-    if(timeb > 10) {
-    
-        timeb = 0;
-        
-        lcd.setColor(VGA_WHITE);
-        lcd.setBackColor(VGA_BLACK);
-        lcd.setFont(BigFont);
-        lcd.printNumI(analogRead(PIN::POWER_BUTTON),CENTER,50,5,'0');
-        
-    }
-    
-    // int s2char = Serial2.read();
-    // if(s2char != -1) Serial.write(s2char);
-
-    // static elapsedMillis printtime;
-    // 
-    // if(printtime > 1000) {
-    // 
-    //     printtime = 0;
-    //     digitalClockDisplay();
-    //     
-    //     if (!timeSetWorked) {
-    //         Serial.println("Unable to sync with the RTC");
-    //     } else {
-    //         Serial.println("RTC has set the system time");
-    //     }
-    // 
-    // }
     
     touchCtrl.loop();
 
     pollButtons();
     
-    btooth.loop();
+    bt.loop();
     
     pageArray[page]->loop();
     
@@ -234,6 +154,8 @@ void loop() {
     checkOrientation();
     
 }
+
+// Polling routines
 
 void checkOrientation() {
     
@@ -289,7 +211,7 @@ void lowPowerTimeout() {
 
         // delay(1000);
 
-        // btooth.power(OFF);
+        // bt.power(OFF);
 
         LP.CPU(TWO_MHZ);
 
@@ -346,9 +268,9 @@ void pwmOFF() {
 void checkPhoneState() {
 
     static int currentPhoneState = -1;
-    if(currentPhoneState != btooth.phoneState) {
+    if(currentPhoneState != bt.phoneState) {
     
-        currentPhoneState = btooth.phoneState;
+        currentPhoneState = bt.phoneState;
     
         switch(currentPhoneState) {
             
@@ -363,181 +285,6 @@ void checkPhoneState() {
     }
 
 }
-
-int monthLength(time_t time) {
-
-    int const 
-    
-    JANUARY         =  1,
-    FEBRUARY        =  2,
-    MARCH           =  3,
-    APRIL           =  4,
-    MAY             =  5,
-    JUNE            =  6,
-    JULY            =  7,
-    AUGUST          =  8,
-    SEPTEMBER       =  9,
-    OCTOBER         = 10,
-    NOVEMBER        = 11,
-    DECEMBER        = 12;
-    
-    switch(month(time)) {
-    
-        case JANUARY:   return 31;
-        case FEBRUARY:  
-            if(year(time) % 4)            return 28;
-            else if(year(time) % 100)     return 29;
-            else if(year(time) % 400)     return 28;
-            else                    return 29;
-        case MARCH:     return 31;
-        case APRIL:     return 30;
-        case MAY:       return 31;
-        case JUNE:      return 30;
-        case JULY:      return 31;
-        case AUGUST:    return 31;
-        case SEPTEMBER: return 30;
-        case OCTOBER:   return 31;
-        case NOVEMBER:  return 30;
-        case DECEMBER:  return 31;
-    
-    }
-    
-}
-
-int loadCompileTime() {
-
-    // Making time and date string more cryptic
-    char workString[50]; // "Mmm dd yyyyhh:mm:ss"
-    int wsC=0;
-    
-    for(int i=0;i<11;i++) workString[wsC++] = __DATE__[i];
-    for(int i=0;i<8;i++) workString[wsC++] = __TIME__[i]; workString[wsC++] = 0;
-    
-    // Month
-    int month = 0;
-    if(sMatch(workString,"Jan")==0)      month = 0x0;
-    else if(sMatch(workString,"Feb")==0) month = 0x1;
-    else if(sMatch(workString,"Mar")==0) month = 0x2;
-    else if(sMatch(workString,"Apr")==0) month = 0x3;
-    else if(sMatch(workString,"May")==0) month = 0x4;
-    else if(sMatch(workString,"Jun")==0) month = 0x5;
-    else if(sMatch(workString,"Jul")==0) month = 0x6;
-    else if(sMatch(workString,"Aug")==0) month = 0x7;
-    else if(sMatch(workString,"Sep")==0) month = 0x8;
-    else if(sMatch(workString,"Oct")==0) month = 0x9;
-    else if(sMatch(workString,"Nov")==0) month = 0xA;
-    else if(sMatch(workString,"Dec")==0) month = 0xB;
-
-    // Day
-    int day = 0x00;
-    if(!stringtoint(workString,4,5,day)) day = 0x00;
-    
-    // Year
-    int year = 0x0000;
-    if(!stringtoint(workString,7,10,year)) year = 0x0000;
-    
-    // Hour
-    int hour = 0x00;
-    if(!stringtoint(workString,11,12,hour)) hour = 0x00;
-    
-    // Minute
-    int minute = 0x00;
-    if(!stringtoint(workString,14,15,minute)) minute = 0x00;
-    
-    // Second
-    int second = 0x00;
-    if(!stringtoint(workString,17,18,second)) second = 0x00;
-    
-    if(D) USB.printf("Compile time %d %d %d %d %d %d\r\n",year,month,day,hour,minute,second);
-    
-    curTime.year = year;
-    curTime.month = month + 1;
-    curTime.day = day;
-    curTime.hour = hour;
-    curTime.minute = minute;
-    curTime.second = second;
-    curTime.hundredth = 0;
-
-}
-
-// Init
-
-void fillDemoContacts() {
-
-    Contact test("myname","15407884622");
-    
-    if(D) USB.printf("sizeof(test) %d\r\n",sizeof(test));
-    
-    SdFile testFile;
-    
-    if(!testFile.open(contactsFilename,O_RDWR | O_CREAT)) USB.printf("Opening %s failed\r\n",contactsFilename);
-    else {
-    
-        testFile.seekSet(0);
-
-        testFile.write(byte(0));
-        testFile.write(byte(50));
-        
-        for(int i=0;i<50;i++) {
-    
-            test.name[6] = i + 'A';
-        
-            testFile.write(test.b,sizeof(test.b));
-        
-        }
-    
-    }
-    
-    testFile.close();
-    
-}
-
-void loadSdCard() {
-
-    // SPI.setMOSI(7);
-    // SPI.setSCK(13);
-
-    // SPI.setMOSI(7);
-    // SPI.setSCK(14);
-
-    retry1:
-    if(sd.begin(PIN::SD_CHIP_SELECT, SPI_FULL_SPEED)) {
-        
-        if(D) USB.println("SD card mounted");
-        
-    } else {
-    
-        lcd.print("No sdcard",CENTER,100);
-        
-        if(D) USB.println("No sdcard");
-        
-        delay(750);
-        
-        lcd.clrScr();
-        
-        goto retry1;
-        
-    }
-  
-}
-
-void showSplash() {
-
-    SdFile splashImage;
-    
-    if(!splashImage.open("PiSplash.bmp",O_RDWR)) USB.println("PiSplash not opened");
-    
-    lcd.printBitmap(splashImage,0,0);
-    
-    watch.rampBrightness(UP);
-    
-    splashImage.close();
-    
-    // delay(2000);
-    
-}
-
-// Polling routines
 
 void pollButtons() {
 
@@ -622,9 +369,182 @@ void pollButtons() {
     
 }
 
+// Init
 
+int loadCompileTime() {
 
+    // Making time and date string more cryptic
+    char workString[50]; // "Mmm dd yyyyhh:mm:ss"
+    int wsC=0;
+    
+    for(int i=0;i<11;i++) workString[wsC++] = __DATE__[i];
+    for(int i=0;i<8;i++) workString[wsC++] = __TIME__[i]; workString[wsC++] = 0;
+    
+    // Month
+    int month = 0;
+    if(sMatch(workString,"Jan")==0)      month = 0x0;
+    else if(sMatch(workString,"Feb")==0) month = 0x1;
+    else if(sMatch(workString,"Mar")==0) month = 0x2;
+    else if(sMatch(workString,"Apr")==0) month = 0x3;
+    else if(sMatch(workString,"May")==0) month = 0x4;
+    else if(sMatch(workString,"Jun")==0) month = 0x5;
+    else if(sMatch(workString,"Jul")==0) month = 0x6;
+    else if(sMatch(workString,"Aug")==0) month = 0x7;
+    else if(sMatch(workString,"Sep")==0) month = 0x8;
+    else if(sMatch(workString,"Oct")==0) month = 0x9;
+    else if(sMatch(workString,"Nov")==0) month = 0xA;
+    else if(sMatch(workString,"Dec")==0) month = 0xB;
 
+    // Day
+    int day = 0x00;
+    if(!stringtoint(workString,4,5,day)) day = 0x00;
+    
+    // Year
+    int year = 0x0000;
+    if(!stringtoint(workString,7,10,year)) year = 0x0000;
+    
+    // Hour
+    int hour = 0x00;
+    if(!stringtoint(workString,11,12,hour)) hour = 0x00;
+    
+    // Minute
+    int minute = 0x00;
+    if(!stringtoint(workString,14,15,minute)) minute = 0x00;
+    
+    // Second
+    int second = 0x00;
+    if(!stringtoint(workString,17,18,second)) second = 0x00;
+    
+    if(D) USB.printf("Compile time %d %d %d %d %d %d\r\n",year,month,day,hour,minute,second);
+    
+    curTime.year = year;
+    curTime.month = month + 1;
+    curTime.day = day;
+    curTime.hour = hour;
+    curTime.minute = minute;
+    curTime.second = second;
+    curTime.hundredth = 0;
+
+}
+
+void fillDemoContacts() {
+
+    Contact test("myname","15407884622");
+    
+    if(D) USB.printf("sizeof(test) %d\r\n",sizeof(test));
+    
+    SdFile testFile;
+    
+    if(!testFile.open(contactsFilename,O_RDWR | O_CREAT)) USB.printf("Opening %s failed\r\n",contactsFilename);
+    else {
+    
+        testFile.seekSet(0);
+
+        testFile.write(byte(0));
+        testFile.write(byte(50));
+        
+        for(int i=0;i<50;i++) {
+    
+            test.name[6] = i + 'A';
+        
+            testFile.write(test.b,sizeof(test.b));
+        
+        }
+    
+    }
+    
+    testFile.close();
+    
+}
+
+void loadSdCard() {
+
+    retry1:
+    if(sd.begin(PIN::SD_CHIP_SELECT, SPI_FULL_SPEED)) {
+        
+        if(D) USB.println("SD card mounted");
+        
+    } else {
+    
+        lcd.print("No sdcard",CENTER,100);
+        
+        if(D) USB.println("No sdcard");
+        
+        delay(750);
+        
+        lcd.clrScr();
+        
+        goto retry1;
+        
+    }
+  
+}
+
+void showSplash() {
+
+    SdFile splashImage;
+    
+    if(!splashImage.open("PiSplash.bmp",O_RDWR)) USB.println("PiSplash not opened");
+    
+    lcd.printBitmap(splashImage,0,0);
+    
+    watch.rampBrightness(UP);
+    
+    splashImage.close();
+    
+}
+
+// Callback Routines
+
+void bluetoothMessage(bt_event event) {
+
+    using namespace BT;
+
+    switch(event.id) {
+        
+        case RESET: break;
+        case INQUIRY: break;
+        case DISCOVERABLE: break;
+        case LIST: break;
+        case CONNECT: break;
+        case STATUS: break;
+        case CONFIG: break;
+        case FACTORY: break;
+        case WRITE: break;
+        case GET_PBOOK: break;
+        case NAME: break;
+        case SET_ROLE: break;
+        case PLAY_NOISE: break;
+        case AUDIO_TRANSFER: break;
+        case CALL_NUMBER: break;
+        case SET_AUDIO: break;
+        case GET_MIC_STATE: break;
+        case SET_GAIN: break;
+        case GET_VOLUME: break;
+        case SET_VOLUME: break;
+        case END_CALL: break;
+        case REJECT_CALL: break;
+        case ANSWER_CALL: break;
+        case SET_POWER: break;
+        case GET_CONFIG: break;
+        case BATTERY: 
+            
+            if(event.batCharging) {
+                
+                if(D) db.printf("Battery charging\r\n");
+            
+            } else {
+                
+                if(D) db.printf("Battery %d/3\r\n",event.batLevel);
+            
+            }
+            
+            break;
+
+    }
+    
+
+}
 
 void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
 
@@ -1052,7 +972,7 @@ void btAvailibleDevice(long long address,int linkIndex,char * name) {
 
     // if(address == (long long)0x3017C88BA738) {
     
-        // btooth.connect(address);
+        // bt.connect(address);
     
     // }
 
@@ -1327,6 +1247,32 @@ int getDayOfTheWeek(int day,int month,int year) {
 
 }
 
+void animateNotificationTest() {
+
+    for(int i=0;i<70;i++) {
+    
+        for(int n=0;n<5;n++) {
+        
+        
+        }
+    
+        lcd.setColor(0xFFFF);
+        lcd.fillRect(0,219 - i,219,219);
+        
+        lcd.setColor(0);
+        lcd.setBackColor(0xFFFF);
+        lcd.setFont(BigFont);
+        lcd.print("Hello",CENTER,219 - i + 10);
+        lcd.print("World!",CENTER,219 - i + 25);
+        
+        delay(2);
+        
+    }
+    
+    while(1);
+
+}
+
 
 // Debug
 
@@ -1463,15 +1409,15 @@ void usbMessage(char *msgStr,int msgLen) {
         
     } else if(msgID == DEBUG_MSG_PBOOK) {
     
-        // btooth.getPbook();
+        // bt.getPbook();
         
     } else if(msgID == DEBUG_MSG_RESET_BT) {
     
-        // btooth.reset();
+        // bt.reset();
         
     } else if(msgID == DEBUG_MSG_CONFIG_BT) {
     
-        // btooth.getAllConfig();
+        // bt.getAllConfig();
     
     }
     
@@ -1891,7 +1837,7 @@ void setupOld() {
         // }
     }
     */
-    // pageArray[PAGE::HOME] = new HomePage(&btooth,&lcd);
+    // pageArray[PAGE::HOME] = new HomePage(&bt,&lcd);
     
     // if(D) USB.printf("freeMemory %d\r\n",mallinfo().uordblks);
     
