@@ -11,6 +11,7 @@
 // #include <Wire.h>
 #include <i2c_t3.h>
 #include <EEPROM.h>
+
 #include "LSM303_custom.h"
 #include "pageClass.h"
 #include "customUtils.h"
@@ -121,8 +122,9 @@ namespace PAGE {
     BREIGHTLING_CLOCK   = 17,
     KICKSTARTER_CLOCK   = 18,
     RADIAN_CLOCK        = 19,
+    KICKSTARTER_DEMO    = 20,
     
-    TOTAL               = 20;
+    TOTAL               = 21;
     
     const char names[TOTAL][20] {
     
@@ -146,6 +148,7 @@ namespace PAGE {
         "BREIGHTLING_CLOCK",
         "KICKSTARTER_CLOCK",
         "RADIAN_CLOCK",
+        "KICKSTARTER_DEMO",
         
     };
 
@@ -479,6 +482,8 @@ void audioLoop() {
     
 }
 
+int fileLen;
+
 void startPlay(char* tempfilename) {
 
     audioTimer.end();
@@ -511,6 +516,8 @@ void startPlay(char* tempfilename) {
     playFileLength += (audioFile.read() << 16);
     playFileLength += (audioFile.read() << 24);
     
+    fileLen = playFileLength;
+    
     // Initialize all of the data ready flags to false
     for(int i=0;i<AUDIO_BUFFER_BLOCKS;i++) blockReady[i] = false;
     
@@ -526,8 +533,8 @@ void startPlay(char* tempfilename) {
     microSplit = 0;
     microSplitDir = false;
     
-    // audioTimer.begin(playInterrupt, 125);
-    audioTimer.begin(playInterrupt, 62);
+    audioTimer.begin(playInterrupt, 125);
+    // audioTimer.begin(playInterrupt, 62);
     // audioTimer.begin(playInterrupt, 31);
     // audioTimer.begin(playInterrupt, 15);
     
@@ -541,11 +548,19 @@ void playInterrupt() {
 
     if(blockReady[currentBlock] && !playDone) {
 
-        analogWrite(A14,audioBlock[currentBlock][currentByte]);
+        // analogWrite(A14,audioBlock[currentBlock][currentByte + 1]);
+        analogWrite(A14,(audioBlock[currentBlock][currentByte] << 8) | audioBlock[currentBlock][currentByte + 1]);
 
-        currentByte++;
+        currentByte+=2;
+
+        playFileLength-=2;
         
-        playFileLength--;
+        // analogWrite(A14,audioBlock[currentBlock][currentByte]);
+
+        // currentByte++;
+        
+        // playFileLength--;
+        
         // playFileSecondsRemaining = playFileLength/8000;
         
         if(playFileLength == 0) { audioTimer.end(); playDone = true; return; }
@@ -645,5 +660,6 @@ bool checkFilename(char* filename) { // Adds .WAV extension and gets rid of any 
 #include "breightlingClock.h"
 #include "kickstarterClock.h"
 #include "radianClock.h"
+#include "kickstarterDemo.h"
 
 #include "roundUtil.h"

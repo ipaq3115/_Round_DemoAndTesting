@@ -37,7 +37,7 @@ void initalize() {
     lcd->setBackgroundImage(cacheFilename,0,0);
     lcd->printImage(&lcd->backgroundInfo);
     
-    // lcd->printGci(secondsFile,0,0,second());
+    lcd->printGci(secondsFile,0,0,second());
     
     currentHour = -1;
     currentMinute = -1;
@@ -122,11 +122,12 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
     
         case PRESSED: break;
         case MOVING: break;
-        case RELEASED: break;
+        case RELEASED: 
+            goPage(PAGE::HOME);
+            break;
     
     }
     
-    goPage(PAGE::HOME);
 
 }
 

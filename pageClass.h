@@ -41,6 +41,8 @@ class Page {
         virtual void initalize(int mode,char * data) { initalize(); }
         virtual void leavingPage() = 0;
         
+        virtual void redraw() { initalize(); }
+        
         virtual void loop() = 0;
         
         virtual void touch(int touchType,int finePos,int activeTouches,int touchIndex) = 0;

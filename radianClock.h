@@ -37,7 +37,7 @@ void initalize() {
     lcd->setBackgroundImage(cacheFilename,0,0);
     lcd->printImage(&lcd->backgroundInfo);
     
-    // lcd->printGci(secondsFile,0,0,second());
+    lcd->printGci(secondsFile,0,0,second());
     
     currentHour = -1;
     currentMinute = -1;

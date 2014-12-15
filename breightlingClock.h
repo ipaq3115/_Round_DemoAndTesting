@@ -27,12 +27,12 @@ void initalize() {
     
     if(!secondsFile.open("bentlyS.gci",O_RDWR)) USB.println("File open fail");
     
-    // mergeBackground(now());
+    mergeBackground(now());
     
     lcd->setBackgroundImage(cacheFilename,0,0);
     lcd->printImage(&lcd->backgroundInfo);
     
-    // lcd->printGci(secondsFile,0,0,second());
+    lcd->printGci(secondsFile,0,0,second());
     
     currentHour = -1;
     currentMinute = -1;
@@ -57,6 +57,7 @@ void mergeBackground(time_t tmpTime) {
     SdFile backfile,frontfile,newfile;
     
     sd.remove(cacheFilename);
+    sd.remove("tmp.gci");
     
     // if(!backfile.open("PiSplash.gci",O_RDWR)) Serial.println("bluish didn't load");
     if(!backfile.open("bently.gci",O_RDWR)) Serial.println("bluish didn't load");
@@ -78,8 +79,6 @@ void mergeBackground(time_t tmpTime) {
     backfile.close();
     frontfile.close();
     newfile.close();
-    
-    sd.remove("tmp.gci");
     
     lcd->setBackgroundImage(cacheFilename,0,0);
     

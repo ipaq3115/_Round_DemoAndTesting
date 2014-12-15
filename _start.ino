@@ -76,12 +76,17 @@ void setup() {
     pageArray[PAGE::BREIGHTLING_CLOCK]  = new BreightlingClockPage(ARGS_MACRO);
     pageArray[PAGE::KICKSTARTER_CLOCK]  = new KickstarterClockPage(ARGS_MACRO);
     pageArray[PAGE::RADIAN_CLOCK]       = new RadianClockPage(ARGS_MACRO);
+    pageArray[PAGE::KICKSTARTER_DEMO]   = new KickstarterDemoPage(ARGS_MACRO);
+    
     
     // showSplash();
     
+    
     // goPage(PAGE::VIDEO);
+    // startPlay("paul2");
     // goPage(PAGE::TOUCH_DEMO);
-    goPage(PAGE::KICKSTARTER_CLOCK);
+    goPage(PAGE::KICKSTARTER_DEMO);
+    // goPage(PAGE::KICKSTARTER_CLOCK);
     // goPage(PAGE::BLUE_CLOCK);
     // goPage(PAGE::HOME);
     // goPage(PAGE::SETTINGS);
@@ -173,16 +178,14 @@ void checkOrientation() {
         
         #ifdef HARDWARE_REVB
             
-            if(page == PAGE::TOUCH_DEMO || page == PAGE::GRAVITY_BALL)     currentRotation = PORTRAIT;
-            else if(compass.a.y < -1000 && currentRotation != PORTRAIT)    currentRotation = PORTRAIT;
+            if(compass.a.y < -1000 && currentRotation != PORTRAIT)    currentRotation = PORTRAIT;
             else if(compass.a.y > 1000 && currentRotation != PORTRAIT_R)   currentRotation = PORTRAIT_R;
             else if(compass.a.x < -1000 && currentRotation != LANDSCAPE)   currentRotation = LANDSCAPE;
             else if(compass.a.x > 1000 && currentRotation != LANDSCAPE_R)  currentRotation = LANDSCAPE_R;
             
         #else
             
-            if(page == PAGE::TOUCH_DEMO || page == PAGE::GRAVITY_BALL)     currentRotation = PORTRAIT;
-            else if(compass.a.x > 1000 && currentRotation != PORTRAIT)     currentRotation = PORTRAIT;
+            if(compass.a.x > 1000 && currentRotation != PORTRAIT)     currentRotation = PORTRAIT;
             else if(compass.a.x < -1000 && currentRotation != PORTRAIT_R)  currentRotation = PORTRAIT_R;
             else if(compass.a.y > 1000 && currentRotation != LANDSCAPE)    currentRotation = LANDSCAPE;
             else if(compass.a.y < -1000 && currentRotation != LANDSCAPE_R) currentRotation = LANDSCAPE_R;
@@ -193,7 +196,7 @@ void checkOrientation() {
         
             lcd.setOrientation(currentRotation);
             touchCtrl.setOrientation(currentRotation);
-            pageArray[page]->initalize();
+            pageArray[page]->redraw();
         
         }
         
@@ -534,7 +537,36 @@ void bluetoothMessage(bt_event event) {
             if(D) db.printf("GET_CONFIG returned %s with a raw value of %s\r\n",
             CFG::names[event.cfg.id],event.cfg.rawString);
 
-            if(D) db.printf("baud %d\r\n",event.cfg.baud);
+            switch(event.cfg.id) {
+            
+                case CFG::BATT_THRESH:
+                
+                    // Note: lvl3 isn't being returned by the BC127
+                    // It probably either needs to be set, or it doesn't
+                    // exist at all there's an error here somewhere
+                
+                    if(D) db.printf(
+                    "chrgLvl %d crit %d low %d lvl0 %d lvl1 %d lvl2 %d lvl3 %d\r\n",
+                    event.cfg.chrgLvl,
+                    event.cfg.crit, event.cfg.low,
+                    event.cfg.lvl0, event.cfg.lvl1,
+                    event.cfg.lvl2, event.cfg.lvl3);
+                    
+                    break;
+                case CFG::BAUD:
+                    
+                    // Probably don't need the baud rate if we
+                    // are talking over the UART already...
+                
+                    if(D) db.printf("baud %d\r\n",event.cfg.baud);
+                    
+                    break;
+                    
+                    
+                    
+                    
+            }
+            
             
             break;
         case BATTERY: 

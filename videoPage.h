@@ -9,6 +9,9 @@
 #define VIDEO_PLAYING 1
 #define VIDEO_PAUSED 2
 
+char videoName[15] = "rally";
+// char videoName[15] = "hobbit3";
+
 class VideoPlayerPage : public Page {
 
 protected:
@@ -42,8 +45,11 @@ void initalize() {
     
     // if(videoState != VIDEO_PLAYING) {
         
+        loadVideo(videoName,0,0);
+        // loadVideo("hobbit3",0,0);
+        // loadVideo("paul2",0,0);
         // loadVideo("rally",0,0);
-        loadVideo("ep28",0,0);
+        // loadVideo("ep28",0,0);0
         // loadVideo("shipVid",0,0);
         // loadVideo("drift",0,110-62);
         // loadVideo("drift2",0,110-62);
@@ -111,13 +117,15 @@ void loadVideo(char * name,int x,int y) {
     }
     
     // startPlay("drift2");
-    startPlay(name);
+    // startPlay(name);
 
     videoFrameTotal = lcd->loadVideo(videoFile,0,0);
     currentFrame = 0;
     
+    
     // lcd->clrScr();
     lcd->videoFrame(x,y,0);
+    startPlay(name);
     
     vidX = x;
     vidY = y;
@@ -137,11 +145,38 @@ void loop() {
         
         lcd->videoFrame(currentFrame,vidX,vidY);
         
+        // cli();
+        // 
+        // if(blockReady[currentBlock]) {
+        // 
+        //     int diff = playFileLength - fileLen - 8000*currentFrame;
+        //     
+        //     currentByte += diff;
+        //     
+        //     // Check to see if we have played this whole block
+        //     while(currentByte >= 512 && blockReady[currentBlock]) {
+        //     
+        //         currentByte -= 512;
+        //         
+        //         // This block now needs to be filled again (not ready to be played)
+        //         blockReady[currentBlock] = false;
+        //         
+        //         // Increment Block
+        //         currentBlock++;
+        //         if(currentBlock >= AUDIO_BUFFER_BLOCKS) currentBlock = 0;
+        //         
+        //     }
+        //     
+        // }
+        // 
+        // sei();
+    
         currentFrame++;
         if(currentFrame >= videoFrameTotal) {
         
             currentFrame = 0;
             // videoState = VIDEO_IDLE;
+            loadVideo(videoName,0,0);
         
         }
         
