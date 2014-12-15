@@ -6,44 +6,32 @@
 
 class GravityBallPage : public Page {
 
-    protected:
-    
-        bool edgeMode = false; 
+public:
 
-    public:
+bool edgeMode = false; 
 
-        GravityBallPage() {}
-        
-        GravityBallPage CONSTRUCTOR_MACRO
+GravityBallPage() {}
 
-        void initalize();
-        void leavingPage();
-        void loop();
-        void touch(int touchType,int finePos,int activeTouches,int touchIndex);
-        void button(int dir,int index);
-        
-        void drawAccel(int x,int y,int z,int color);
-        void drawBall(int posX,int posY,int color);
-        
-};
+GravityBallPage CONSTRUCTOR_MACRO
 
+void initalize() {
 
-void GravityBallPage::initalize() {
-
-    if(D) USB.println("GravityBallPage::initalize");
+    if(D) USB.println("initalize");
     
     lcd->setColor(0,0,0);
-    lcd->fillRect(0,0,220,220);
+    lcd->fillRect(0,0,219,219);
     
 }
 
-void GravityBallPage::leavingPage() {
+void redraw() { }
 
-    if(D) USB.println("GravityBallPage::leavingPage");
+void leavingPage() {
+
+    if(D) USB.println("leavingPage");
 
 }
 
-void GravityBallPage::loop() {
+void loop() {
 
     // 35.1mm diameter
     // 0.159mm per pixel
@@ -203,7 +191,7 @@ void GravityBallPage::loop() {
         
         }
         
-        drawBall(oldBallPosX,oldBallPosY,0);
+        // drawBall(oldBallPosX,oldBallPosY,0);
         drawBall(ballPosX,ballPosY,0xFFFF);
         
         oldBallPosX = ballPosX;
@@ -260,14 +248,19 @@ void GravityBallPage::loop() {
     
 }
 
-void GravityBallPage::drawBall(int posX,int posY,int color) {
+void drawBall(int posX,int posY,int color) {
 
     lcd->setColor(color);
+    
+    lcd->setOrientation(0);
+    
     lcd->fillCircle(110 + posX,110 + posY,5);
-
+    
+    lcd->setOrientation(currentRotation);
+    
 }
 
-void GravityBallPage::drawAccel(int x,int y,int z,int color) {
+void drawAccel(int x,int y,int z,int color) {
 
     x /= 10;
     y /= 10;
@@ -290,7 +283,7 @@ void GravityBallPage::drawAccel(int x,int y,int z,int color) {
 
 }
 
-void GravityBallPage::touch(int touchType,int finePos,int activeTouches,int touchIndex) {
+void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
 
     if(D) USB.printf("GravityBallPage touch %d\r\n",touchType);
     
@@ -302,7 +295,7 @@ void GravityBallPage::touch(int touchType,int finePos,int activeTouches,int touc
         case MOVING:
             break;
         case RELEASED: 
-        
+            lcd->clrScr();
             break;
     
     }
@@ -311,22 +304,25 @@ void GravityBallPage::touch(int touchType,int finePos,int activeTouches,int touc
     
 }
 
-void GravityBallPage::button(int dir,int index) {
+void button(int dir,int index) {
 
-    if(D) USB.println("GravityBallPage::button");
+if(D) USB.println("button");
 
-    using namespace BUTTON;
-    
-    static bool screenState = 0;
+using namespace BUTTON;
 
-    switch(index) {
-    
-        case POWER_BUTTON:
-        
-            break;
-    
-    }
+static bool screenState = 0;
+
+switch(index) {
+
+case POWER_BUTTON:
+
+    break;
 
 }
+
+}
+
+};
+
 
 #endif

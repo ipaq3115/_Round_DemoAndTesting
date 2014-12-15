@@ -21,7 +21,7 @@ void initalize() {
     
     lcd->setColor(0); 
     
-    lcd->fillRect(0,0,220,220);
+    lcd->fillRect(0,0,219,219);
     
     // Set response rate to as fast as possible
     oldResponseRate = touchCtrl->getResponseRateRaw();
@@ -80,7 +80,8 @@ void drawCapacitanceValue(int sizeValue,int sensor,int color) {
     while(sensor >= PI_TOUCH_PIN_TOTAL) sensor -= PI_TOUCH_PIN_TOTAL;
     while(sensor < 0) sensor += PI_TOUCH_PIN_TOTAL;
     
-    angle = sensor * 36;
+    // angle = sensor * 36;
+    angle = sensor * 36 + (3 - currentRotation + 1) * 90;
 
     int centerx = 110;
     int centery = 110;
