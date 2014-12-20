@@ -110,7 +110,7 @@ void AppsPage::touch(int touchType,int finePos,int activeTouches,int touchIndex)
                         case 1: goPage(PAGE::TOUCH_DEMO); return;
                         case 2: goPage(PAGE::VIDEO); return;
                         case 3: return;
-                        case 4: return;
+                        case 4: goPage(PAGE::TEXT_ENTRY); return;
                     
                     }
                 

@@ -201,17 +201,17 @@ void loop() {
         
         compass->read();
         
-        #ifdef HARDWARE_REVB
+        if(hVer == HARDWARE_REVB) {
         
             lastAccelerationX = compass->a.x * -1;
             lastAccelerationY = compass->a.y * -1;
         
-        #else 
+        } else if(hVer == HARDWARE_REVA) {
         
             lastAccelerationX = compass->a.y;
             lastAccelerationY = compass->a.x;
         
-        #endif
+        }
         
         speedUpdateTime = 0;
     

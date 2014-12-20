@@ -1,10 +1,11 @@
 
-// #define HARDWARE_REVA
-#define HARDWARE_REVB
-    
-// #include <Audio.h>
+#define HARDWARE_REVA 0
+#define HARDWARE_REVB 1
+
 #include <BC127.h>
-#include "myUtils.h"
+
+// #include <Audio.h>
+#include <myUtils.h>
 #include <SdFat.h>
 #include <SdFatUtil.h>
 #include <PiScreen.h>
@@ -12,11 +13,16 @@
 #include <i2c_t3.h>
 #include <EEPROM.h>
 
-#include "LSM303_custom.h"
+#include <LSM303_custom.h>
 #include "pageClass.h"
-#include "customUtils.h"
+#include <customUtils.h>
 #include <LowPower_Teensy3.h>
-#include "PiTouch.h"
+
+
+volatile int hVer = -1;
+
+
+#include <PiTouch.h>
 #include <Time.h>
 
 // #include <ctime>
@@ -35,7 +41,6 @@
 
 #define USB Serial
 #define db Serial
-#define COM Serial2
 
 /* TODO:
 
@@ -123,8 +128,9 @@ namespace PAGE {
     KICKSTARTER_CLOCK   = 18,
     RADIAN_CLOCK        = 19,
     KICKSTARTER_DEMO    = 20,
+    TEXT_ENTRY          = 21,
     
-    TOTAL               = 21;
+    TOTAL               = 22;
     
     const char names[TOTAL][20] {
     
@@ -149,6 +155,7 @@ namespace PAGE {
         "KICKSTARTER_CLOCK",
         "RADIAN_CLOCK",
         "KICKSTARTER_DEMO",
+        "TEXT_ENTRY"
         
     };
 
@@ -638,7 +645,7 @@ bool checkFilename(char* filename) { // Adds .WAV extension and gets rid of any 
 }
 
 
-#include "PiWatch.h"
+#include <PiWatch.h>
 
 #include "homePage.h"
 #include "GravityBallPage.h"
@@ -661,5 +668,6 @@ bool checkFilename(char* filename) { // Adds .WAV extension and gets rid of any 
 #include "kickstarterClock.h"
 #include "radianClock.h"
 #include "kickstarterDemo.h"
+#include "textEntry.h"
 
 #include "roundUtil.h"

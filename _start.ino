@@ -4,7 +4,13 @@ IntervalTimer blinktimer;
 
 bool timeSetWorked = false;
 
+#include <EEPROM.h>
+
 void setup() {
+
+    // EEPROM.write(0, HARDWARE_REVA);
+    // EEPROM.write(0, HARDWARE_REVB);
+    // return;
     
     // set the Time library to use Teensy 3.0's RTC to keep time
     setSyncProvider((long int (*)())Teensy3Clock.get);
@@ -13,19 +19,19 @@ void setup() {
     // pin states up for the device
     watch.init();
     
-    #ifdef HARDWARE_REVB
-
-        // blinktimer.begin(blinkled, 200000);
-        
-    #endif
-
     USB.begin(300000); 
     // while(!USB); // Wait for PC to open the USB serial port before running this program
     delay(100);
     
-    // elapsedMillis time; while(1) { if(time > 500) { Serial.println("Send char to start"); time = 0; } if(Serial.read() != -1) break; }
+    //   elapsedMillis time; while(1) { if(time > 500) { Serial.println("Send char to start"); time = 0; } if(Serial.read() != -1) break; }
     
     if(D) USB.println("## SETUP START ##");
+    hVer = EEPROM.read(0);
+    if(D) db.printf("hardware %d %s\r\n",hVer,hVer == 0 ? "REVA" : "REVB");
+    if(hVer != HARDWARE_REVA && hVer != HARDWARE_REVB) hVer = HARDWARE_REVB;
+    // hVer = HARDWARE_REVB;
+    
+    // if(hVer == HARDWARE_REVB) blinktimer.begin(blinkled, 200000);
     
     if (timeStatus() != timeSet) {
         Serial.println("Unable to sync with the RTC");
@@ -56,6 +62,19 @@ void setup() {
     
     loadSdCard();
     
+    SdFile file;
+    
+    file.open("hellopi.Gci",O_READ);
+    
+    lcd.printGci(file,0,0,0);
+    watch.rampBrightness(UP);
+    
+    delay(1000);
+    
+    lcd.printGci(file,0,0,1);
+    
+    while(1) pollButtons();
+    
     pageArray[PAGE::HOME]               = new HomePage(ARGS_MACRO);
     pageArray[PAGE::GRAVITY_BALL]       = new GravityBallPage(ARGS_MACRO);
     pageArray[PAGE::CONTROL_SIMPLE]     = new ControlSimplePage(ARGS_MACRO);
@@ -77,16 +96,18 @@ void setup() {
     pageArray[PAGE::KICKSTARTER_CLOCK]  = new KickstarterClockPage(ARGS_MACRO);
     pageArray[PAGE::RADIAN_CLOCK]       = new RadianClockPage(ARGS_MACRO);
     pageArray[PAGE::KICKSTARTER_DEMO]   = new KickstarterDemoPage(ARGS_MACRO);
+    pageArray[PAGE::TEXT_ENTRY]         = new TextEntryPage(ARGS_MACRO);
     
     
     // showSplash();
     
     
+    // goPage(PAGE::TEXT_ENTRY);
     // goPage(PAGE::VIDEO);
     // startPlay("paul2");
     // goPage(PAGE::TOUCH_DEMO);
-    goPage(PAGE::KICKSTARTER_DEMO);
-    // goPage(PAGE::KICKSTARTER_CLOCK);
+    // goPage(PAGE::KICKSTARTER_DEMO);
+    goPage(PAGE::KICKSTARTER_CLOCK);
     // goPage(PAGE::BLUE_CLOCK);
     // goPage(PAGE::HOME);
     // goPage(PAGE::SETTINGS);
@@ -133,6 +154,18 @@ time_t getTeensy3Time() {
 
 void loop() {
 
+    // static elapsedMillis time54;
+    // 
+    // if(time54 > 100) {
+    // 
+    //     time54 = 0;
+    //     
+    //     compass.read();
+    //     
+    //     Serial.printf("%d %d %d\r\n",compass.a.x,compass.a.y,compass.a.z);
+    // 
+    // }
+    
     static elapsedMillis timey;
     if(timey > 3000) {
     
@@ -176,21 +209,21 @@ void checkOrientation() {
         
         int lastRotation = currentRotation;
         
-        #ifdef HARDWARE_REVB
-            
-            if(compass.a.y < -1000 && currentRotation != PORTRAIT)    currentRotation = PORTRAIT;
-            else if(compass.a.y > 1000 && currentRotation != PORTRAIT_R)   currentRotation = PORTRAIT_R;
-            else if(compass.a.x < -1000 && currentRotation != LANDSCAPE)   currentRotation = LANDSCAPE;
-            else if(compass.a.x > 1000 && currentRotation != LANDSCAPE_R)  currentRotation = LANDSCAPE_R;
-            
-        #else
+        if(hVer == HARDWARE_REVA) {
             
             if(compass.a.x > 1000 && currentRotation != PORTRAIT)     currentRotation = PORTRAIT;
             else if(compass.a.x < -1000 && currentRotation != PORTRAIT_R)  currentRotation = PORTRAIT_R;
             else if(compass.a.y > 1000 && currentRotation != LANDSCAPE)    currentRotation = LANDSCAPE;
             else if(compass.a.y < -1000 && currentRotation != LANDSCAPE_R) currentRotation = LANDSCAPE_R;
+            
+        } else if(hVer == HARDWARE_REVB) {
+            
+            if(compass.a.y < -1000 && currentRotation != PORTRAIT)    currentRotation = PORTRAIT;
+            else if(compass.a.y > 1000 && currentRotation != PORTRAIT_R)   currentRotation = PORTRAIT_R;
+            else if(compass.a.x < -1000 && currentRotation != LANDSCAPE)   currentRotation = LANDSCAPE;
+            else if(compass.a.x > 1000 && currentRotation != LANDSCAPE_R)  currentRotation = LANDSCAPE_R;
         
-        #endif
+        }
         
         if(lastRotation != currentRotation) {
         
@@ -604,8 +637,8 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
     }
 
     int activatedTouches = 0;
-    bool leftTouch = false,rightTouch = false;
-    int const touchWidth = 72;
+    bool topTouch = false,bottomTouch = false;
+    int const touchWidth = 36;
     static bool backActivated = false;
     static int lastTouchPos[10] {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
@@ -635,10 +668,10 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
         
             activatedTouches++;
             
-            if(lastTouchPos[i] <= 360 && lastTouchPos[i] >= 360 - touchWidth) leftTouch = true;
-            if(lastTouchPos[i] <= touchWidth && lastTouchPos[i] >= 0) rightTouch = true;
+            if(lastTouchPos[i] <= touchWidth || lastTouchPos[i] >= 360 - touchWidth) topTouch = true;
+            if(lastTouchPos[i] <= 180 + touchWidth && lastTouchPos[i] >= 180 - touchWidth) bottomTouch = true;
 
-            if(leftTouch && rightTouch) backActivated = true;
+            if(topTouch && bottomTouch && pageTrailLength > 1) backActivated = true;
 
         }
 
@@ -651,11 +684,11 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
     // activated send a back gesture now
     if(activatedTouches == 0 && backActivated) {
     
-        backActivated = false;
+        goBack(); 
         
-        goBack();
+        backActivated = false;
     
-    }
+    }                                                                                                                              
     
 }
 
@@ -674,11 +707,20 @@ void buttonEvent(int dir,int index) {
             
                 // watch.rampBrightness(DOWN);
                 
-                #ifdef HARDWARE_REVB
-            
-                    blinktimer.begin(blinkled, 100000);
-            
-                #endif
+                // if(hVer == HARDWARE_REVB) blinktimer.begin(blinkled, 100000);
+                
+                lcd.setColor(VGA_WHITE);
+                lcd.fillRect(0,0,219,219);
+                
+                lcd.setColor(VGA_BLACK);
+                for(int i=0;i<110;i++) {
+                
+                    // lcd.setColor(VGA_BLACK);
+                    lcd.drawHLine(0,i,219);
+                    lcd.drawHLine(0,219-i,219);
+                    delayMicroseconds(1250);
+                
+                }
             
                 watch.powerDown();
             
@@ -699,53 +741,53 @@ void buttonEvent(int dir,int index) {
 
 // Page management
 
-void goBack() {
+bool goBack() {
 
     if(D) USB.println("goBack");
 
-    goPage(pageTrailRemove(),true,0,0);
+    return goPage(pageTrailRemove(),true,0,0);
 
 }
 
-void goBack(int mode,char * data) {
+bool goBack(int mode,char * data) {
 
     if(D) USB.println("goBack");
 
-    goPage(pageTrailRemove(),true,mode,data);
+    return goPage(pageTrailRemove(),true,mode,data);
 
 }
 
-void goPage(int pg) {
+bool goPage(int pg) {
 
-    goPage(pg,false,0,0);
-
-}
-
-void goPage(int pg,int mode) {
-
-    goPage(pg,false,mode,0);
+    return goPage(pg,false,0,0);
 
 }
 
-void goPage(int pg,int mode,char * data) {
+bool goPage(int pg,int mode) {
 
-    goPage(pg,false,mode,data);
+    return goPage(pg,false,mode,0);
 
 }
 
-void goPage(int pg,bool goingback,int mode,char * data) {
+bool goPage(int pg,int mode,char * data) {
+
+    return goPage(pg,false,mode,data);
+
+}
+
+bool goPage(int pg,bool goingback,int mode,char * data) {
 
     if(D) USB.printf("goPage %s goingback %d mode %d\r\n",PAGE::names[pg],goingback,mode);
     
     if(pg >= PAGE::TOTAL || pg < 0) {
     
         if(E) db.printf("Invalid page number %d\r\n",pg);
-        return;
+        return false;
     
     }
 
     // No change
-    if(page == pg) { if(D) USB.println("Page is the same"); return; }
+    if(page == pg) { if(D) USB.println("Page is the same"); return false; }
     
     if(page != -1) pageArray[page]->leavingPage();
     
@@ -758,6 +800,8 @@ void goPage(int pg,bool goingback,int mode,char * data) {
     pageArray[page]->initalize(mode,data);
     
     watch.rampBrightness(UP);
+    
+    return true;
 
 }
 
