@@ -44,7 +44,7 @@ void PhonePage::initalize() {
 
     }
     
-    lcd->printGci(backgroundImageFile,0,0,4);
+    watch->printRaw(backgroundImageFile,0,0,4);
     
 }
 

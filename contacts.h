@@ -91,7 +91,7 @@ void ContactsPage::initalize(int mode,char * data) {
     this->mode = mode;
     
     // Black screen
-    lcd->clrScr();
+    watch->clrScr();
     
     // Close the file if it's already open
     if(contactsFile.isOpen()) contactsFile.close();
@@ -181,8 +181,8 @@ void ContactsPage::loop() {
             }
             
             // Print the new data
-            lcd->setColor(0xFFFF);
-            lcd->print(contactsBuff[index].name,35,lastPrintPos + i * 18);
+            watch->setColor(0xFFFF);
+            watch->print(contactsBuff[index].name,35,lastPrintPos + i * 18);
             
             // Update the absolute index that this Contact holds
             contactsBuffIndex[index] = absIndex;
@@ -313,7 +313,7 @@ void ContactsPage::printList(int yPos,int color) {
 
     if(D) USB.printf("printList %d %d\r\n",yPos,lastPrintPos);
     
-    lcd->setFont(BigFont);
+    watch->setFont(BigFont);
     
     int indexStart;
 
@@ -377,15 +377,15 @@ void ContactsPage::printListItem(int yPos,int i,int index,int color,int absIndex
     
     if(old) {
         
-        lcd->setColor(0);
-        lcd->fillRect(x-20,y,220,y + lcd->getFontYsize());
+        watch->setColor(0);
+        watch->fillRect(x-20,y,220,y + watch->getFontYsize());
     
     } else {
     
-        lcd->setColor(color);
+        watch->setColor(color);
         char str[2] {i + 'A',0};
-        lcd->print(str,x-20,y);
-        lcd->print(contactsBuff[index].name,x,y);
+        watch->print(str,x-20,y);
+        watch->print(contactsBuff[index].name,x,y);
         
         currentSelected = absIndex;
 

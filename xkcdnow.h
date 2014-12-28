@@ -33,9 +33,9 @@ void XKCDclockPage::initalize() {
     // if(!img.open("needleA.Gci",O_RDWR)) if(D) USB.println("Couldn't open video");
     if(!img.open("xkcdnowb.Gci",O_RDWR)) if(D) USB.println("Couldn't open video");
     
-    lcd->loadVideo(img,0,0);
+    watch->loadVideo(img,0,0);
     
-    lcd->videoFrame(0);
+    watch->videoFrame(0);
     
     firstTouchID = -1;
     lastPrint = -1;
@@ -62,7 +62,7 @@ void XKCDclockPage::touch(int touchType,int finePos,int activeTouches,int touchI
                 
                 if(abs(lastPrint - finePos) > 3) {
                 
-                    lcd->videoFrame(finePos);
+                    watch->videoFrame(finePos);
                     lastPrint = finePos;
                 
                 }

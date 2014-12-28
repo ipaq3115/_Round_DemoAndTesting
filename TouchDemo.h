@@ -19,20 +19,20 @@ TouchDemoPage CONSTRUCTOR_MACRO
 
 void initalize() {
     
-    lcd->setColor(0); 
+    watch->setColor(0); 
     
-    lcd->fillRect(0,0,219,219);
+    watch->fillRect(0,0,219,219);
     
     // Set response rate to as fast as possible
-    oldResponseRate = touchCtrl->getResponseRateRaw();
-    touchCtrl->setResponseRateRaw(0);
+    oldResponseRate = watch->getResponseRateRaw();
+    watch->setResponseRateRaw(0);
     
 }
 
 void leavingPage() {
 
     // Return the response rate to the previous condition
-    touchCtrl->setResponseRateRaw(oldResponseRate);
+    watch->setResponseRateRaw(oldResponseRate);
 
 }
 
@@ -86,17 +86,17 @@ void drawCapacitanceValue(int sizeValue,int sensor,int color) {
     int centerx = 110;
     int centery = 110;
 
-    // if(color) { lcd.setColor(random(255), random(255), random(255)); } 
-    if(color) { lcd->setColor(255, 255, 255); }
-    else { lcd->setColor(0, 0, 0); }
+    // if(color) { watch.setColor(random(255), random(255), random(255)); } 
+    if(color) { watch->setColor(255, 255, 255); }
+    else { watch->setColor(0, 0, 0); }
     
     angle -= 180;
 
     int xoffset = sin(MyUtils::degreestoradians(angle)) * radius;
     int yoffset = cos(MyUtils::degreestoradians(angle)) * radius;
 
-    if(color) { lcd->fillCircle(centerx - xoffset,centery + yoffset,sizeValue); }
-    else { lcd->fillCircle(centerx - xoffset,centery + yoffset,sizeValue + 1); }
+    if(color) { watch->fillCircle(centerx - xoffset,centery + yoffset,sizeValue); }
+    else { watch->fillCircle(centerx - xoffset,centery + yoffset,sizeValue + 1); }
     
 }
 
@@ -116,9 +116,9 @@ void testBubbles() {
     
         // Read into buffer
         // tmpTouchArray[i] = touchRead(touchPin[i]);
-        // tmpTouchArray[i] = touchCtrl->touchVals[i];
+        // tmpTouchArray[i] = watch->touchVals[i];
         
-        int value = touchCtrl->touchVals[i] / 100;
+        int value = watch->touchVals[i] / 100;
         if(value > 20) value = 20;
     
         drawCapacitanceValue(lastSensorValue[i],i,0);

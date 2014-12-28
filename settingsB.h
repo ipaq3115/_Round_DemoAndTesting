@@ -57,7 +57,7 @@ void initalize() {
     if(!vibrateFile.open("setvib.Gci",O_RDWR)) USB.println("File open fail");
     if(!volumeFile.open("setvol.Gci",O_RDWR)) USB.println("File open fail");
     
-    lcd->printBitmap(backgroundImageFile,0,0);
+    watch->printBitmap(backgroundImageFile,0,0);
     
     // printBrightness(brightness);
     // printBattery(42);
@@ -69,8 +69,8 @@ void initalize() {
     if(D) USB.println("SettingsPageB page initalize is done");
     
     // Set response rate
-    oldResponseRate = touchCtrl->getResponseRateRaw();
-    touchCtrl->setResponseRate(50);
+    oldResponseRate = watch->getResponseRateRaw();
+    watch->setResponseRate(50);
     
 }
 
@@ -82,7 +82,7 @@ void leavingPage() {
     volumeFile.close();
 
     // Return the response rate to the previous condition
-    touchCtrl->setResponseRateRaw(oldResponseRate);
+    watch->setResponseRateRaw(oldResponseRate);
 
 }
 
@@ -110,8 +110,8 @@ void loop() {
             if(count == 0) dir = true;
         }
         
-        lcd->printGci(vibrateFile,19,126,count);
-        // lcd->printGci(knobFile,44,44,count);
+        watch->printRaw(vibrateFile,19,126,count);
+        // watch->printRaw(knobFile,44,44,count);
         
         // printBrightness(count);
         // printBattery(count);
@@ -128,7 +128,7 @@ void updateVolume(int dir) {
     if(volume > 4) volume = 4;
     if(volume < 0) volume = 0;
     
-    lcd->printGci(volumeFile,170,53,volume ? volume + 1 : 0);
+    watch->printRaw(volumeFile,170,53,volume ? volume + 1 : 0);
     
 }
 
@@ -201,7 +201,7 @@ void touchMoving(int finePos) {
         if(knobPos > 229) knobPos = 229;
         if(knobPos < 0) knobPos = 0;
         
-        lcd->printGci(knobFile,44,44,knobPos);
+        watch->printRaw(knobFile,44,44,knobPos);
         
     // Touched the 'tap to change' button
     } else {
@@ -260,7 +260,7 @@ void touchReleased(int finePos) {
         // Snap the knob to the icon that was determined to be the closest
         // to the position it was realesed at
         knobPos = iconPosions[iconID];
-        lcd->printGci(knobFile,44,44,knobPos);
+        watch->printRaw(knobFile,44,44,knobPos);
     
     // Touched the 'tap to change' button
     } else {

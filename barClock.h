@@ -36,7 +36,7 @@ void initalize() {
     if(!ringB.isOpen())    if(!ringB.open("ringB.Gci",O_RDWR)) if(D) USB.println("Couldn't open file");
     if(!ringC.isOpen())    if(!ringC.open("ringC.Gci",O_RDWR)) if(D) USB.println("Couldn't open file");
     
-    lcd->printGci(ringFile,0,0);
+    watch->printRaw(ringFile,0,0);
     
     curSecO = -1;
     curMinO = -1;
@@ -64,7 +64,7 @@ void loop() {
     
         int tmp = curSec + 1;
         if(tmp >= 119) tmp -= 119;
-        lcd->printGci(ringA,0,0,tmp);
+        watch->printRaw(ringA,0,0,tmp);
     
     }
 
@@ -83,13 +83,13 @@ void loop() {
      
         if(curSec != curSecO) {
          
-            lcd->printGci(ringA,0,0,curSec);
+            watch->printRaw(ringA,0,0,curSec);
 
             lastSecondUpdate = millis();
             
         }
-        if(curMin != curMinO) lcd->printGci(ringB,0,0,curMin);
-        if(curHour != curHourO) lcd->printGci(ringC,0,0,curHour);
+        if(curMin != curMinO) watch->printRaw(ringB,0,0,curMin);
+        if(curHour != curHourO) watch->printRaw(ringC,0,0,curHour);
         
         curSecO = curSec;
         curMinO = curMin;

@@ -8,7 +8,6 @@
 #include <myUtils.h>
 #include <SdFat.h>
 #include <SdFatUtil.h>
-#include <PiScreen.h>
 // #include <Wire.h>
 #include <i2c_t3.h>
 #include <EEPROM.h>
@@ -18,11 +17,6 @@
 #include <customUtils.h>
 #include <LowPower_Teensy3.h>
 
-
-volatile int hVer = -1;
-
-
-#include <PiTouch.h>
 #include <Time.h>
 
 // #include <ctime>
@@ -30,8 +24,11 @@ volatile int hVer = -1;
 // #define max(x,y) (x > y ? x : y)
 
 #define fori(x) for(int i=0;i<x;i++)
-#define ARGS_MACRO &bt,&lcd,&compass,&touchCtrl,&watch,D,E
-#define CONSTRUCTOR_MACRO (BC127* a,PiScreen* b,LSM303_custom* c,PiTouch* d,PiWatch* d2,int e,int f):Page(a,b,c,d,d2,e,f) {}
+#define ARGS_MACRO &bt,&compass,&watch,D,E
+#define CONSTRUCTOR_MACRO (BC127* a,LSM303_custom* c,PiWatch* d2,int e,int f):Page(a,c,d2,e,f) {}
+
+// #define ARGS_MACRO &bt,&watch,&compass,&watch,&watch,D,E
+// #define CONSTRUCTOR_MACRO (BC127* a,PiScreen* b,LSM303_custom* c,PiTouch* d,PiWatch* d2,int e,int f):Page(a,b,c,d,d2,e,f) {}
     
 // #include <SPI.h>
 // #include <MemoryFree.h>
@@ -188,9 +185,6 @@ namespace {
 
     int const PAGE_TOTAL    = 4;
 
-    int const DOWN = 0;
-    int const UP = 1;
-
     // Paging Mode
 
     int const NAV       = 0;
@@ -233,13 +227,7 @@ namespace { // Library inits
 
     PiWatch watch;
     
-    PiTouch touchCtrl;
-
-    PiScreen lcd(27,28,29);
-
     BC127 bt(&Serial2,bluetoothMessage);
-
-    // BC127 bt(&Serial2,btStrt,btConnected,btDisconnected,btAvailibleDevice);
 
     SdFat sd;
     

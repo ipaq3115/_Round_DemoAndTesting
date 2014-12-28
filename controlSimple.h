@@ -30,7 +30,7 @@ void ControlSimplePage::initalize() {
     
     if(!backgroundImageFile.open("controlS.gci",O_RDWR)) USB.println("File open fail");
     
-    lcd->printGci(backgroundImageFile,0,0,0);    
+    watch->printRaw(backgroundImageFile,0,0,0);    
     
     firstTouchIndex = -1;
     
@@ -51,7 +51,7 @@ void ControlSimplePage::loop() {
     
         currentQuadrant = newQuadrant;
         
-        lcd->printGci(backgroundImageFile,0,0,currentQuadrant);
+        watch->printRaw(backgroundImageFile,0,0,currentQuadrant);
         
     }
 
@@ -84,7 +84,7 @@ void controlSimplePageInitialize() {
     
     if(!backgroundImageFile.open("controlS.gci",O_RDWR)) USB.println("File open fail");
     
-    lcd.printGci(backgroundImageFile,0,0,0);    
+    watch.printRaw(backgroundImageFile,0,0,0);    
     
     firstTouchIndex = -1;
     
@@ -103,7 +103,7 @@ void controlSimplePageLoop() {
     
         currentQuadrant = newQuadrant;
         
-        lcd.printGci(backgroundImageFile,0,0,currentQuadrant);
+        watch.printRaw(backgroundImageFile,0,0,currentQuadrant);
         
     }
 
@@ -143,7 +143,7 @@ void controlSimplePageTouch(int touchType,int finePos,int activeTouches,int touc
                 
                     currentQuadrant = newQuadrant;
                     
-                    lcd.printGci(backgroundImageFile,0,0,currentQuadrant);
+                    watch.printRaw(backgroundImageFile,0,0,currentQuadrant);
                     
                 }
             

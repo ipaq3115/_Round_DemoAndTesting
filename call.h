@@ -54,22 +54,22 @@ void CallPage::initalize() {
     
     switch(bluetooth->phoneState) {
     
-        case PHONE_IDLE:     lcd->printGci(backgroundImageFile,0,0,4); break;
+        case PHONE_IDLE:     watch->printRaw(backgroundImageFile,0,0,4); break;
         case PHONE_RINGING:  
         
-            lcd->printGci(backgroundImageFile,0,0,1);
+            watch->printRaw(backgroundImageFile,0,0,1);
             printFormattedPhoneNumber(63);
             
             break;
         case PHONE_IN_CALL:  
         
-            lcd->printGci(backgroundImageFile,0,0,3);
+            watch->printRaw(backgroundImageFile,0,0,3);
             printFormattedPhoneNumber(63);
             
             break;
         case PHONE_DIALING:  
         
-            lcd->printGci(backgroundImageFile,0,0,2); 
+            watch->printRaw(backgroundImageFile,0,0,2); 
             printFormattedPhoneNumber(63);
             
             break;
@@ -120,10 +120,10 @@ void CallPage::printFormattedPhoneNumber(int height) {
     
     switch(bluetooth->phoneState) {
     
-        case PHONE_IDLE:     lcd->print(numberPrintStr,fontFile,CENTER,height,backgroundImageFile,0,0,4,0x001F); break;
-        case PHONE_RINGING:  lcd->print(numberPrintStr,fontFile,CENTER,height,backgroundImageFile,0,0,1,0x001F); break;
-        case PHONE_IN_CALL:  lcd->print(numberPrintStr,fontFile,CENTER,height,backgroundImageFile,0,0,3,0x001F); break;
-        case PHONE_DIALING:  lcd->print(numberPrintStr,fontFile,CENTER,height,backgroundImageFile,0,0,2,0x001F); break;
+        case PHONE_IDLE:     watch->print(numberPrintStr,fontFile,CENTER,height,backgroundImageFile,0,0,4,0x001F); break;
+        case PHONE_RINGING:  watch->print(numberPrintStr,fontFile,CENTER,height,backgroundImageFile,0,0,1,0x001F); break;
+        case PHONE_IN_CALL:  watch->print(numberPrintStr,fontFile,CENTER,height,backgroundImageFile,0,0,3,0x001F); break;
+        case PHONE_DIALING:  watch->print(numberPrintStr,fontFile,CENTER,height,backgroundImageFile,0,0,2,0x001F); break;
     
     }
     
@@ -258,11 +258,11 @@ void CallPage::printNumber(char * string) {
     
     int printLength = MyUtils::strLength(string);
     
-    lcd->setColor(0,0,0);
-    lcd->fillRect(110 - 16 * lastPrintLength / 2,110 - 8,110 + 16 * lastPrintLength / 2,110 + 8);
+    watch->setColor(0,0,0);
+    watch->fillRect(110 - 16 * lastPrintLength / 2,110 - 8,110 + 16 * lastPrintLength / 2,110 + 8);
 
-    lcd->setColor(0xFF,0xFF,0xFF);
-    lcd->print(string,110 - 16 * printLength / 2,110 - 8);
+    watch->setColor(0xFF,0xFF,0xFF);
+    watch->print(string,110 - 16 * printLength / 2,110 - 8);
     
     lastPrintLength = printLength;
 

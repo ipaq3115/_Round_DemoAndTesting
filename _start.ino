@@ -1,7 +1,6 @@
 
 IntervalTimer blinktimer;
 
-
 bool timeSetWorked = false;
 
 #include <EEPROM.h>
@@ -17,7 +16,7 @@ void setup() {
 
     // Make sure this is the first thing you do because it sets
     // pin states up for the device
-    watch.init();
+    watch.init(touch);
     
     USB.begin(300000); 
     // while(!USB); // Wait for PC to open the USB serial port before running this program
@@ -29,7 +28,7 @@ void setup() {
     hVer = EEPROM.read(0);
     if(D) db.printf("hardware %d %s\r\n",hVer,hVer == 0 ? "REVA" : "REVB");
     if(hVer != HARDWARE_REVA && hVer != HARDWARE_REVB) hVer = HARDWARE_REVB;
-    // hVer = HARDWARE_REVB;
+    // hVer = HARDWARE_REVA;
     
     // if(hVer == HARDWARE_REVB) blinktimer.begin(blinkled, 200000);
     
@@ -57,23 +56,25 @@ void setup() {
     // bt.getConfig(BC127::BAUD);
     // bt.power(OFF);
     
-    lcd.InitLCD(currentRotation);
-    touchCtrl.setOrientation(currentRotation);
+    // watch.InitLCD(currentRotation);
+    watch.setOrientation(currentRotation);
     
     loadSdCard();
     
-    SdFile file;
+    // showSplash();
     
-    file.open("hellopi.Gci",O_READ);
-    
-    lcd.printGci(file,0,0,0);
-    watch.rampBrightness(UP);
-    
-    delay(1000);
-    
-    lcd.printGci(file,0,0,1);
-    
-    while(1) pollButtons();
+    // SdFile file;
+    // 
+    // file.open("hellopi.Gci",O_READ);
+    // 
+    // watch.printRaw(file,0,0,0);
+    // watch.rampBrightness(UP);
+    // 
+    // delay(1000);
+    // 
+    // watch.printRaw(file,0,0,1);
+    // 
+    // while(1) pollButtons();
     
     pageArray[PAGE::HOME]               = new HomePage(ARGS_MACRO);
     pageArray[PAGE::GRAVITY_BALL]       = new GravityBallPage(ARGS_MACRO);
@@ -99,16 +100,14 @@ void setup() {
     pageArray[PAGE::TEXT_ENTRY]         = new TextEntryPage(ARGS_MACRO);
     
     
-    // showSplash();
-    
     
     // goPage(PAGE::TEXT_ENTRY);
     // goPage(PAGE::VIDEO);
     // startPlay("paul2");
     // goPage(PAGE::TOUCH_DEMO);
     // goPage(PAGE::KICKSTARTER_DEMO);
-    goPage(PAGE::KICKSTARTER_CLOCK);
-    // goPage(PAGE::BLUE_CLOCK);
+    // goPage(PAGE::KICKSTARTER_CLOCK);
+    goPage(PAGE::BLUE_CLOCK);
     // goPage(PAGE::HOME);
     // goPage(PAGE::SETTINGS);
     
@@ -131,7 +130,7 @@ void setup() {
     // startPlay("drift");
     // startPlay("drift2");
 
-    touchCtrl.init(touch);
+    watch.speaker(ON);
     
 }
 
@@ -178,7 +177,7 @@ void loop() {
     
     }
     
-    touchCtrl.loop();
+    watch.loop();
 
     pollButtons();
     
@@ -227,8 +226,8 @@ void checkOrientation() {
         
         if(lastRotation != currentRotation) {
         
-            lcd.setOrientation(currentRotation);
-            touchCtrl.setOrientation(currentRotation);
+            watch.setOrientation(currentRotation);
+            watch.setOrientation(currentRotation);
             pageArray[page]->redraw();
         
         }
@@ -505,13 +504,13 @@ void loadSdCard() {
         
     } else {
     
-        lcd.print("No sdcard",CENTER,100);
+        watch.print("No sdcard",CENTER,100);
         
         if(D) USB.println("No sdcard");
         
         delay(750);
         
-        lcd.clrScr();
+        watch.clrScr();
         
         goto retry1;
         
@@ -523,11 +522,16 @@ void showSplash() {
 
     SdFile splashImage;
     
-    if(!splashImage.open("PiSplash.bmp",O_RDWR)) USB.println("PiSplash not opened");
+    if(!splashImage.open("hackaday.gci",O_RDWR)) if(E) db.println("hackaday.gci not opened");
+    watch.printRaw(splashImage,0,0);
     
-    lcd.printBitmap(splashImage,0,0);
+    // if(!splashImage.open("PiSplash.bmp",O_RDWR)) USB.println("PiSplash not opened");
+    // watch.printBitmap(splashImage,0,0);
     
     watch.rampBrightness(UP);
+    
+    while(1);
+    delay(500);
     
     splashImage.close();
     
@@ -709,15 +713,15 @@ void buttonEvent(int dir,int index) {
                 
                 // if(hVer == HARDWARE_REVB) blinktimer.begin(blinkled, 100000);
                 
-                lcd.setColor(VGA_WHITE);
-                lcd.fillRect(0,0,219,219);
+                watch.setColor(VGA_WHITE);
+                watch.fillRect(0,0,219,219);
                 
-                lcd.setColor(VGA_BLACK);
+                watch.setColor(VGA_BLACK);
                 for(int i=0;i<110;i++) {
                 
-                    // lcd.setColor(VGA_BLACK);
-                    lcd.drawHLine(0,i,219);
-                    lcd.drawHLine(0,219-i,219);
+                    // watch.setColor(VGA_BLACK);
+                    watch.drawHLine(0,i,219);
+                    watch.drawHLine(0,219-i,219);
                     delayMicroseconds(1250);
                 
                 }
@@ -898,13 +902,13 @@ void printNeedleFast(int frame,int undrawFrame) {
     int xmin = min(110,min(xbound,xboundold));
     int ymin = min(100,min(ybound,yboundold)); // if(ymin == 109) ymax -= 10;
     
-    // lcd.setColor(0xFF,0xFF,0xFF);
-    // lcd.fillRect(xmin,ymin,xmax,ymax);
+    // watch.setColor(0xFF,0xFF,0xFF);
+    // watch.fillRect(xmin,ymin,xmax,ymax);
     
-    lcd.printGci(carGagueFile,10,0,frame,xmin-10,ymin,xmax-10,ymax,false);
+    watch.printRaw(carGagueFile,10,0,frame,xmin-10,ymin,xmax-10,ymax,false);
     
-    // lcd.setColor(0xFF,0xFF,0xFF);
-    // lcd.fillCircle(xbound,ybound,5);
+    // watch.setColor(0xFF,0xFF,0xFF);
+    // watch.fillCircle(xbound,ybound,5);
     
     // delay(50);
     
@@ -932,11 +936,11 @@ void drawStargateLight(int value) {
     
     if(value != currentLight) {
 
-        if(currentLight != -1) lcd.printBitmap(sgDarkFile,10,0,chevPos[currentLight][0],chevPos[currentLight][1],chevPos[currentLight][2],chevPos[currentLight][3],false);
+        if(currentLight != -1) watch.printBitmap(sgDarkFile,10,0,chevPos[currentLight][0],chevPos[currentLight][1],chevPos[currentLight][2],chevPos[currentLight][3]);
         
         currentLight = value;
         
-        lcd.printBitmap(sgLightFile,10,0,chevPos[currentLight][0],chevPos[currentLight][1],chevPos[currentLight][2],chevPos[currentLight][3],false);
+        watch.printBitmap(sgLightFile,10,0,chevPos[currentLight][0],chevPos[currentLight][1],chevPos[currentLight][2],chevPos[currentLight][3]);
     
     }
     
@@ -978,7 +982,7 @@ void partyCircles() {
     spinD-=6; if(spinD<0) spinD=359;
     // angleA-=10; if(angleA<0) angleA += 360;
     
-    // lcd.setColor(random(255), random(255), random(255));
+    // watch.setColor(random(255), random(255), random(255));
     
     // Build number string for one of the pointers
     // char tempString[20];
@@ -991,10 +995,10 @@ void partyCircles() {
     // tempString2[3]=0;
     
     // Print number string to the screen
-    // lcd.print(tempString,70,60);
+    // watch.print(tempString,70,60);
     
     // Print number string to the screen
-    // lcd.print(tempString2,70,110);
+    // watch.print(tempString2,70,110);
     
     // Draw new circles
     // drawCompass(120,110,angleA,1);
@@ -1012,18 +1016,18 @@ void partyCircles() {
 
 void drawpointer(int centerx,int centery,int radius,int angle,int color) {
 
-    // if(color) { lcd.setColor(random(255), random(255), random(255)); } 
-    if(color) { lcd.setColor(255, 255, 255); }
-    else { lcd.setColor(0, 0, 0); }
+    // if(color) { watch.setColor(random(255), random(255), random(255)); } 
+    if(color) { watch.setColor(255, 255, 255); }
+    else { watch.setColor(0, 0, 0); }
     
     angle-=180;
 
     int xoffset = sin(MyUtils::degreestoradians(angle))*radius;
     int yoffset = cos(MyUtils::degreestoradians(angle))*radius;
 
-    if(color) { lcd.fillCircle(centerx-xoffset,centery+yoffset,5); }
-    // else { lcd.printBitmap(carFile,10,0,centerx-xoffset-6,centery+yoffset-6,centerx-xoffset+6,centery+yoffset+6,false); } 
-    else { lcd.fillCircle(centerx-xoffset,centery+yoffset,6); }
+    if(color) { watch.fillCircle(centerx-xoffset,centery+yoffset,5); }
+    // else { watch.printBitmap(carFile,10,0,centerx-xoffset-6,centery+yoffset-6,centerx-xoffset+6,centery+yoffset+6,false); } 
+    else { watch.fillCircle(centerx-xoffset,centery+yoffset,6); }
     
 }
 
@@ -1036,11 +1040,11 @@ void drawCompass(int x,int y,int angle,int enabled) {
     MyUtils::orbitPoint(x,y,angle + 180, 100, polygon[2][0],polygon[2][1]);
     MyUtils::orbitPoint(x,y,angle - 90,  30,  polygon[3][0],polygon[3][1]);
     
-    // if(enabled) { lcd.setColor(random(255), random(255), random(255)); } else { lcd.setColor(0,0,0); } 
-    if(enabled) { lcd.setColor(255,255,255); } else { lcd.setColor(0,0,0); }
-    for(int i=0;i<4;i++) lcd.drawLine(polygon[i][0],polygon[i][1],polygon[(i+1)%4][0],polygon[(i+1)%4][1]);
+    // if(enabled) { watch.setColor(random(255), random(255), random(255)); } else { watch.setColor(0,0,0); } 
+    if(enabled) { watch.setColor(255,255,255); } else { watch.setColor(0,0,0); }
+    for(int i=0;i<4;i++) watch.drawLine(polygon[i][0],polygon[i][1],polygon[(i+1)%4][0],polygon[(i+1)%4][1]);
     
-    // lcd.drawLine(polygon[0][0],polygon[0][1],polygon[1][0],polygon[1][1]);
+    // watch.drawLine(polygon[0][0],polygon[0][1],polygon[1][0],polygon[1][1]);
 
 }
 
@@ -1217,7 +1221,7 @@ void calculateCircle() {
     
     int angle = 0;
     
-    lcd.setColor(255, 255, 255);
+    watch.setColor(255, 255, 255);
     
     int tmpx,tmpy;
     
@@ -1250,7 +1254,7 @@ void calculateCircle() {
         
         }
         
-        //lcd.drawPixel(120+x[i],110+y[i]);
+        //watch.drawPixel(120+x[i],110+y[i]);
         
     }
     
@@ -1281,8 +1285,8 @@ void calculateCircle() {
         }
         if(continueflg) continue;
     
-        lcd.drawPixel(curve[i][0],i);
-        lcd.drawPixel(curve[i][1],i);
+        watch.drawPixel(curve[i][0],i);
+        watch.drawPixel(curve[i][1],i);
         
         // if(D) db << pstr("X: ") << dec << curve[i][0] << pstr(" X: ") << dec << curve[i][1] << pstr(" Y: ") << dec << i << endl;
     
@@ -1342,14 +1346,14 @@ void animateNotificationTest() {
         
         }
     
-        lcd.setColor(0xFFFF);
-        lcd.fillRect(0,219 - i,219,219);
+        watch.setColor(0xFFFF);
+        watch.fillRect(0,219 - i,219,219);
         
-        lcd.setColor(0);
-        lcd.setBackColor(0xFFFF);
-        lcd.setFont(BigFont);
-        lcd.print("Hello",CENTER,219 - i + 10);
-        lcd.print("World!",CENTER,219 - i + 25);
+        watch.setColor(0);
+        watch.setBackColor(0xFFFF);
+        watch.setFont(BigFont);
+        watch.print("Hello",CENTER,219 - i + 10);
+        watch.print("World!",CENTER,219 - i + 25);
         
         delay(2);
         
@@ -1802,7 +1806,7 @@ void setupOld() {
     
     // showSplash();
     
-    // lcd.clrScr();
+    // watch.clrScr();
     
     // watch.rampBrightness(UP);
     
@@ -1810,7 +1814,7 @@ void setupOld() {
     
     // if(!tmpFile.open("PiSplash.bmp",O_RDWR)) USB.println("File open fail");
     
-    // lcd.printBitmap(tmpFile,0,0);
+    // watch.printBitmap(tmpFile,0,0);
     
     // while(true);
  
@@ -1823,7 +1827,7 @@ void setupOld() {
     // 
     // watch.rampBrightness(DOWN);
     // 
-    // lcd.printGciTransparent(0x001F,A,0,0,45,B,0,0,0); 
+    // watch.printRawTransparent(0x001F,A,0,0,45,B,0,0,0); 
     // 
     // watch.rampBrightness(UP);
     // 
@@ -1833,9 +1837,9 @@ void setupOld() {
     //     count+=15;
     //     if(count >= 360) count -= 360;
     // 
-    //     // lcd.printGci(A,0,0,count); 
-    //     lcd.printGciTransparent(0x001F,A,0,0,count,B,0,0,0); 
-    //     // lcd.printGciTransparent(0x001F,A,0,0,count,B,0,0,359 - count); 
+    //     // watch.printRaw(A,0,0,count); 
+    //     watch.printRawTransparent(0x001F,A,0,0,count,B,0,0,0); 
+    //     // watch.printRawTransparent(0x001F,A,0,0,count,B,0,0,359 - count); 
     //     
     // 
     // 
@@ -1845,7 +1849,7 @@ void setupOld() {
     
     // if(!video.open("shipVid.Gci",O_RDWR)) if(D) USB.println("Couldn't open video");
     
-    // while(true) lcd.playGci(video,0,0,0);
+    // while(true) watch.playGci(video,0,0,0);
     
     
     // // if(!video.open("test.Gci",O_RDWR)) if(D) USB.println("Couldn't open video");
@@ -1857,19 +1861,19 @@ void setupOld() {
     // analogWrite(PIN::LCD_BACKLIGHT, 50);
     
     
-    // lcd.loadVideo(video2,0,0);
+    // watch.loadVideo(video2,0,0);
     // 
     // int count = 0;
     // while(true) {
     //     
     //     count+=10;
     //     if(count > 359) count -= 360;
-    //     lcd.videoFrame(count);
-    //     // lcd.playGci(video2,0,0,0);
+    //     watch.videoFrame(count);
+    //     // watch.playGci(video2,0,0,0);
     //     
     //     // delay(5000);
     //     
-    //     // lcd.playGci(video,0,0,0);
+    //     // watch.playGci(video,0,0,0);
     //     
     //     // delay(5000);
     // 
@@ -1880,7 +1884,7 @@ void setupOld() {
     // 
     //     int timeA = micros();
     // 
-    //     lcd.printGci(video,0,0,i);
+    //     watch.printRaw(video,0,0,i);
     //  
     //     int timeB = micros();
     //     
@@ -1894,7 +1898,7 @@ void setupOld() {
     
     if(!back.open("blue.bmp",O_RDWR)) if(D) USB.println("Couldn't open video");
     
-    lcd.printBitmap(back,0,0);
+    watch.printBitmap(back,0,0);
     
     SdFile numbers;
     
@@ -1902,28 +1906,28 @@ void setupOld() {
     
     while(true) {
     
-        lcd.printGci(numbers,32,77,1);
-        lcd.printGci(numbers,64,77,1 * 11 + 1);
-        // lcd.printGci(numbers,32,77,9);
+        watch.printRaw(numbers,32,77,1);
+        watch.printRaw(numbers,64,77,1 * 11 + 1);
+        // watch.printRaw(numbers,32,77,9);
         
         delay(500);
         
-        // lcd.printBitmap(back,0,0);
-        lcd.printGci(numbers,32,77,10);
-        lcd.printGci(numbers,64,77,1 * 11 + 10);
+        // watch.printBitmap(back,0,0);
+        watch.printRaw(numbers,32,77,10);
+        watch.printRaw(numbers,64,77,1 * 11 + 10);
         
         delay(500);
         
         // for(int x=0;x<11;x++) {
         
-            // lcd.printGci(numbers,32,77,x);
+            // watch.printRaw(numbers,32,77,x);
             
             // delay(500);
         
         // }
     }
     */
-    // pageArray[PAGE::HOME] = new HomePage(&bt,&lcd);
+    // pageArray[PAGE::HOME] = new HomePage(&bt,&watch);
     
     // if(D) USB.printf("freeMemory %d\r\n",mallinfo().uordblks);
     
@@ -1957,11 +1961,11 @@ void setupOld() {
 //     if(!carGagueFile.open("needles.gci",O_RDWR)) if(D) db << pstr("File open fail") << endl;
 //     if(!carGagueInvFile.open("needlesR.bmp",O_RDWR)) if(D) db << pstr("File open fail") << endl;
 //     
-//     // printGci(carGagueFile,10,0);
+//     // printRaw(carGagueFile,10,0);
 //     
 //     if(!wheelFile.open("wheelB.bmp",O_RDWR)) if(D) db << pstr("File open fail") << endl;
 //     if(!wheelInvFile.open("wheelR.bmp",O_RDWR)) if(D) db << pstr("File open fail") << endl;
-//     // lcd.printBitmap(wheelFile,10,0);
+//     // watch.printBitmap(wheelFile,10,0);
 //     
 //     if(!carFile.open("car2.bmp",O_RDWR)) if(D) db << pstr("File open fail") << endl;
 //     if(!carInvFile.open("car2.bmf",O_RDWR)) if(D) db << pstr("File open fail") << endl;
@@ -1973,11 +1977,11 @@ void setupOld() {
 //     
 //     
 //     
-    // lcd.printBitmapBackGround(backgroundImageFile,10,0);
-    // lcd.printBitmap(backgroundImageFile,10,0);
-    // lcd.printBitmap(sgLightFile,10,0);
-//     lcd.printBitmap(transparentStarBitmapFile,50,40);
-//     lcd.printBitmap(transparentGradientFile,50,120);
+    // watch.printBitmapBackGround(backgroundImageFile,10,0);
+    // watch.printBitmap(backgroundImageFile,10,0);
+    // watch.printBitmap(sgLightFile,10,0);
+//     watch.printBitmap(transparentStarBitmapFile,50,40);
+//     watch.printBitmap(transparentGradientFile,50,120);
     
     // while(1);
     
@@ -1992,11 +1996,11 @@ void setupOld() {
     
     // while(1) {
 
-        // lcd.printBitmap(imageFile,10,0,chevPos[chevC][0],chevPos[chevC][1],chevPos[chevC][2],chevPos[chevC][3]);
+        // watch.printBitmap(imageFile,10,0,chevPos[chevC][0],chevPos[chevC][1],chevPos[chevC][2],chevPos[chevC][3]);
         
         // chevC++; if(chevC>=9) chevC=0;
         
-        // lcd.printBitmap(imageFileB,10,0,chevPos[chevC][0],chevPos[chevC][1],chevPos[chevC][2],chevPos[chevC][3]);
+        // watch.printBitmap(imageFileB,10,0,chevPos[chevC][0],chevPos[chevC][1],chevPos[chevC][2],chevPos[chevC][3]);
         
         // delay(111);
 
@@ -2004,6 +2008,6 @@ void setupOld() {
     
     // if(D) db << pstr("top to bottom") << endl;
     
-    // for(int i=0;i<220;i+=4) { lcd.printBitmap(imageFile,10,0,0,i,220,i+3); delay(15); }
+    // for(int i=0;i<220;i+=4) { watch.printBitmap(imageFile,10,0,0,i,220,i+3); delay(15); }
     
 }

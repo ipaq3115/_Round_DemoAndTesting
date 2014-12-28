@@ -28,16 +28,16 @@ void initalize() {
     // if(!secondsFile.open("blusec.gci",O_RDWR)) USB.println("File open fail");
     if(!secondsFile.open("bentlyS.gci",O_RDWR)) USB.println("File open fail");
     
-    // lcd->backgroundInfo.file.close();
-    // lcd->setBackgroundImage("test.gci",0,0);
-    // // lcd->setBackgroundImage("bluish.bmp",0,0);
+    // watch->clrBackground();
+    // watch->setBackground("test.gci",0,0);
+    // // watch->setBackground("bluish.bmp",0,0);
     
     mergeBackground(now());
     
-    lcd->setBackgroundImage(cacheFilename,0,0);
-    lcd->printImage(&lcd->backgroundInfo);
+    watch->setBackground(cacheFilename,0,0);
+    watch->printBackground();
     
-    // lcd->printGci(secondsFile,0,0,second());
+    // watch->printRaw(secondsFile,0,0,second());
     
     currentHour = -1;
     currentMinute = -1;
@@ -57,20 +57,17 @@ void leavingPage() {
 
 void mergeBackground(time_t tmpTime) {
 
-    lcd->backgroundInfo.file.close();
+    watch->clrBackground();
     
     SdFile backfile,frontfile,newfile;
     
     sd.remove(cacheFilename);
     
-    // if(!backfile.open("PiSplash.gci",O_RDWR)) Serial.println("bluish didn't load");
     if(!backfile.open("bluish.gci",O_RDWR)) Serial.println("bluish didn't load");
-    // if(!backfile.open("radBack.gci",O_RDWR)) Serial.println("radBack didn't load");
-    // if(!backfile.open("kickBack.gci",O_RDWR)) Serial.println("kickBack didn't load");
     if(!frontfile.open("blumin.gci",O_RDWR)) Serial.println("blumin didn't load");
     if(!newfile.open("tmp.gci",O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
-    lcd->mergeImages(&newfile,&backfile,&frontfile,0,0,minute(tmpTime));
+    watch->mergeImages(&newfile,&backfile,&frontfile,0,0,minute(tmpTime));
     
     backfile.close();
     frontfile.close();
@@ -80,7 +77,7 @@ void mergeBackground(time_t tmpTime) {
     if(!frontfile.open("bluhour.gci",O_RDWR)) Serial.println("bluhour didn't load");
     if(!newfile.open(cacheFilename,O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
-    lcd->mergeImages(&newfile,&backfile,&frontfile,0,0,(hour(tmpTime) % 12)  * 5 + minute(tmpTime) / 12);
+    watch->mergeImages(&newfile,&backfile,&frontfile,0,0,(hour(tmpTime) % 12)  * 5 + minute(tmpTime) / 12);
     
     backfile.close();
     frontfile.close();
@@ -88,7 +85,7 @@ void mergeBackground(time_t tmpTime) {
     
     sd.remove("tmp.gci");
     
-    lcd->setBackgroundImage(cacheFilename,0,0);
+    watch->setBackground(cacheFilename,0,0);
     
 
 }
@@ -105,9 +102,9 @@ void loop() {
             
             currentSecond = second(newTime);
             
-            lcd->printImage(&lcd->backgroundInfo);
+            watch->printBackground();
 
-            lcd->printGci(secondsFile,0,0,second(newTime));
+            watch->printRaw(secondsFile,0,0,second(newTime));
             
             if(second(newTime) == 59) mergeBackground(newTime + 1);
             

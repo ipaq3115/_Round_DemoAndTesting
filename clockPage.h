@@ -30,7 +30,7 @@ void init() {
     
     if(!backgroundImageFile.open("clkBack.gci",O_RDWR)) if(D) USB.println("File open fail");
     
-    lcd->printGci(backgroundImageFile,0,0,page);
+    watch->printRaw(backgroundImageFile,0,0,page);
     
     backgroundImageFile.close();
     

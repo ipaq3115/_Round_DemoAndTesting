@@ -63,15 +63,15 @@ void initalize() {
     lastMovePos = -1;
     
     // Max response rate on the touch for buttery smoothness while navigating the video
-    oldResponseRate = touchCtrl->getResponseRateRaw();
-    touchCtrl->setResponseRate(100);
+    oldResponseRate = watch->getResponseRateRaw();
+    watch->setResponseRate(100);
     
 }
 
 void leavingPage() {
 
     // Return the response rate to the previous condition
-    touchCtrl->setResponseRateRaw(oldResponseRate);
+    watch->setResponseRateRaw(oldResponseRate);
     
     stopAction();
 
@@ -119,12 +119,12 @@ void loadVideo(char * name,int x,int y) {
     // startPlay("drift2");
     // startPlay(name);
 
-    videoFrameTotal = lcd->loadVideo(videoFile,0,0);
+    videoFrameTotal = watch->loadVideo(videoFile,0,0);
     currentFrame = 0;
     
     
-    // lcd->clrScr();
-    lcd->videoFrame(x,y,0);
+    // watch->clrScr();
+    watch->videoFrame(x,y,0);
     startPlay(name);
     
     vidX = x;
@@ -143,7 +143,7 @@ void loop() {
         
         frameUpdateTime = 0;
         
-        lcd->videoFrame(currentFrame,vidX,vidY);
+        watch->videoFrame(currentFrame,vidX,vidY);
         
         // cli();
         // 
@@ -223,7 +223,7 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
                     if(currentFrame >= videoFrameTotal) currentFrame -= videoFrameTotal;
                     if(currentFrame < 0) currentFrame += videoFrameTotal;
                     
-                    lcd->videoFrame(currentFrame,0,0);
+                    watch->videoFrame(currentFrame,0,0);
                     
                 }
                 

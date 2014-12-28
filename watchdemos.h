@@ -46,7 +46,7 @@ void ClockDemoPage::initalize() {
         
     }
     
-    lcd->printBitmap(backgroundImageFile,0,0);
+    watch->printBitmap(backgroundImageFile,0,0);
 
     oldMode = mode;
 

@@ -29,10 +29,10 @@ void initalize() {
     
     mergeBackground(now());
     
-    lcd->setBackgroundImage(cacheFilename,0,0);
-    lcd->printImage(&lcd->backgroundInfo);
+    watch->setBackground(cacheFilename,0,0);
+    watch->printBackground();
     
-    lcd->printGci(secondsFile,0,0,second());
+    watch->printRaw(secondsFile,0,0,second());
     
     currentHour = -1;
     currentMinute = -1;
@@ -52,7 +52,7 @@ void leavingPage() {
 
 void mergeBackground(time_t tmpTime) {
 
-    lcd->backgroundInfo.file.close();
+    watch->clrBackground();
     
     SdFile backfile,frontfile,newfile;
     
@@ -64,7 +64,7 @@ void mergeBackground(time_t tmpTime) {
     if(!frontfile.open("bentlyM.gci",O_RDWR)) Serial.println("blumin didn't load");
     if(!newfile.open("tmp.gci",O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
-    lcd->mergeImages(&newfile,&backfile,&frontfile,0,0,minute(tmpTime));
+    watch->mergeImages(&newfile,&backfile,&frontfile,0,0,minute(tmpTime));
     
     backfile.close();
     frontfile.close();
@@ -74,13 +74,13 @@ void mergeBackground(time_t tmpTime) {
     if(!frontfile.open("bentlyH.gci",O_RDWR)) Serial.println("bluhour didn't load");
     if(!newfile.open(cacheFilename,O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
-    lcd->mergeImages(&newfile,&backfile,&frontfile,0,0,(hour(tmpTime) % 12)  * 5);
+    watch->mergeImages(&newfile,&backfile,&frontfile,0,0,(hour(tmpTime) % 12)  * 5);
     
     backfile.close();
     frontfile.close();
     newfile.close();
     
-    lcd->setBackgroundImage(cacheFilename,0,0);
+    watch->setBackground(cacheFilename,0,0);
     
 
 }
@@ -97,9 +97,9 @@ void loop() {
             
             currentSecond = second(newTime);
             
-            lcd->printImage(&lcd->backgroundInfo);
+            watch->printBackground();
 
-            lcd->printGci(secondsFile,0,0,second(newTime));
+            watch->printRaw(secondsFile,0,0,second(newTime));
             
             if(second(newTime) == 59) mergeBackground(newTime + 1);
             

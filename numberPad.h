@@ -28,7 +28,7 @@ void initalize() {
     
     if(!backgroundImageFile.open("numpad.bmp",O_RDWR)) USB.println("File open fail");
     
-    lcd->printBitmap(backgroundImageFile,0,0);
+    watch->printBitmap(backgroundImageFile,0,0);
 
     if(callScreensImage.isOpen()) callScreensImage.close();
     
@@ -174,7 +174,7 @@ void newDigit(char value) {
         
             // Print the new background image
         
-            lcd->printGci(callScreensImage,0,0,0);
+            watch->printRaw(callScreensImage,0,0,0);
             
             // Print the phone number
             
@@ -196,9 +196,11 @@ void newDigit(char value) {
             
             SdFile fontFile;
             
-            if(!fontFile.open("font22.Gci",O_RDWR)) Serial.println("Error: no font22.Gci");
+            if(!fontFile.open("dsm22b.Gci",O_RDWR)) Serial.println("Error: no dsm22b.Gci");
+            // if(!fontFile.open("font22.Gci",O_RDWR)) Serial.println("Error: no font22.Gci");
             
-            lcd->print(numberPrintStr,fontFile,CENTER,80,callScreensImage,0,0,0,0x001F);
+            watch->print(numberPrintStr,fontFile,CENTER,80,callScreensImage,0,0,0);
+            // watch->print(numberPrintStr,fontFile,CENTER,80,callScreensImage,0,0,0,0x001F);
             
             fontFile.close();
             
@@ -222,13 +224,13 @@ void printNumber(char * string) {
     
     int printLength = MyUtils::strLength(string);
     
-    lcd->setFont(BigFont);
+    watch->setFont(BigFont);
     
-    lcd->setColor(0,0,0);
-    lcd->fillRect(110 - 16 * lastPrintLength / 2,110 - 8,110 + 16 * lastPrintLength / 2,110 + 8);
+    watch->setColor(0,0,0);
+    watch->fillRect(110 - 16 * lastPrintLength / 2,110 - 8,110 + 16 * lastPrintLength / 2,110 + 8);
 
-    lcd->setColor(0xFF,0xFF,0xFF);
-    lcd->print(string,110 - 16 * printLength / 2,110 - 8);
+    watch->setColor(0xFF,0xFF,0xFF);
+    watch->print(string,110 - 16 * printLength / 2,110 - 8);
     
     lastPrintLength = printLength;
 

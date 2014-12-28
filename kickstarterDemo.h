@@ -20,14 +20,14 @@ void initalize() {
 
     file.open("kickdemo.gci",O_RDWR);
     
-    lcd->loadVideo(file,0,0);
+    watch->loadVideo(file,0,0);
     
     frame = 55;
     
-    lcd->videoFrame(frame++,0,0);
+    watch->videoFrame(frame++,0,0);
     
-    // lcd->setColor(VGA_WHITE);
-    // lcd->fillRect(0,0,219,219);
+    // watch->setColor(VGA_WHITE);
+    // watch->fillRect(0,0,219,219);
     
 }
 
@@ -41,7 +41,7 @@ void loop() {
     
         time = 0;
         
-        lcd->videoFrame(frame++,0,0);
+        watch->videoFrame(frame++,0,0);
     
         if(frame > 65) frame = 55;
     

@@ -33,7 +33,7 @@ void HomePage::initalize() {
     
     if(!backgroundImageFile.open("home.bmp",O_RDWR)) USB.println("File open fail");
     
-    lcd->printBitmap(backgroundImageFile,0,0);
+    watch->printBitmap(backgroundImageFile,0,0);
     
     if(D) { USB.println("homepage initalize is done"); }
     

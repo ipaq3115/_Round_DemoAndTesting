@@ -18,8 +18,8 @@ void initalize() {
 
     if(D) USB.println("initalize");
     
-    lcd->setColor(0,0,0);
-    lcd->fillRect(0,0,219,219);
+    watch->setColor(0,0,0);
+    watch->fillRect(0,0,219,219);
     
 }
 
@@ -90,8 +90,8 @@ void loop() {
             // int tmp = atan(MyUtils::degreestoradians(abs(ballPosY)/abs(ballPosX)));
             // char buff[10];
             // sprintf(buff,"%3d",tmp);
-            // lcd->setColor(0xFFFF);
-            // lcd->print(tmp,CENTER,100);
+            // watch->setColor(0xFFFF);
+            // watch->print(tmp,CENTER,100);
             // (double)ballPosY/sin(tmp)
             
             // if(D) USB.printf("distance from center %03.1f\r\n",);
@@ -250,13 +250,13 @@ void loop() {
 
 void drawBall(int posX,int posY,int color) {
 
-    lcd->setColor(color);
+    watch->setColor(color);
     
-    lcd->setOrientation(0);
+    watch->setOrientation(0);
     
-    lcd->fillCircle(110 + posX,110 + posY,5);
+    watch->fillCircle(110 + posX,110 + posY,5);
     
-    lcd->setOrientation(currentRotation);
+    watch->setOrientation(currentRotation);
     
 }
 
@@ -266,19 +266,19 @@ void drawAccel(int x,int y,int z,int color) {
     y /= 10;
     z /= 20;
     
-    lcd->setColor(color);
+    watch->setColor(color);
 
     // X
-    lcd->drawLine(110,110,110,110 + x);
+    watch->drawLine(110,110,110,110 + x);
     
     // Y
-    lcd->drawLine(110,110,110 + y,110);
+    watch->drawLine(110,110,110 + y,110);
 
     // Z
     int pointX,pointY;
     MyUtils::orbitPoint(110,110,-45,z,pointX,pointY);
     // orbitPoint(110,110,z >= 0 ? 45 : 225,z,pointX,pointY);
-    lcd->drawLine(110,110,pointX,pointY);
+    watch->drawLine(110,110,pointX,pointY);
 
 
 }
@@ -295,7 +295,7 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
         case MOVING:
             break;
         case RELEASED: 
-            lcd->clrScr();
+            watch->clrScr();
             break;
     
     }

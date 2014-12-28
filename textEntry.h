@@ -1,5 +1,4 @@
 
-
 #ifndef TEXT_ENTRY_PAGE_
 #define TEXT_ENTRY_PAGE_
 
@@ -28,7 +27,7 @@ void initalize() {
 
     Serial.println("text entry init");
 
-    lcd->clrScr();
+    watch->clrScr();
     
     drawLetters(-1,VGA_WHITE);
 
@@ -45,7 +44,7 @@ void initalize() {
 
 void redraw() {
 
-    lcd->clrScr();
+    watch->clrScr();
     
     drawLetters(-1,VGA_WHITE);
 
@@ -57,26 +56,26 @@ void drawLetters(int index,int color) {
     
     int result_x,result_y;
     
-    lcd->setColor(color);
+    watch->setColor(color);
 
     for(int i=0;i<26;i++) {
     
         if(index == i && index != -1) {
         
-            lcd->setFont(BigFont);
+            watch->setFont(BigFont);
         
             MyUtils::orbitPoint(110,110,13.85 * (float)i * -1,80,result_x,result_y);
             
-            lcd->printChar('A' + i, result_x - lcd->cfont.x_size / 2, result_y - lcd->cfont.y_size / 2);
+            watch->printChar('A' + i, result_x - watch->cfont.x_size / 2, result_y - watch->cfont.y_size / 2);
             
         
         } else {
         
-            lcd->setFont(SmallFont);
+            watch->setFont(SmallFont);
         
             MyUtils::orbitPoint(110,110,13.85 * (float)i * -1,80,result_x,result_y);
             
-            lcd->printChar('A' + i, result_x - lcd->cfont.x_size / 2, result_y - lcd->cfont.y_size / 2);
+            watch->printChar('A' + i, result_x - watch->cfont.x_size / 2, result_y - watch->cfont.y_size / 2);
             
         }
     
@@ -154,10 +153,10 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
                 // Detecting a change in letter that we are on
                 if(pos != posOld) {
                 
-                    lcd->printGci(font,99, 55,'A' + pos - '!');
-                    lcd->printGci(font,99,124,'A' + pos - '!');
+                    watch->printRaw(font,99, 55,'A' + pos - '!');
+                    watch->printRaw(font,99,124,'A' + pos - '!');
                     
-                    // lcd->clrScr();
+                    // watch->clrScr();
                     drawLetters(posOld,VGA_BLACK);
                     drawLetters(pos,VGA_WHITE);
                     
@@ -172,9 +171,9 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
             
             if(cursorIndex == touchIndex) {
 
-                lcd->setColor(VGA_BLACK);
-                lcd->fillRect(99,55,99+22,55+41);
-                lcd->fillRect(99,124,99+22,124+41);
+                watch->setColor(VGA_BLACK);
+                watch->fillRect(99,55,99+22,55+41);
+                watch->fillRect(99,124,99+22,124+41);
             
                 drawLetters(posOld,VGA_BLACK);
                 drawLetters(-1,VGA_WHITE);
@@ -247,9 +246,9 @@ void delChar() {
 
 void printStr(int color) {
 
-    lcd->setColor(color);
-    lcd->setFont(SmallFont);
-    lcd->print(str,(220 - strLen * lcd->cfont.x_size) / 2,(220 - lcd->cfont.y_size) / 2);
+    watch->setColor(color);
+    watch->setFont(SmallFont);
+    watch->print(str,(220 - strLen * watch->cfont.x_size) / 2,(220 - watch->cfont.y_size) / 2);
 
 }
 

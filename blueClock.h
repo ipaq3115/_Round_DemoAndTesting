@@ -1,5 +1,6 @@
 
 
+
 #ifndef BlUE_CLOCK_PAGE_
 #define BlUE_CLOCK_PAGE_
 
@@ -207,23 +208,23 @@ void printSetItem(int index,bool state) {
     switch(index) {
     
         case TIME_HOUR:     printHour(state ? timeArray[TIME_HOUR] : -1); break;
-        case TIME_MINUTE_A: lcd->printGci(numbFile,128,77,11 * 2 + (!state ? 10 : timeArray[TIME_MINUTE_A])); break;
-        case TIME_MINUTE_B: lcd->printGci(numbFile,160,77,11 * 3 + (!state ? 10 : timeArray[TIME_MINUTE_B])); break;
+        case TIME_MINUTE_A: watch->printRaw(numbFile,128,77,11 * 2 + (!state ? 10 : timeArray[TIME_MINUTE_A])); break;
+        case TIME_MINUTE_B: watch->printRaw(numbFile,160,77,11 * 3 + (!state ? 10 : timeArray[TIME_MINUTE_B])); break;
         case TIME_AMPM:
-            if(state)   lcd->printGci(ampmFile,190,104,timeArray[TIME_AMPM]); 
-            else        lcd->printGci(backgroundImageFile,0,0,1,190,104,211,117,false);
+            if(state)   watch->printRaw(ampmFile,190,104,timeArray[TIME_AMPM]); 
+            else        watch->printRaw(backgroundImageFile,0,0,1,190,104,211,117,false);
             break;
         case TIME_MONTH:
             if(state)   printMonth(timeArray[TIME_MONTH]);
-            else        lcd->printGci(backgroundImageFile,0,0,1,45,157,141,175,false);
+            else        watch->printRaw(backgroundImageFile,0,0,1,45,157,141,175,false);
             break;
         case TIME_DAY:
             if(state)   printDay(timeArray[TIME_DAY]);
-            else        lcd->printGci(backgroundImageFile,0,0,1,144,158,165,171,false);
+            else        watch->printRaw(backgroundImageFile,0,0,1,144,158,165,171,false);
             break;
         case TIME_YEAR:
             if(state)   printYear(timeArray[TIME_YEAR]);
-            else        lcd->printGci(backgroundImageFile,0,0,1,89,179,132,192);
+            else        watch->printRaw(backgroundImageFile,0,0,1,89,179,132,192);
             break;
     }
 
@@ -570,8 +571,8 @@ void printTime(time_t tmpTime) {
     byte minuteA = minute(tmpTime) / 10;
     byte minuteB = minute(tmpTime) - minuteA * 10;
     
-    if(minuteA != timeArray[TIME_MINUTE_A]) lcd->printGci(numbFile,128,77,11 * 2 + minuteA);
-    if(minuteB != timeArray[TIME_MINUTE_B]) lcd->printGci(numbFile,160,77,11 * 3 + minuteB);
+    if(minuteA != timeArray[TIME_MINUTE_A]) watch->printRaw(numbFile,128,77,11 * 2 + minuteA);
+    if(minuteB != timeArray[TIME_MINUTE_B]) watch->printRaw(numbFile,160,77,11 * 3 + minuteB);
     
     timeArray[TIME_MINUTE_A] = minuteA; 
     timeArray[TIME_MINUTE_B] = minuteB; 
@@ -579,7 +580,7 @@ void printTime(time_t tmpTime) {
     // AM/PM
     byte ampm = isPM(tmpTime);
     
-    if(timeArray[TIME_AMPM] != ampm) lcd->printGci(ampmFile,190,104,ampm);
+    if(timeArray[TIME_AMPM] != ampm) watch->printRaw(ampmFile,190,104,ampm);
     
     timeArray[TIME_AMPM] = ampm;
 
@@ -591,8 +592,8 @@ void printHour(int hours) {
 
     if(hours == -1) {
     
-        lcd->printGci(numbFile,32,77,11 * 0 + 10);
-        lcd->printGci(numbFile,64,77,11 * 1 + 10);
+        watch->printRaw(numbFile,32,77,11 * 0 + 10);
+        watch->printRaw(numbFile,64,77,11 * 1 + 10);
         return;
         
     }
@@ -602,9 +603,9 @@ void printHour(int hours) {
     byte hourA = hours / 10;
     byte hourB = hours - hourA * 10;
 
-    lcd->printGci(numbFile,32,77,11 * 0 + (hourA == 0 ? 10 : hourA));
+    watch->printRaw(numbFile,32,77,11 * 0 + (hourA == 0 ? 10 : hourA));
 
-    lcd->printGci(numbFile,64,77,11 * 1 + hourB);
+    watch->printRaw(numbFile,64,77,11 * 1 + hourB);
     
     timeArray[TIME_HOUR] = hours;
     
@@ -623,17 +624,17 @@ void printDay(int day) {
 
     if(day == -1) {
     
-        lcd->printGci(dayAFile,144,158,10);
-        lcd->printGci(dayBFile,155,158,10);
+        watch->printRaw(dayAFile,144,158,10);
+        watch->printRaw(dayBFile,155,158,10);
         
     }
 
     byte dayA = day / 10;
     byte dayB = day - dayA * 10;
 
-    if(day > 9) lcd->printGci(dayAFile,144,158,dayA);
-    else        lcd->printGci(backgroundImageFile,0,0,1,144,158,154,171,false);
-    lcd->printGci(dayBFile,155,158,dayB);
+    if(day > 9) watch->printRaw(dayAFile,144,158,dayA);
+    else        watch->printRaw(backgroundImageFile,0,0,1,144,158,154,171,false);
+    watch->printRaw(dayBFile,155,158,dayB);
     
     timeArray[TIME_DAY] = day;
     
@@ -643,7 +644,7 @@ void printMonth(int month) {
 
     // if(D) USB.printf("printMonth %d\r\n",month);
 
-    if(timeArray[TIME_MONTH] != month) lcd->printGci(monthFile,45,157,month - 1);
+    if(timeArray[TIME_MONTH] != month) watch->printRaw(monthFile,45,157,month - 1);
     
     timeArray[TIME_MONTH] = month;
     
@@ -657,7 +658,7 @@ void printWeekday(int wkday) {
     
     if(wkday < 0) wkday += 7;
 
-    lcd->printGci(weekdayFile,60,136,wkday);
+    watch->printRaw(weekdayFile,60,136,wkday);
     
 }
 
@@ -670,7 +671,7 @@ void printYear(int year) {
     yearstring[4] = 0;
     if(D) db.printf("yearstring %s\r\n",yearstring);
     
-    fori(4) lcd->printGci(yearFile,89,179,yearstring[i] + 1 - '0',i * 11,0,(i + 1) * 11 - 2,12);
+    fori(4) watch->printRaw(yearFile,89,179,yearstring[i] + 1 - '0',i * 11,0,(i + 1) * 11 - 2,12);
     
     timeArray[TIME_YEAR] = year;
     
@@ -680,10 +681,10 @@ void printBack() {
 
     switch(pageMode) {
     
-        case MODE_SET: lcd->printGci(backgroundImageFile,0,0,1); break;
+        case MODE_SET: watch->printRaw(backgroundImageFile,0,0,1); break;
         case MODE_STOPWATCH:
         case MODE_TIMER:
-        case MODE_MAIN: lcd->printGci(backgroundImageFile,0,0,0); break;
+        case MODE_MAIN: watch->printRaw(backgroundImageFile,0,0,0); break;
     
     }
     

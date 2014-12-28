@@ -35,7 +35,7 @@ void AppsPage::initalize() {
     
     if(!backgroundImageFile.open("homeBack.Gci",O_RDWR)) USB.println("File open fail");
     
-    lcd->printGci(backgroundImageFile,0,0,page);
+    watch->printRaw(backgroundImageFile,0,0,page);
     
     if(D) USB.println("apps page initalize is done");
     
@@ -90,7 +90,7 @@ void AppsPage::touch(int touchType,int finePos,int activeTouches,int touchIndex)
                     page++;
                     page %= 2;
                     
-                    lcd->printGci(backgroundImageFile,0,0,page);
+                    watch->printRaw(backgroundImageFile,0,0,page);
                 
                 } else if(page == 0) {
                 

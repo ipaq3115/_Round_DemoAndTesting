@@ -43,8 +43,8 @@ void SettingsPage::printBrightness(int percent) {
     
     if(D) USB.printf("printBrightness value %d percent %d\r\n",value,percent);
 
-    lcd->printGci(brightnessFile,7,38,0,0,0,45,144 - value,false);
-    lcd->printGci(brightnessFile,7,38,1,0,144 - value + 1,45,144,false);
+    watch->printRaw(brightnessFile,7,38,0,0,0,45,144 - value,false);
+    watch->printRaw(brightnessFile,7,38,1,0,144 - value + 1,45,144,false);
     
 }
 
@@ -54,10 +54,10 @@ void SettingsPage::printBattery(int percent) {
     
     if(D) USB.printf("printBattery value %d percent %d\r\n",value,percent);
 
-    lcd->printGci(batteryBarFile,68,7,1,0,0,value,23,false);
-    lcd->printGci(batteryBarFile,68,7,0,value + 1,0,83,23,false);
+    watch->printRaw(batteryBarFile,68,7,1,0,0,value,23,false);
+    watch->printRaw(batteryBarFile,68,7,0,value + 1,0,83,23,false);
     
-    lcd->printGci(batteryPercentFile,74,25,percent);
+    watch->printRaw(batteryPercentFile,74,25,percent);
     
 }
 
@@ -73,7 +73,7 @@ void SettingsPage::initalize() {
     if(!batteryBarFile.open("setBatB.Gci",O_RDWR)) USB.println("File open fail");
     if(!batteryPercentFile.open("setBatP.Gci",O_RDWR)) USB.println("File open fail");
     
-    lcd->printBitmap(backgroundImageFile,0,0);
+    watch->printBitmap(backgroundImageFile,0,0);
     
     printBrightness(watch->getBrightness());
     printBattery(42);
