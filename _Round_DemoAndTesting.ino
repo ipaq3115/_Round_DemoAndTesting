@@ -17,7 +17,9 @@
 #include <customUtils.h>
 #include <LowPower_Teensy3.h>
 
-#include <Time.h>
+HardwareSerial_LP lp_uart = HardwareSerial_LP();
+
+#include <Time_LP.h>
 
 // #include <ctime>
 // #define min(x,y) (x < y ? x : y)
@@ -265,6 +267,8 @@ namespace { // General
     // ArduinoOutStream dbB(Serial);
 
     Page* pageArray[PAGE::TOTAL];
+    
+    long lastTouchTime = 0;
 
 }
 

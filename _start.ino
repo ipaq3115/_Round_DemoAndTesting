@@ -153,6 +153,8 @@ time_t getTeensy3Time() {
 
 void loop() {
 
+    // lowPowerTimeout();
+
     // static elapsedMillis time54;
     // 
     // if(time54 > 100) {
@@ -189,8 +191,6 @@ void loop() {
     
     audioLoop();
     
-    // lowPowerTimeout();
-
     checkOrientation();
     
 }
@@ -236,23 +236,29 @@ void checkOrientation() {
 
 }
 
-#if 0 // Low power stuff
+// #if 1 // Low power stuff
+
+IntervalTimer_LP pwmTimerStart;
+IntervalTimer_LP pwmTimerEnd;
 
 void lowPowerTimeout() {
 
-    IntervalTimer_LP pwmTimerStart;
-    IntervalTimer_LP pwmTimerEnd;
+    if(millis() - lastTouchTime > 2000) {
 
-    if(millis() - lastTouchTime > 5000) {
-
-        TOUCH_READ::timer.end();
+        watch.touchEnd();
 
         // delay(1000);
 
         // bt.power(OFF);
-
+        
+        // time_t tempTime = now();
         LP.CPU(TWO_MHZ);
+        
+        // Resync the clock!
+        setTime(Teensy3Clock.get());
 
+        lp_uart.begin(115200);
+        
         // delay(5000);
 
         // analogWrite(PIN::LCD_BACKLIGHT, 127);
@@ -261,15 +267,49 @@ void lowPowerTimeout() {
 
         pwmTimerStart.begin(pwmON,2000);
 
+        int timeout = 0;
+        
+        long lastTime;
+        lastTime = LP.micros();
+        
+        lp_uart.println("LP LOOP");
         while(1) {
 
-            for(int i=0;i<10;i++) if(touchRead(TOUCH_READ::touchPin[i]) > calValue[i] + 1000) goto out;
+            if(LP.micros() - lastTime > 10000) { // 10ms
+            
+                lastTime = LP.micros();
+            
+                // lp_uart.println("time");
+            
+                if(page == PAGE::BLUE_CLOCK) {
+                    
+                    // int ta = LP.micros();
+                    // now();
+                    // int tb = LP.micros();
+                    // lp_uart.printf("A: %d\r\n",tb-ta);
+                    
+                    
+                    // int ta = LP.micros();
+                    pageArray[page]->loop();
+                    // int tb = LP.micros();
+                    // lp_uart.printf("B: %d\r\n",tb-ta);
+                    
+                }
+                
+                timeout = 0;
+                
+                // lp_uart.println("Done"); while(1);
+            
+            }
+        
+            for(int i=0;i<10;i++) if(touchPinB[i] != 0 && touchPinB[i] != 1 && touchRead(touchPinB[i]) > watch.calValue[i] + 50) goto out;
 
         }
 
         out:
 
         pwmTimerStart.end();
+        pwmTimerEnd.end();
 
         LP.CPU(F_CPU);
 
@@ -277,7 +317,7 @@ void lowPowerTimeout() {
 
         // LP.DeepSleep(TSI_WAKE, TOUCH_READ::touchPin[5], calValue[5] + 1000);
 
-        startSample();
+        watch.restartTouch();
 
         lastTouchTime = millis();
 
@@ -301,7 +341,7 @@ void pwmOFF() {
 
 }
 
-#endif
+// #endif
 
 void checkPhoneState() {
 
@@ -626,6 +666,8 @@ void bluetoothMessage(bt_event event) {
 }
 
 void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
+
+    lastTouchTime = millis();
 
     if(D && touchType != MOVING) {
         

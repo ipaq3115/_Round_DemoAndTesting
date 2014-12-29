@@ -36,6 +36,7 @@ enum time_array {
     TIME_MONTH,
     TIME_DAY,
     TIME_YEAR,
+    TIME_WEEKDAY,
 
     TIME_TOTAL
 
@@ -130,13 +131,15 @@ void init() {
     
     printBack();
     
-    timeArray[TIME_HOUR]        = -1;
-    timeArray[TIME_MINUTE_A]    = -1;
-    timeArray[TIME_MINUTE_B]    = -1;
-    timeArray[TIME_AMPM]        = -1;
-    timeArray[TIME_MONTH]       = -1;
-    timeArray[TIME_DAY]         = -1;
-    timeArray[TIME_YEAR]        = -1;
+    fori(TIME_TOTAL) timeArray[i] = -1;
+    
+    // timeArray[TIME_HOUR]        = -1;
+    // timeArray[TIME_MINUTE_A]    = -1;
+    // timeArray[TIME_MINUTE_B]    = -1;
+    // timeArray[TIME_AMPM]        = -1;
+    // timeArray[TIME_MONTH]       = -1;
+    // timeArray[TIME_DAY]         = -1;
+    // timeArray[TIME_YEAR]        = -1;
 
     if(pageMode == MODE_SET) {
         
@@ -170,10 +173,10 @@ void loop() {
 
 void mainLoop() {
 
-    static elapsedMillis updateTime;
-    if(updateTime > 100) {
+    // static elapsedMillis updateTime;
+    // if(updateTime > 100) {
         
-        updateTime = 0;
+        // updateTime = 0;
 
         // if(D) USB.printf("curTime %03d %03d %03d %03d\r\n",curTime.hour,curTime.minute,curTime.second,curTime.hundredth);
         
@@ -185,9 +188,23 @@ void mainLoop() {
         // printTime(curTime.hour,curTime.minute);
         // printDate(curTime.day,curTime.month,curTime.year);
         
-    }
+    // }
 
 }
+
+// void lowPowerLoop() {
+//     
+//     static long lastTime = 0;
+//     
+//     if(lp_micros(TWO_MHZ) - lastTime > 100000) {
+//     
+//         printTime(now());
+//         
+//         lastTime = lp_micros(TWO_MHZ);
+//     
+//     }
+//     
+// }
 
 void setLoop() {
 
@@ -585,11 +602,13 @@ void printTime(time_t tmpTime) {
     timeArray[TIME_AMPM] = ampm;
 
     printDate(tmpTime);
-    
+   
 }
 
 void printHour(int hours) {
-
+    
+    if(D) db.printf("printHour %d\r\n",hours);
+    
     if(hours == -1) {
     
         watch->printRaw(numbFile,32,77,11 * 0 + 10);
@@ -597,6 +616,8 @@ void printHour(int hours) {
         return;
         
     }
+
+    timeArray[TIME_HOUR] = hours;
 
     if(hours > 12) hours -= 12;
     
@@ -607,16 +628,14 @@ void printHour(int hours) {
 
     watch->printRaw(numbFile,64,77,11 * 1 + hourB);
     
-    timeArray[TIME_HOUR] = hours;
-    
 }
 
 void printDate(time_t tmpTime) {
 
-    printWeekday(weekday(tmpTime));
-    printMonth(month(tmpTime));
-    printDay(day(tmpTime));
-    if(timeArray[TIME_YEAR] != year(tmpTime)) printYear(year(tmpTime));
+    if(timeArray[TIME_WEEKDAY] != weekday(tmpTime))     printWeekday(weekday(tmpTime));
+    if(timeArray[TIME_MONTH] != month(tmpTime))         printMonth(month(tmpTime));
+    if(timeArray[TIME_DAY] != day(tmpTime))             printDay(day(tmpTime));
+    if(timeArray[TIME_YEAR] != year(tmpTime))           printYear(year(tmpTime));
     
 }
 
@@ -644,13 +663,15 @@ void printMonth(int month) {
 
     // if(D) USB.printf("printMonth %d\r\n",month);
 
-    if(timeArray[TIME_MONTH] != month) watch->printRaw(monthFile,45,157,month - 1);
+    watch->printRaw(monthFile,45,157,month - 1);
     
     timeArray[TIME_MONTH] = month;
     
 }
 
 void printWeekday(int wkday) {
+    
+    timeArray[TIME_WEEKDAY] = wkday;
 
     // This number is 1 indexed and it starts at Sunday whereas the file is 
     // zero indexed and it starts with monday, therefore we subtract two here
