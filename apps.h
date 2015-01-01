@@ -99,7 +99,7 @@ void AppsPage::touch(int touchType,int finePos,int activeTouches,int touchIndex)
                         case 1: goPage(PAGE::GRAVITY_BALL); return;
                         case 2: goPage(PAGE::PHONE); return;
                         case 3: goPage(PAGE::CONTROL_SIMPLE); return;
-                        case 4: goPage(PAGE::CLOCKS); return;
+                        case 4: goPage(PAGE::BATTERY_GRAPH); return;
                     
                     }
                     

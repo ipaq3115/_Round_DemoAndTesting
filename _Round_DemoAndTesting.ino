@@ -128,8 +128,9 @@ namespace PAGE {
     RADIAN_CLOCK        = 19,
     KICKSTARTER_DEMO    = 20,
     TEXT_ENTRY          = 21,
+    BATTERY_GRAPH       = 22,
     
-    TOTAL               = 22;
+    TOTAL               = 23;
     
     const char names[TOTAL][20] {
     
@@ -154,7 +155,8 @@ namespace PAGE {
         "KICKSTARTER_CLOCK",
         "RADIAN_CLOCK",
         "KICKSTARTER_DEMO",
-        "TEXT_ENTRY"
+        "TEXT_ENTRY",
+        "BATTERY_GRAPH"
         
     };
 
@@ -661,5 +663,6 @@ bool checkFilename(char* filename) { // Adds .WAV extension and gets rid of any 
 #include "radianClock.h"
 #include "kickstarterDemo.h"
 #include "textEntry.h"
+#include "batteryGraph.h"
 
 #include "roundUtil.h"

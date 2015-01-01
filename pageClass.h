@@ -33,20 +33,19 @@ class Page {
         // Functions that subclasses need to inherit
         
         virtual void initalize() = 0;
-        // virtual void initalize(int mode,char * data) = 0;
-        virtual void initalize(int mode,char * data) { initalize(); }
+        virtual void initalize(int mode,char * data) { initalize(); } // Optional
         virtual void leavingPage() = 0;
         
         virtual void redraw() { initalize(); }
         
         virtual void loop() = 0;
+        virtual void lowPowerLoop() {} // Optional
+        virtual void serviceLoop() {} // Optional - Called for every page
         
         virtual void touch(int touchType,int finePos,int activeTouches,int touchIndex) = 0;
         virtual void button(int dir,int index) = 0;
+        virtual void bluetoothCallback(bt_event event) { }  // Optional - Called for every page on bluetooth event
         
-    
-    protected:
-
 };
 
 #endif

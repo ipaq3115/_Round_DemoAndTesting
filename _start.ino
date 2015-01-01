@@ -22,7 +22,7 @@ void setup() {
     // while(!USB); // Wait for PC to open the USB serial port before running this program
     delay(100);
     
-    //   elapsedMillis time; while(1) { if(time > 500) { Serial.println("Send char to start"); time = 0; } if(Serial.read() != -1) break; }
+    // elapsedMillis time; while(1) { if(time > 500) { Serial.println("Send char to start"); time = 0; } if(Serial.read() != -1) break; }
     
     if(D) USB.println("## SETUP START ##");
     hVer = EEPROM.read(0);
@@ -98,7 +98,7 @@ void setup() {
     pageArray[PAGE::RADIAN_CLOCK]       = new RadianClockPage(ARGS_MACRO);
     pageArray[PAGE::KICKSTARTER_DEMO]   = new KickstarterDemoPage(ARGS_MACRO);
     pageArray[PAGE::TEXT_ENTRY]         = new TextEntryPage(ARGS_MACRO);
-    
+    pageArray[PAGE::BATTERY_GRAPH]      = new BatteryGraphPage(ARGS_MACRO);
     
     
     // goPage(PAGE::TEXT_ENTRY);
@@ -107,9 +107,11 @@ void setup() {
     // goPage(PAGE::TOUCH_DEMO);
     // goPage(PAGE::KICKSTARTER_DEMO);
     // goPage(PAGE::KICKSTARTER_CLOCK);
-    goPage(PAGE::BLUE_CLOCK);
+    // goPage(PAGE::BLUE_CLOCK);
     // goPage(PAGE::HOME);
     // goPage(PAGE::SETTINGS);
+    goPage(PAGE::BATTERY_GRAPH);
+    
     
     // digitalWrite(PIN::LCD_BACKLIGHT, HIGH);
     
@@ -181,11 +183,13 @@ void loop() {
     
     watch.loop();
 
-    pollButtons();
+    // pollButtons();
     
     bt.loop();
     
     pageArray[page]->loop();
+    
+    fori(PAGE::TOTAL) pageArray[i]->serviceLoop();
     
     checkPhoneState();
     
@@ -274,35 +278,21 @@ void lowPowerTimeout() {
         
         lp_uart.println("LP LOOP");
         while(1) {
-
-            if(LP.micros() - lastTime > 10000) { // 10ms
-            
-                lastTime = LP.micros();
-            
-                // lp_uart.println("time");
-            
-                if(page == PAGE::BLUE_CLOCK) {
-                    
-                    // int ta = LP.micros();
-                    // now();
-                    // int tb = LP.micros();
-                    // lp_uart.printf("A: %d\r\n",tb-ta);
-                    
-                    
-                    // int ta = LP.micros();
-                    pageArray[page]->loop();
-                    // int tb = LP.micros();
-                    // lp_uart.printf("B: %d\r\n",tb-ta);
-                    
-                }
-                
-                timeout = 0;
-                
-                // lp_uart.println("Done"); while(1);
-            
-            }
         
-            for(int i=0;i<10;i++) if(touchPinB[i] != 0 && touchPinB[i] != 1 && touchRead(touchPinB[i]) > watch.calValue[i] + 50) goto out;
+            pageArray[page]->lowPowerLoop();
+
+            // if(LP.micros() - lastTime > 10000) { // 10ms
+            // 
+            //     lastTime = LP.micros();
+            // 
+            //     timeout = 0;
+            // 
+            // }
+        
+            for(int i=0;i<10;i++) if(touchRead(touchPinB[i]) > watch.calValue[i] + 50) goto out;
+            
+            // This is for using the UART at the same time
+            // for(int i=0;i<10;i++) if(touchPinB[i] != 0 && touchPinB[i] != 1 && touchRead(touchPinB[i]) > watch.calValue[i] + 50) goto out;
 
         }
 
