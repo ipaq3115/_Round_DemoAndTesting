@@ -95,7 +95,7 @@ void printGraph() {
 
     // char buf[900];
 
-    int const scale = 20;
+    int const scale = 80;
     
     int startIndex = logEntries - 150 * scale;
     if(startIndex < 0) startIndex = 0;
@@ -177,6 +177,8 @@ void loop() {
 elapsedMillis logTimer;
 
 void serviceLoop() {
+    
+    return;
 
     static int count = 0;
     static int batArray[100];

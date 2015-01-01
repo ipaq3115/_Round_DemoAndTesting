@@ -99,6 +99,7 @@ void setup() {
     pageArray[PAGE::KICKSTARTER_DEMO]   = new KickstarterDemoPage(ARGS_MACRO);
     pageArray[PAGE::TEXT_ENTRY]         = new TextEntryPage(ARGS_MACRO);
     pageArray[PAGE::BATTERY_GRAPH]      = new BatteryGraphPage(ARGS_MACRO);
+    pageArray[PAGE::LED_RING_CONTROL]   = new ledRingControlPage(ARGS_MACRO);
     
     
     // goPage(PAGE::TEXT_ENTRY);
@@ -110,7 +111,9 @@ void setup() {
     // goPage(PAGE::BLUE_CLOCK);
     // goPage(PAGE::HOME);
     // goPage(PAGE::SETTINGS);
-    goPage(PAGE::BATTERY_GRAPH);
+    // goPage(PAGE::BATTERY_GRAPH);
+    goPage(PAGE::LED_RING_CONTROL);
+    
     
     
     // digitalWrite(PIN::LCD_BACKLIGHT, HIGH);
