@@ -15,9 +15,9 @@ ledRingControlPage CONSTRUCTOR_MACRO
 int myTouch = -1;
 int myTouchPos = -1;
 
-int const RING_LED_COUNT = 10;
+int const RING_LED_COUNT = 16;
 
-int const degreesPerLED = 360 / RING_LED_COUNT;
+int const degreesPerLED = 360 / (RING_LED_COUNT - 1);
 
 void initalize(int mode,char * data) { initalize(); } // Optional
 
@@ -43,7 +43,7 @@ void updateRing(int pos,int color) {
 
         MyUtils::orbitPoint(110,110,i * degreesPerLED * -1,90,pointx,pointy);
     
-        watch->fillCircle(pointx,pointy,20);
+        watch->fillCircle(pointx,pointy,15);
         
         if(pos != -1 && pos/degreesPerLED == i) {
             
@@ -93,17 +93,76 @@ void loop() {
         // int g = (compass->a.y - yMin) / ((float)tmpYmax / 255.0);
         // int b = (compass->a.z - zMin) / ((float)tmpZmax / 255.0);
         
-        int r = (compass->a.x + 1000) / 8;
-        int g = (compass->a.y + 1000) / 8;
-        int b = (compass->a.z + 1000) / 8;
         
-        if(r<25) r = 0;
-        if(g<25) g = 0;
-        if(b<25) b = 0;
+
+        int ballDegreePos = MyUtils::radianstodegrees(atan2(compass->a.x,compass->a.y)) + 90;
+
+        while(ballDegreePos > 360) ballDegreePos -= 360; 
+        while(ballDegreePos < 0) ballDegreePos += 360;
+
+        int tmpDegreePos = ballDegreePos;
+
+        int r;
+        int g;
+        int b;
         
-        if(r>225) r = 255;
-        if(g>225) g = 255;
-        if(b>225) b = 255;
+        ballDegreePos /= 120;
+
+        if(ballDegreePos==0) {
+            r = ((ballDegreePos+1)*120 - tmpDegreePos) * 3;
+            g = (tmpDegreePos - ballDegreePos*120) * 3;
+            b = 0;
+        } else if(ballDegreePos==1) {
+            r = 0;
+            g = ((ballDegreePos+1)*120 - tmpDegreePos) * 3;
+            b = (tmpDegreePos - ballDegreePos*120) * 3;
+        } else if(ballDegreePos==2) {
+            r = (tmpDegreePos - ballDegreePos*120) * 3;
+            g = 0;
+            b = ((ballDegreePos+1)*120 - tmpDegreePos) * 3;
+        }
+
+        // ballDegreePos /= 60;
+        // 
+        // if(ballDegreePos==0) {
+        //     r = 255;
+        //     g = 0;
+        //     b = 0;
+        // } else if(ballDegreePos==2) {
+        //     r = 0;
+        //     g = 255;
+        //     b = 0;
+        // } else if(ballDegreePos==4) {
+        //     r = 0;
+        //     g = 0;
+        //     b = 255;
+        // } else if(ballDegreePos==1) {
+        //     r = ((ballDegreePos+1)*60 - tmpDegreePos) * 6;
+        //     g = (tmpDegreePos - ballDegreePos*60) * 6;
+        //     b = 0;
+        // } else if(ballDegreePos==3) {
+        //     r = 0;
+        //     g = ((ballDegreePos+1)*60 - tmpDegreePos) * 6;
+        //     b = (tmpDegreePos - ballDegreePos*60) * 6;
+        // } else if(ballDegreePos==5) {
+        //     r = (tmpDegreePos - ballDegreePos*60) * 6;
+        //     g = 0;
+        //     b = ((ballDegreePos+1)*60 - tmpDegreePos) * 6;
+        // }
+
+        // if(D) db.printf("DEGREE POS %d\r\n",ballDegreePos);
+        
+        // int r = (compass->a.x + 1000) / 8;
+        // int g = (compass->a.y + 1000) / 8;
+        // int b = (compass->a.z + 1000) / 8;
+        
+        if(r<0) r = 0;
+        if(g<0) g = 0;
+        if(b<0) b = 0;
+        
+        if(r>255) r = 255;
+        if(g>255) g = 255;
+        if(b>255) b = 255;
         
         // updateRing(-1,VGA_BLACK);
         updateRing(myTouchPos,watch->RGBto565(r,g,b));
@@ -120,8 +179,7 @@ void loop() {
             hexbytetostring(r,str,6);
             hexbytetostring(g,str,8);
             hexbytetostring(b,str,10);
-            hexbytetostring(myTouchPos == -1 ? 255 : 15 - (myTouchPos / 22),str,12);
-            
+            hexbytetostring(myTouchPos == -1 ? 255 : 15 - (myTouchPos / 24),str,12);
             
             bt.sendData(strlen(str),(byte*)str);
         
