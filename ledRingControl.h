@@ -71,7 +71,7 @@ void loop() {
     // static int xMin =  4000,yMin =  4000,zMin =  4000;
 
     
-    if(time > 100) {
+    if(time > 70) {
     
         time = 0;
         
@@ -111,14 +111,34 @@ void loop() {
         
         // if(deviceConnected) {
 
-            char str[] = "COLOR FFFFFF";
+            r /= 10;
+            g /= 10;
+            b /= 10;
+            
+            char str[] = "COLOR FFFFFFFF";
             
             hexbytetostring(r,str,6);
             hexbytetostring(g,str,8);
             hexbytetostring(b,str,10);
+            hexbytetostring(myTouchPos == -1 ? 255 : 15 - (myTouchPos / 22),str,12);
+            
             
             bt.sendData(strlen(str),(byte*)str);
         
+        // }
+        
+        // static int myTouchPosOld = -1;
+        // 
+        // if(myTouchPosOld != myTouchPos) {
+        // 
+        //     char strb[] = "POS FF";
+        //     
+        //     hexbytetostring(myTouchPos == -1 ? 255 : myTouchPos / 22,strb,4);
+        //     
+        //     bt.sendData(strlen(strb),(byte*)strb);
+        // 
+        //     myTouchPosOld = myTouchPos;
+        // 
         // }
     
     }

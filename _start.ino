@@ -108,11 +108,11 @@ void setup() {
     // goPage(PAGE::TOUCH_DEMO);
     // goPage(PAGE::KICKSTARTER_DEMO);
     // goPage(PAGE::KICKSTARTER_CLOCK);
-    goPage(PAGE::BLUE_CLOCK);
+    // goPage(PAGE::BLUE_CLOCK);
     // goPage(PAGE::HOME);
     // goPage(PAGE::SETTINGS);
     // goPage(PAGE::BATTERY_GRAPH);
-    // goPage(PAGE::LED_RING_CONTROL);
+    goPage(PAGE::LED_RING_CONTROL);
     
     
     
@@ -160,7 +160,7 @@ bool deviceConnected = false;
 
 void loop() {
 
-    lowPowerTimeout();
+    // lowPowerTimeout();
 
     // static elapsedMillis time54;
     // 
@@ -174,22 +174,22 @@ void loop() {
     // 
     // }
     
-    // static elapsedMillis timey;
-    // if(timey > 10000 && !deviceConnected) {
-    // 
-    //     timey = 0;
-    // 
-    //     bt.connect(0x20FABB01862E);
-    //     // bt.connect(0x20FABB018005);
-    //     
-    // 
-    // 
-    //     // Serial2.print("GET BAUD\r");
-    //     // Serial.println("sent GET BAUD");
-    // 
-    //     // bt.getBattery();
-    // 
-    // }
+    static elapsedMillis timey;
+    if(timey > 10000 && !deviceConnected) {
+    
+        timey = 0;
+    
+        bt.connect(0x20FABB01862E);
+        // bt.connect(0x20FABB018005);
+        
+    
+    
+        // Serial2.print("GET BAUD\r");
+        // Serial.println("sent GET BAUD");
+    
+        // bt.getBattery();
+    
+    }
     
     watch.loop();
 
