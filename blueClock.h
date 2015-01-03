@@ -192,19 +192,19 @@ void mainLoop() {
 
 }
 
-// void lowPowerLoop() {
-//     
-//     static long lastTime = 0;
-//     
-//     if(lp_micros(TWO_MHZ) - lastTime > 100000) {
-//     
-//         printTime(now());
-//         
-//         lastTime = lp_micros(TWO_MHZ);
-//     
-//     }
-//     
-// }
+void lowPowerLoop() {
+    
+    static long lastTime = 0;
+    
+    if(LP.micros() - lastTime > 100000) {
+    
+        printTime(now());
+        
+        lastTime = LP.micros();
+    
+    }
+    
+}
 
 void setLoop() {
 

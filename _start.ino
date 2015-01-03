@@ -108,11 +108,11 @@ void setup() {
     // goPage(PAGE::TOUCH_DEMO);
     // goPage(PAGE::KICKSTARTER_DEMO);
     // goPage(PAGE::KICKSTARTER_CLOCK);
-    // goPage(PAGE::BLUE_CLOCK);
+    goPage(PAGE::BLUE_CLOCK);
     // goPage(PAGE::HOME);
     // goPage(PAGE::SETTINGS);
     // goPage(PAGE::BATTERY_GRAPH);
-    goPage(PAGE::LED_RING_CONTROL);
+    // goPage(PAGE::LED_RING_CONTROL);
     
     
     
@@ -156,9 +156,11 @@ time_t getTeensy3Time() {
 
 }
 
+bool deviceConnected = false;
+
 void loop() {
 
-    // lowPowerTimeout();
+    lowPowerTimeout();
 
     // static elapsedMillis time54;
     // 
@@ -172,21 +174,26 @@ void loop() {
     // 
     // }
     
-    static elapsedMillis timey;
-    if(timey > 3000) {
-    
-        timey = 0;
-        
-        // Serial2.print("GET BAUD\r");
-        // Serial.println("sent GET BAUD");
-    
-        bt.getBattery();
-    
-    }
+    // static elapsedMillis timey;
+    // if(timey > 10000 && !deviceConnected) {
+    // 
+    //     timey = 0;
+    // 
+    //     bt.connect(0x20FABB01862E);
+    //     // bt.connect(0x20FABB018005);
+    //     
+    // 
+    // 
+    //     // Serial2.print("GET BAUD\r");
+    //     // Serial.println("sent GET BAUD");
+    // 
+    //     // bt.getBattery();
+    // 
+    // }
     
     watch.loop();
 
-    // pollButtons();
+    pollButtons();
     
     bt.loop();
     
@@ -234,7 +241,6 @@ void checkOrientation() {
         if(lastRotation != currentRotation) {
         
             watch.setOrientation(currentRotation);
-            watch.setOrientation(currentRotation);
             pageArray[page]->redraw();
         
         }
@@ -250,9 +256,12 @@ IntervalTimer_LP pwmTimerEnd;
 
 void lowPowerTimeout() {
 
-    if(millis() - lastTouchTime > 2000) {
+    if(millis() - lastTouchTime > 5000) {
 
         watch.touchEnd();
+        
+        watch.setOrientation(3);
+        pageArray[page]->redraw();
 
         // delay(1000);
 
@@ -279,8 +288,12 @@ void lowPowerTimeout() {
         long lastTime;
         lastTime = LP.micros();
         
+        bool waitRelease = false;
+        
         lp_uart.println("LP LOOP");
         while(1) {
+        
+            // pollButtons();
         
             pageArray[page]->lowPowerLoop();
 
@@ -291,8 +304,22 @@ void lowPowerTimeout() {
             //     timeout = 0;
             // 
             // }
+            
+            bool touched = false;
         
-            for(int i=0;i<10;i++) if(touchRead(touchPinB[i]) > watch.calValue[i] + 50) goto out;
+            for(int i=0;i<10;i++) if(touchRead(touchPinB[i]) > watch.calValue[i] + 50) touched = true;
+
+            if(touched) {
+                
+                waitRelease = true;
+                
+            } else if(waitRelease) {
+                
+                goto out;
+            
+            }
+            
+            // for(int i=0;i<10;i++) if(touchRead(touchPinB[i]) > watch.calValue[i] + 50) goto out;
             
             // This is for using the UART at the same time
             // for(int i=0;i<10;i++) if(touchPinB[i] != 0 && touchPinB[i] != 1 && touchRead(touchPinB[i]) > watch.calValue[i] + 50) goto out;
@@ -398,17 +425,17 @@ void pollButtons() {
             if(D) USB.printf("GOING_UP %d\r\n",value);
         
             buttonStates[i] = GOING_UP;
-            lastButtonTime[i] = millis();
+            lastButtonTime[i] = LP.millis();
     
         } else if(buttonStates[i] == STATE_UP && !instantButtonState[i]) {
         
             if(D) USB.println("GOING_DOWN");
         
             buttonStates[i] = GOING_DOWN;
-            lastButtonTime[i] = millis();
+            lastButtonTime[i] = LP.millis();
         
         // if the state is pressed and the debounce curTime is over
-        } else if(buttonStates[i] >= GOING_DOWN && millis() - lastButtonTime[i] > DEBOUNCE_TIME) {
+        } else if(buttonStates[i] >= GOING_DOWN && LP.millis() - lastButtonTime[i] > DEBOUNCE_TIME) {
             
             if(buttonStates[i] == GOING_DOWN) {
             
@@ -582,7 +609,21 @@ void bluetoothMessage(bt_event event) {
         case INQUIRY: break;
         case DISCOVERABLE: break;
         case LIST: break;
-        case CONNECT: break;
+        case CONNECT: 
+        
+            if(!event.error) {
+            
+                deviceConnected = true;
+            
+            } else {
+            
+                deviceConnected = false;
+            
+            }
+        
+            if(D) db.printf("%s to %llu\r\n",event.error ? "Connect failed" : "Connected",event.mac);
+        
+            break;
         case STATUS: break;
         case CONFIG: break;
         case FACTORY: break;

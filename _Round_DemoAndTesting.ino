@@ -234,7 +234,7 @@ namespace { // Library inits
     PiWatch watch;
     
     BC127 bt(&Serial2,bluetoothMessage);
-
+    
     SdFat sd;
     
     SdFile audioFile;

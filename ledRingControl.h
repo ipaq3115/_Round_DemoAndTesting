@@ -69,11 +69,12 @@ void loop() {
     static elapsedMillis time;
     // static int xMax = -4000,yMax = -4000,zMax = -4000;
     // static int xMin =  4000,yMin =  4000,zMin =  4000;
+
     
-    // if(time > 100) {
+    if(time > 100) {
     
         time = 0;
-    
+        
         compass->read();
         
         // xMax = max(xMax,compass->a.x);
@@ -108,8 +109,19 @@ void loop() {
         updateRing(myTouchPos,watch->RGBto565(r,g,b));
         // updateRing(-1,watch->RGBto565(0,0,b));
         
+        // if(deviceConnected) {
+
+            char str[] = "COLOR FFFFFF";
+            
+            hexbytetostring(r,str,6);
+            hexbytetostring(g,str,8);
+            hexbytetostring(b,str,10);
+            
+            bt.sendData(strlen(str),(byte*)str);
+        
+        // }
     
-    // }
+    }
 
 }
 
@@ -119,7 +131,7 @@ void serviceLoop() {} // Optional - Called for every page
 
 void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
 
-    if(D) db.printf("touch rotation %d\r\n",watch->getTouchOrientation());
+    // if(D) db.printf("touch rotation %d\r\n",watch->getTouchOrientation());
 
     finePos += watch->getTouchOrientation()+90;
     if(finePos < 0) finePos += 360;
