@@ -19,7 +19,7 @@ void setup() {
     watch.init(touch);
     
     USB.begin(300000); 
-    // while(!USB); // Wait for PC to open the USB serial port before running this program
+    while(!USB); // Wait for PC to open the USB serial port before running this program
     delay(100);
     
     // elapsedMillis time; while(1) { if(time > 500) { Serial.println("Send char to start"); time = 0; } if(Serial.read() != -1) break; }
@@ -108,11 +108,11 @@ void setup() {
     // goPage(PAGE::TOUCH_DEMO);
     // goPage(PAGE::KICKSTARTER_DEMO);
     // goPage(PAGE::KICKSTARTER_CLOCK);
-    // goPage(PAGE::BLUE_CLOCK);
+    goPage(PAGE::BLUE_CLOCK);
     // goPage(PAGE::HOME);
     // goPage(PAGE::SETTINGS);
     // goPage(PAGE::BATTERY_GRAPH);
-    goPage(PAGE::LED_RING_CONTROL);
+    // goPage(PAGE::LED_RING_CONTROL);
     
     
     
@@ -160,7 +160,7 @@ bool deviceConnected = false;
 
 void loop() {
 
-    // lowPowerTimeout();
+    lowPowerTimeout();
 
     // static elapsedMillis time54;
     // 
@@ -174,22 +174,22 @@ void loop() {
     // 
     // }
     
-    static elapsedMillis timey;
-    if(timey > 10000 && !deviceConnected) {
-    
-        timey = 0;
-    
-        bt.connect(0x20FABB01862E);
-        // bt.connect(0x20FABB018005);
-        
-    
-    
-        // Serial2.print("GET BAUD\r");
-        // Serial.println("sent GET BAUD");
-    
-        // bt.getBattery();
-    
-    }
+    // static elapsedMillis timey;
+    // if(timey > 10000 && !deviceConnected) {
+    // 
+    //     timey = 0;
+    // 
+    //     bt.connect(0x20FABB01862E);
+    //     // bt.connect(0x20FABB018005);
+    //     
+    // 
+    // 
+    //     // Serial2.print("GET BAUD\r");
+    //     // Serial.println("sent GET BAUD");
+    // 
+    //     // bt.getBattery();
+    // 
+    // }
     
     watch.loop();
 
@@ -254,6 +254,8 @@ void checkOrientation() {
 IntervalTimer_LP pwmTimerStart;
 IntervalTimer_LP pwmTimerEnd;
 
+volatile int lp_brightness = 100;
+
 void lowPowerTimeout() {
 
     if(millis() - lastTouchTime > 5000) {
@@ -268,12 +270,12 @@ void lowPowerTimeout() {
         // bt.power(OFF);
         
         // time_t tempTime = now();
-        LP.CPU(TWO_MHZ);
+        // LP.CPU(TWO_MHZ);
         
         // Resync the clock!
         setTime(Teensy3Clock.get());
 
-        lp_uart.begin(115200);
+        lpSerial2.begin(9600);
         
         // delay(5000);
 
@@ -281,48 +283,44 @@ void lowPowerTimeout() {
         pinMode(PIN::LCD_BACKLIGHT, OUTPUT);
         digitalWrite(PIN::LCD_BACKLIGHT, LOW);
 
+        // Brightness value for the interrupt driven PWM
+        // TODO: Reconfigure real PWM for this job
+        lp_brightness = (watch.getBrightness() - 5) * 20;
+        
+        // Start the emulated PWM
         pwmTimerStart.begin(pwmON,2000);
 
-        int timeout = 0;
-        
-        long lastTime;
-        lastTime = LP.micros();
+        // Disable all debug since the usb doesn't work at 2MHz
+        int tD = D,tE = E,tH = H;
+        // D = false; E = false; H = false;
         
         bool waitRelease = false;
         
-        lp_uart.println("LP LOOP");
+        long lastBatQueryTime = LP.millis();
+        
+        lpSerial2.println("LP LOOP");
         while(1) {
-        
-            // pollButtons();
-        
-            pageArray[page]->lowPowerLoop();
 
-            // if(LP.micros() - lastTime > 10000) { // 10ms
-            // 
-            //     lastTime = LP.micros();
-            // 
-            //     timeout = 0;
-            // 
-            // }
+            if(LP.millis() - lastBatQueryTime > 3000) {
             
-            bool touched = false;
-        
-            for(int i=0;i<10;i++) if(touchRead(touchPinB[i]) > watch.calValue[i] + 50) touched = true;
-
-            if(touched) {
-                
-                waitRelease = true;
-                
-            } else if(waitRelease) {
-                
-                goto out;
+                lastBatQueryTime = LP.millis();
+            
+                bt.getBattery();
             
             }
+        
+            // Need to reinit analog pins first
+            // pollButtons();
             
-            // for(int i=0;i<10;i++) if(touchRead(touchPinB[i]) > watch.calValue[i] + 50) goto out;
+            bt.loop();
+    
+            pageArray[page]->lowPowerLoop();
             
-            // This is for using the UART at the same time
-            // for(int i=0;i<10;i++) if(touchPinB[i] != 0 && touchPinB[i] != 1 && touchRead(touchPinB[i]) > watch.calValue[i] + 50) goto out;
+            // Looking for touch release
+            // TODO: look into using the touch library for this, need to use the low power interrupt
+            bool touched = false;
+            for(int i=0;i<10;i++) if(touchRead(touchPinB[i]) > watch.calValue[i] + 50) touched = true;
+            if(touched) waitRelease = true; else if(waitRelease) goto out;
 
         }
 
@@ -333,7 +331,12 @@ void lowPowerTimeout() {
 
         LP.CPU(F_CPU);
 
-        digitalWriteFast(PIN::LCD_BACKLIGHT, HIGH);
+        // Set debug stuff back to normal states
+        D = tD; E = tE; H = tH;
+        
+        watch.setBrightness(watch.getBrightness());
+
+        // digitalWriteFast(PIN::LCD_BACKLIGHT, HIGH);
 
         // LP.DeepSleep(TSI_WAKE, TOUCH_READ::touchPin[5], calValue[5] + 1000);
 
@@ -347,7 +350,7 @@ void lowPowerTimeout() {
 
 void pwmON() {
 
-    pwmTimerEnd.begin(pwmOFF, 100);
+    pwmTimerEnd.begin(pwmOFF, lp_brightness);
     
     digitalWriteFast(PIN::LCD_BACKLIGHT, HIGH);
     
@@ -685,10 +688,27 @@ void bluetoothMessage(bt_event event) {
             if(event.bat.charging) {
                 
                 if(D) db.printf("Battery charging\r\n");
+              
+                if(page == PAGE::BLUE_CLOCK) {
+                
+                    watch.setColor(VGA_WHITE);
+                    watch.setBackColor(VGA_BLACK);
+                    watch.print("Charging",110,50);
+                
+                }
             
             } else {
                 
-                if(D) db.printf("Battery %d/3\r\n",event.bat.level);
+                if(D) db.printf("Battery %d/3 voltage %d\r\n",event.bat.level,event.bat.voltage);
+                
+                if(page == PAGE::BLUE_CLOCK) {
+                
+                    watch.setColor(VGA_WHITE);
+                    watch.setBackColor(VGA_BLACK);
+                    watch.printNumI(event.bat.voltage,50,50,5,'0');
+                    // watch.printNumI(event.bat.level,110,50,5,'0');
+                
+                }
             
             }
             

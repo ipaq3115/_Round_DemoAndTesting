@@ -16,9 +16,6 @@
 #include "pageClass.h"
 #include <customUtils.h>
 #include <LowPower_Teensy3.h>
-
-HardwareSerial_LP lp_uart = HardwareSerial_LP();
-
 #include <Time_LP.h>
 
 // #include <ctime>
@@ -230,10 +227,15 @@ struct TIME_T {
 } curTime;
 
 namespace { // Library inits
+    
+    TEENSY3_LP LP = TEENSY3_LP();
+
+    HardwareSerial2_LP lpSerial2 = HardwareSerial2_LP();
 
     PiWatch watch;
     
-    BC127 bt(&Serial2,bluetoothMessage);
+    // BC127 bt(&Serial2,bluetoothMessage);
+    BC127 bt(&lpSerial2,bluetoothMessage);
     
     SdFat sd;
     
@@ -243,8 +245,6 @@ namespace { // Library inits
     
     IntervalTimer audioTimer;
     
-    TEENSY3_LP LP = TEENSY3_LP();
-
 }
 
 namespace { // General
