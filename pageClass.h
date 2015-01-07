@@ -19,6 +19,7 @@ class Page {
         PiWatch* watch;
         int D = false;
         int E = false;
+        static bool lowPower;
         
         Page(BC127* tmpBluetooth,LSM303_custom* tmpCompass,PiWatch* tmpWatch,int tmpD,int tmpE) {
         
@@ -39,7 +40,6 @@ class Page {
         virtual void redraw() { initalize(); }
         
         virtual void loop() = 0;
-        virtual void lowPowerLoop() {} // Optional
         virtual void serviceLoop() {} // Optional - Called for every page
         
         virtual void touch(int touchType,int finePos,int activeTouches,int touchIndex) = 0;
@@ -47,5 +47,7 @@ class Page {
         virtual void bluetoothCallback(bt_event event) { }  // Optional - Called for every page on bluetooth event
         
 };
+
+bool Page::lowPower = false;
 
 #endif

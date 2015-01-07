@@ -19,15 +19,15 @@ void setup() {
     watch.init(touch);
     
     USB.begin(300000); 
-    while(!USB); // Wait for PC to open the USB serial port before running this program
+    // while(!USB); // Wait for PC to open the USB serial port before running this program
     delay(100);
     
     // elapsedMillis time; while(1) { if(time > 500) { Serial.println("Send char to start"); time = 0; } if(Serial.read() != -1) break; }
     
-    if(D) USB.println("## SETUP START ##");
-    hVer = EEPROM.read(0);
-    if(D) db.printf("hardware %d %s\r\n",hVer,hVer == 0 ? "REVA" : "REVB");
-    if(hVer != HARDWARE_REVA && hVer != HARDWARE_REVB) hVer = HARDWARE_REVB;
+    // if(D) USB.println("## SETUP START ##");
+    // hVer = EEPROM.read(0);
+    // if(D) db.printf("hardware %d %s\r\n",hVer,hVer == 0 ? "REVA" : "REVB");
+    // if(hVer != HARDWARE_REVA && hVer != HARDWARE_REVB) hVer = HARDWARE_REVB;
     // hVer = HARDWARE_REVA;
     
     // if(hVer == HARDWARE_REVB) blinktimer.begin(blinkled, 200000);
@@ -105,10 +105,10 @@ void setup() {
     // goPage(PAGE::TEXT_ENTRY);
     // goPage(PAGE::VIDEO);
     // startPlay("paul2");
-    // goPage(PAGE::TOUCH_DEMO);
+    goPage(PAGE::TOUCH_DEMO);
     // goPage(PAGE::KICKSTARTER_DEMO);
     // goPage(PAGE::KICKSTARTER_CLOCK);
-    goPage(PAGE::BLUE_CLOCK);
+    // goPage(PAGE::BLUE_CLOCK);
     // goPage(PAGE::HOME);
     // goPage(PAGE::SETTINGS);
     // goPage(PAGE::BATTERY_GRAPH);
@@ -296,16 +296,32 @@ void lowPowerTimeout() {
         
         bool waitRelease = false;
         
-        long lastBatQueryTime = LP.millis();
+        long lastBatQueryTime = millis();
+        
+        Page::lowPower = true;
         
         lpSerial2.println("LP LOOP");
         while(1) {
 
-            if(LP.millis() - lastBatQueryTime > 3000) {
+            if(millis() - lastBatQueryTime > 3000) {
             
-                lastBatQueryTime = LP.millis();
-            
-                bt.getBattery();
+                lastBatQueryTime = millis();
+                
+                char str[20];
+                int strC = 0;
+                
+                strC += inttostring(bt.getBatteryVoltage(), str, strC, 4, '0');
+                str[strC++] = ' ';
+                str[strC++] = bt.batteryCharging() + '0';
+                str[strC++] = ' ';
+                str[strC++] = bt.powerPluggedIn() + '0';
+                str[strC++] = 0;
+                
+                watch.setColor(VGA_WHITE);
+                watch.setBackColor(VGA_BLACK);
+                watch.print(str, CENTER, 50);
+                
+                // if(D) db.printf("Battery voltage %d charging %d plugged in %d\r\n",bt.getBatteryVoltage(),bt.batteryCharging(),bt.powerPluggedIn());
             
             }
         
@@ -314,7 +330,7 @@ void lowPowerTimeout() {
             
             bt.loop();
     
-            pageArray[page]->lowPowerLoop();
+            pageArray[page]->loop();
             
             // Looking for touch release
             // TODO: look into using the touch library for this, need to use the low power interrupt
@@ -323,8 +339,10 @@ void lowPowerTimeout() {
             if(touched) waitRelease = true; else if(waitRelease) goto out;
 
         }
-
+        
         out:
+
+        Page::lowPower = false;
 
         pwmTimerStart.end();
         pwmTimerEnd.end();
@@ -428,17 +446,17 @@ void pollButtons() {
             if(D) USB.printf("GOING_UP %d\r\n",value);
         
             buttonStates[i] = GOING_UP;
-            lastButtonTime[i] = LP.millis();
+            lastButtonTime[i] = millis();
     
         } else if(buttonStates[i] == STATE_UP && !instantButtonState[i]) {
         
             if(D) USB.println("GOING_DOWN");
         
             buttonStates[i] = GOING_DOWN;
-            lastButtonTime[i] = LP.millis();
+            lastButtonTime[i] = millis();
         
         // if the state is pressed and the debounce curTime is over
-        } else if(buttonStates[i] >= GOING_DOWN && LP.millis() - lastButtonTime[i] > DEBOUNCE_TIME) {
+        } else if(buttonStates[i] >= GOING_DOWN && millis() - lastButtonTime[i] > DEBOUNCE_TIME) {
             
             if(buttonStates[i] == GOING_DOWN) {
             
@@ -676,41 +694,13 @@ void bluetoothMessage(bt_event event) {
                     
                     break;
                     
-                    
-                    
-                    
             }
             
             
             break;
         case BATTERY: 
             
-            if(event.bat.charging) {
-                
-                if(D) db.printf("Battery charging\r\n");
-              
-                if(page == PAGE::BLUE_CLOCK) {
-                
-                    watch.setColor(VGA_WHITE);
-                    watch.setBackColor(VGA_BLACK);
-                    watch.print("Charging",110,50);
-                
-                }
-            
-            } else {
-                
-                if(D) db.printf("Battery %d/3 voltage %d\r\n",event.bat.level,event.bat.voltage);
-                
-                if(page == PAGE::BLUE_CLOCK) {
-                
-                    watch.setColor(VGA_WHITE);
-                    watch.setBackColor(VGA_BLACK);
-                    watch.printNumI(event.bat.voltage,50,50,5,'0');
-                    // watch.printNumI(event.bat.level,110,50,5,'0');
-                
-                }
-            
-            }
+            if(D) db.println("Battery updated");
             
             break;
 

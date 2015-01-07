@@ -35,6 +35,9 @@
 // #include <Page.h>
 // #include <HomePage.h>
 
+#define millis LP.millis
+#define micros LP.micros
+
 #define USB Serial
 #define db Serial
 

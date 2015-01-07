@@ -196,11 +196,11 @@ void lowPowerLoop() {
     
     static long lastTime = 0;
     
-    if(LP.micros() - lastTime > 100000) {
+    if(micros() - lastTime > 100000) {
     
         printTime(now());
         
-        lastTime = LP.micros();
+        lastTime = micros();
     
     }
     
