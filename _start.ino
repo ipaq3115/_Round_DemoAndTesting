@@ -100,23 +100,18 @@ void setup() {
     pageArray[PAGE::TEXT_ENTRY]         = new TextEntryPage(ARGS_MACRO);
     pageArray[PAGE::BATTERY_GRAPH]      = new BatteryGraphPage(ARGS_MACRO);
     pageArray[PAGE::LED_RING_CONTROL]   = new ledRingControlPage(ARGS_MACRO);
+    pageArray[PAGE::BLACK_CLOCK]        = new BlackClockPage(ARGS_MACRO);
     
-    
-    // goPage(PAGE::TEXT_ENTRY);
-    // goPage(PAGE::VIDEO);
-    // startPlay("paul2");
-    goPage(PAGE::TOUCH_DEMO);
-    // goPage(PAGE::KICKSTARTER_DEMO);
-    // goPage(PAGE::KICKSTARTER_CLOCK);
-    // goPage(PAGE::BLUE_CLOCK);
-    // goPage(PAGE::HOME);
-    // goPage(PAGE::SETTINGS);
-    // goPage(PAGE::BATTERY_GRAPH);
-    // goPage(PAGE::LED_RING_CONTROL);
     
     
     
     // digitalWrite(PIN::LCD_BACKLIGHT, HIGH);
+    
+    // startPlay("rally");
+    // startPlay("rdkill");
+    // startPlay("rdkill3");
+    // startPlay("drift");
+    // startPlay("drift2");
     
     // animateNotificationTest();
     
@@ -124,18 +119,26 @@ void setup() {
     
     // analogReference(INTERNAL);
     analogReadResolution(8);
-    
-    if(D) USB.println("## LOOP START ##");
-    
     analogWriteResolution(8);
-    
-    // startPlay("rally");
-    // startPlay("rdkill");
-    // startPlay("rdkill3");
-    // startPlay("drift");
-    // startPlay("drift2");
 
     watch.speaker(ON);
+    
+    // goPage(PAGE::TEXT_ENTRY);
+    // goPage(PAGE::VIDEO);
+    // startPlay("paul2");
+    // goPage(PAGE::TOUCH_DEMO);
+    // goPage(PAGE::KICKSTARTER_DEMO);
+    // goPage(PAGE::KICKSTARTER_CLOCK);
+    // goPage(PAGE::BLUE_CLOCK);
+    // goPage(PAGE::HOME);
+    // goPage(PAGE::SETTINGS);
+    // goPage(PAGE::BATTERY_GRAPH);
+    // goPage(PAGE::LED_RING_CONTROL);
+    goPage(PAGE::BLACK_CLOCK);
+
+    for(int i=0;i<PAGE::TOTAL;i++) pageArray[i]->bootup();
+    
+    if(D) USB.println("## LOOP START ##");
     
 }
 
@@ -317,9 +320,9 @@ void lowPowerTimeout() {
                 str[strC++] = bt.powerPluggedIn() + '0';
                 str[strC++] = 0;
                 
-                watch.setColor(VGA_WHITE);
-                watch.setBackColor(VGA_BLACK);
-                watch.print(str, CENTER, 50);
+                // watch.setColor(VGA_WHITE);
+                // watch.setBackColor(VGA_BLACK);
+                // watch.print(str, CENTER, 50);
                 
                 // if(D) db.printf("Battery voltage %d charging %d plugged in %d\r\n",bt.getBatteryVoltage(),bt.batteryCharging(),bt.powerPluggedIn());
             
@@ -420,6 +423,8 @@ void pollButtons() {
     
     static int buttonStates[TOTAL] {-1};
     static int lastButtonTime[TOTAL] {0};
+    static int buttonTime[TOTAL];
+    static bool longPressed[TOTAL];
     bool instantButtonState[TOTAL];
     
     int value = analogRead(PIN::POWER_BUTTON);
@@ -465,6 +470,8 @@ void pollButtons() {
                 if(D) USB.println("STATE_DOWN");
                 
             } else if(buttonStates[i] == GOING_UP) {
+                
+                buttonTime[i] = millis();
             
                 buttonStates[i] = STATE_UP;
 
@@ -476,13 +483,19 @@ void pollButtons() {
             
                 // buttonStates[i] = instantButtonState[i];
                 
-                buttonEvent(buttonStates[i],i);
+                if(!(longPressed[i] && buttonStates[i] == STATE_DOWN)) buttonEvent(buttonStates[i],i,false);
             
             // }
         
         }
-    
-    
+        
+        if(buttonStates[i] == STATE_UP && millis() - buttonTime[i] > 2000) {
+
+            buttonEvent(buttonStates[i],i,true);
+            
+            longPressed[i] = true;
+        
+        }
     
     }
     
@@ -782,10 +795,12 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
     
 }
 
-void buttonEvent(int dir,int index) {
-   
-    if(D) USB.printf("buttonEvent dir %d index %d\r\n",dir,index);
+void buttonEvent(int dir,int index,bool longPress) {
     
+    lastTouchTime = millis();
+
+    if(D) USB.printf("buttonEvent dir %d index %d\r\n",dir,index);
+
     switch(index) {
     
         case BUTTON::POWER_BUTTON:
@@ -793,7 +808,7 @@ void buttonEvent(int dir,int index) {
             // pinMode(26, OUTPUT);
             // digitalWrite(26, dir);
         
-            if(!dir) {
+            if(longPress) {
             
                 // watch.rampBrightness(DOWN);
                 
@@ -813,6 +828,18 @@ void buttonEvent(int dir,int index) {
                 }
             
                 watch.powerDown();
+            
+            } else if(!dir) {
+            
+                if(page == PAGE::BLACK_CLOCK) {
+                
+                    goBack();
+                
+                } else {
+                
+                    goPage(PAGE::BLACK_CLOCK);
+                
+                }
             
             }
         
@@ -925,7 +952,7 @@ int pageTrailRemove() {
         
         pageTrail[pageTrailLocation] = 0xFF;
         
-    }
+    } else return PAGE::HOME;
     
     int tempPageTrailLocation = pageTrailLocation - 1;
     if(tempPageTrailLocation < 0) tempPageTrailLocation = PAGE_TRAIL_SIZE - 1;

@@ -39,6 +39,8 @@ class Page {
         
         virtual void redraw() { initalize(); }
         
+        virtual void bootup() {}
+        
         virtual void loop() = 0;
         virtual void serviceLoop() {} // Optional - Called for every page
         

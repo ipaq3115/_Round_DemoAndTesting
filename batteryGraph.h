@@ -24,7 +24,7 @@ Sample
 bytes description
 04    timestamp
 02    voltage
-01    charging
+01    flags
 01    low power
 01    screen brightness
 
@@ -32,21 +32,26 @@ bytes description
 
 */
 
+
+
 static const int
 
 OFFSET = 4,
 LENGTH = 9,
 
-TIME       = 0,
-VOLTAGE    = 4,
-CHARGING   = 6,
-LOW_POWER  = 7,
-BRIGHTNESS = 8;
+TIME        = 0,
+VOLTAGE     = 4,
+FLAGS       = 6,
+LOW_POWER   = 7,
+BRIGHTNESS  = 8,
 
+// Flags
+CHARGING    = 0,
+PLUGGED_IN  = 1;
 
 unsigned long logEntries = 0;
 
-void initalize() {
+void bootup() {
 
     bool fileExists = sd.exists("bat.log");
 
@@ -78,13 +83,11 @@ void initalize() {
     }
     
     if(D) db.printf("logEntries %d\r\n",logEntries);
-    
-    // SdFile tmpFile;
-    // if(tmpFile.isOpen()) tmpFile.close();
-    // if(!tmpFile.open("batGraph.gci",O_RDWR)) if(E) db.println("bat.log couldn't be opened");
-    
-    // watch->printRaw(tmpFile,0,0);
-    
+
+}
+
+void initalize() {
+
     watch->printImage("batGraph.gci",0,0);
     
     printGraph();
@@ -95,7 +98,8 @@ void printGraph() {
 
     // char buf[900];
 
-    int const scale = 80;
+    int const scale = 1;
+    // int const scale = 80;
     
     int startIndex = logEntries - 150 * scale;
     if(startIndex < 0) startIndex = 0;
@@ -123,8 +127,8 @@ void printGraph() {
         batteryLog.seekSet((startIndex + i - scale) * LENGTH + OFFSET + VOLTAGE);
         oldVoltage = (batteryLog.read() << 8) + batteryLog.read();
 
-        newVoltage = newVoltage/3 - 233; if(newVoltage<0) newVoltage = 0;
-        oldVoltage = oldVoltage/3 - 233; if(oldVoltage<0) oldVoltage = 0;
+        newVoltage = (newVoltage - 2500) / 20; if(newVoltage<0) newVoltage = 0;
+        oldVoltage = (oldVoltage - 2500) / 20; if(oldVoltage<0) oldVoltage = 0;
         
         // newVoltage = (buf[i * LENGTH + VOLTAGE] << 8) + buf[i * LENGTH + VOLTAGE + 1];
         // oldVoltage = (buf[(i - 1) * LENGTH + VOLTAGE] << 8) + buf[(i - 1) * LENGTH + VOLTAGE + 1];
@@ -155,15 +159,14 @@ void leavingPage() {
 bool newData = false;
 
 void loop() {
-
-    // if(newData) {
     
-    static elapsedMillis time;
-    if(time > 20000) {
-        
-        time = 0;
+    // static elapsedMillis time;
+    // if(time > 20000) {
+    // time = 0;
     
-        // newData = false;
+    if(newData) {
+    
+        newData = false;
         
         watch->printImage("batGraph.gci",0,0);
         
@@ -171,77 +174,63 @@ void loop() {
     
     }
 
-
 }
 
-elapsedMillis logTimer;
-
 void serviceLoop() {
-    
-    return;
 
-    static int count = 0;
-    static int batArray[100];
+    static elapsedMillis logTimer;
     
-    if(logTimer > 10) {
+    if(logTimer > 10000) {
     
         logTimer = 0;
 
-        batArray[count] = watch->getBatteryRaw();
+        int bat = bluetooth->getBatteryVoltage();
+    
+        if(logEntries >= 0x7FFFFFFF) return;
+
+        batteryLog.seekSet(logEntries * LENGTH + OFFSET);
+
+        time_t t = now();
         
-        count++;
+        // Time
+        batteryLog.write(byte(t >> 24));
+        batteryLog.write(byte(t >> 16));
+        batteryLog.write(byte(t >>  8));
+        batteryLog.write(byte(t));
         
-        if(count == 100) {
-            
-            count = 0;
-
-            int bat = 0;
-            fori(100) bat += batArray[i]; bat /= 100;
-            
-            // int bat = watch->getBatteryRaw();
-            
-            if(logEntries >= 0x7FFFFFFF) return;
-
-            batteryLog.seekSet(logEntries * LENGTH + OFFSET);
-
-            time_t t = now();
-            
-            // Time
-            batteryLog.write(byte(t >> 24));
-            batteryLog.write(byte(t >> 16));
-            batteryLog.write(byte(t >>  8));
-            batteryLog.write(byte(t));
-            
-            // Voltage
-            batteryLog.write(byte(bat >> 8));
-            batteryLog.write(byte(bat));
-            
-            // Charging
-            batteryLog.write(byte(0));
-            
-            // Low power
-            batteryLog.write(byte(0));
-            
-            // Brightness
-            batteryLog.write(byte(watch->getBrightness()));
-          
-            logEntries++;
-            
-            batteryLog.seekSet(0);
-            
-            batteryLog.write(byte(logEntries >> 24));
-            batteryLog.write(byte(logEntries >> 16));
-            batteryLog.write(byte(logEntries >>  8));
-            batteryLog.write(byte(logEntries));
-            
-            batteryLog.sync();
-            
-            if(D) db.printf("Saved battery point for %d at %d\r\n",logEntries,bat);
-            
-            newData = true;
-
-        }
+        // Voltage
+        batteryLog.write(byte(bat >> 8));
+        batteryLog.write(byte(bat));
         
+        byte flags = 0;
+        
+        bitWrite(flags,CHARGING,    bluetooth->batteryCharging());
+        bitWrite(flags,PLUGGED_IN,  bluetooth->powerPluggedIn());
+        
+        // Flags
+        batteryLog.write(flags);
+        
+        // Low power
+        batteryLog.write(byte(0));
+        
+        // Brightness
+        batteryLog.write(byte(watch->getBrightness()));
+      
+        logEntries++;
+        
+        batteryLog.seekSet(0);
+        
+        batteryLog.write(byte(logEntries >> 24));
+        batteryLog.write(byte(logEntries >> 16));
+        batteryLog.write(byte(logEntries >>  8));
+        batteryLog.write(byte(logEntries));
+        
+        batteryLog.sync();
+        
+        if(D) db.printf("Saved battery point for %d at %d\r\n",logEntries,bat);
+        
+        newData = true;
+
     }
     
 }

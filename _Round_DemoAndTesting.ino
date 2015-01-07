@@ -1,4 +1,4 @@
-
+    
 #define HARDWARE_REVA 0
 #define HARDWARE_REVB 1
 
@@ -130,8 +130,9 @@ namespace PAGE {
     TEXT_ENTRY          = 21,
     BATTERY_GRAPH       = 22,
     LED_RING_CONTROL    = 23,
+    BLACK_CLOCK         = 24,
     
-    TOTAL               = 24;
+    TOTAL               = 25;
     
     const char names[TOTAL][20] {
     
@@ -158,7 +159,8 @@ namespace PAGE {
         "KICKSTARTER_DEMO",
         "TEXT_ENTRY",
         "BATTERY_GRAPH",
-        "LED_RING_CONTROL"
+        "LED_RING_CONTROL",
+        "BLACK_CLOCK"
         
     };
 
@@ -670,5 +672,6 @@ bool checkFilename(char* filename) { // Adds .WAV extension and gets rid of any 
 #include "textEntry.h"
 #include "batteryGraph.h"
 #include "ledRingControl.h"
+#include "blackClockPage.h"
 
 #include "roundUtil.h"
