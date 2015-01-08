@@ -101,9 +101,7 @@ void setup() {
     pageArray[PAGE::BATTERY_GRAPH]      = new BatteryGraphPage(ARGS_MACRO);
     pageArray[PAGE::LED_RING_CONTROL]   = new ledRingControlPage(ARGS_MACRO);
     pageArray[PAGE::BLACK_CLOCK]        = new BlackClockPage(ARGS_MACRO);
-    
-    
-    
+    pageArray[PAGE::STARGATE]           = new StargatePage(ARGS_MACRO);
     
     // digitalWrite(PIN::LCD_BACKLIGHT, HIGH);
     
@@ -134,7 +132,8 @@ void setup() {
     // goPage(PAGE::SETTINGS);
     // goPage(PAGE::BATTERY_GRAPH);
     // goPage(PAGE::LED_RING_CONTROL);
-    goPage(PAGE::BLACK_CLOCK);
+    // goPage(PAGE::BLACK_CLOCK);
+    goPage(PAGE::STARGATE);
 
     for(int i=0;i<PAGE::TOTAL;i++) pageArray[i]->bootup();
     
@@ -162,8 +161,6 @@ time_t getTeensy3Time() {
 bool deviceConnected = false;
 
 void loop() {
-
-    lowPowerTimeout();
 
     // static elapsedMillis time54;
     // 
@@ -194,9 +191,9 @@ void loop() {
     // 
     // }
     
+    // lowPowerTimeout();
+    
     watch.loop();
-
-    pollButtons();
     
     bt.loop();
     
@@ -205,11 +202,32 @@ void loop() {
     fori(PAGE::TOTAL) pageArray[i]->serviceLoop();
     
     checkPhoneState();
+
+    if(Page::lowPower) {
     
-    audioLoop();
+    } else {
+        
+        audioLoop();
+        
+        checkOrientation();
     
-    checkOrientation();
+        // This needs to be last since it can change the low power state
+        pollButtons();
     
+    }
+    
+}
+
+void lowPowerEnable() {
+
+    LP.CPU(TWO_MHZ);
+    
+    setTime(Teensy3Clock.get());
+
+}
+
+void lowPowerDisable() {
+
 }
 
 // Polling routines
@@ -260,6 +278,8 @@ IntervalTimer_LP pwmTimerEnd;
 volatile int lp_brightness = 100;
 
 void lowPowerTimeout() {
+
+    return;
 
     if(millis() - lastTouchTime > 5000) {
 
@@ -549,13 +569,13 @@ int loadCompileTime() {
     
     if(D) USB.printf("Compile time %d %d %d %d %d %d\r\n",year,month,day,hour,minute,second);
     
-    curTime.year = year;
-    curTime.month = month + 1;
-    curTime.day = day;
-    curTime.hour = hour;
-    curTime.minute = minute;
-    curTime.second = second;
-    curTime.hundredth = 0;
+    // curTime.year = year;
+    // curTime.month = month + 1;
+    // curTime.day = day;
+    // curTime.hour = hour;
+    // curTime.minute = minute;
+    // curTime.second = second;
+    // curTime.hundredth = 0;
 
 }
 
@@ -964,6 +984,9 @@ int pageTrailRemove() {
 }
 
 
+
+#if 0
+
 // Gague Page
 
 void printNeedleFast(int frame,int undrawFrame) {
@@ -1025,39 +1048,10 @@ void printNeedleFast(int frame,int undrawFrame) {
     
     // delay(50);
     
-}
-
-// Stargate Page
-
-void drawStargateLight(int value) {
-
-    static int currentLight = -1;
-    
-    // x and y boundaries of the chevron lights in the stargate image. Format: [x left,y top,x right,y bottom]
-    int chevPos[15][4] = {
-        {100,  2,125, 24},
-        {165, 24,189, 47},
-        {196, 83,217,106},
-        {185,150,207,175},
-        {133,192,159,215},
-        { 61,194, 88,215},
-        { 13,150, 35,176},
-        {  3, 81, 24,104},
-        { 36, 24, 59, 45}
-    };
-
-    
-    if(value != currentLight) {
-
-        if(currentLight != -1) watch.printBitmap(sgDarkFile,10,0,chevPos[currentLight][0],chevPos[currentLight][1],chevPos[currentLight][2],chevPos[currentLight][3]);
-        
-        currentLight = value;
-        
-        watch.printBitmap(sgLightFile,10,0,chevPos[currentLight][0],chevPos[currentLight][1],chevPos[currentLight][2],chevPos[currentLight][3]);
-    
-    }
     
 }
+
+#endif
 
 void updateStargate(bool onoff) {
 

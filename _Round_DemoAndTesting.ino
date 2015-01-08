@@ -2,66 +2,70 @@
 #define HARDWARE_REVA 0
 #define HARDWARE_REVB 1
 
-#include <BC127.h>
-
-// #include <Audio.h>
 #include <myUtils.h>
+#include <BC127.h>
+// #include <Audio.h>
 #include <SdFat.h>
 #include <SdFatUtil.h>
 // #include <Wire.h>
 #include <i2c_t3.h>
 #include <EEPROM.h>
-
 #include <LSM303_custom.h>
 #include "pageClass.h"
 #include <customUtils.h>
 #include <LowPower_Teensy3.h>
 #include <Time_LP.h>
 
-// #include <ctime>
-// #define min(x,y) (x < y ? x : y)
-// #define max(x,y) (x > y ? x : y)
-
 #define fori(x) for(int i=0;i<x;i++)
 #define ARGS_MACRO &bt,&compass,&watch,D,E
 #define CONSTRUCTOR_MACRO (BC127* a,LSM303_custom* c,PiWatch* d2,int e,int f):Page(a,c,d2,e,f) {}
-
-// #define ARGS_MACRO &bt,&watch,&compass,&watch,&watch,D,E
-// #define CONSTRUCTOR_MACRO (BC127* a,PiScreen* b,LSM303_custom* c,PiTouch* d,PiWatch* d2,int e,int f):Page(a,b,c,d,d2,e,f) {}
-    
-// #include <SPI.h>
-// #include <MemoryFree.h>
-// #include <malloc.h>
-// #include <Page.h>
-// #include <HomePage.h>
 
 #define millis LP.millis
 #define micros LP.micros
 
 #define USB Serial
 #define db Serial
+#define Serial2 lpSerial2
+
+/**
+ * Library init namespace
+ */
+namespace { 
+    
+    TEENSY3_LP LP = TEENSY3_LP();
+
+    HardwareSerial2_LP lpSerial2 = HardwareSerial2_LP();
+
+    PiWatch watch;
+    
+    // BC127 bt(&Serial2,bluetoothMessage);
+    BC127 bt(&lpSerial2,bluetoothMessage);
+    
+    SdFat sd;
+    
+    SdFile audioFile;
+    
+    LSM303_custom compass;
+    
+    IntervalTimer audioTimer;
+    
+}
 
 /* TODO:
-
-Video player
-
-Button for the video player
 
 ######## BUGS ########
 
 ###### FEATURES ######
 
+Button for the video player
+
 Add play/pause back in
 
-Keep audio synced when seeking 
+Keep audio synced when seeking
 Keep audio synced better in general
 
 Contacts list
 Call from the contacts list
-
-RTC stuff
-
-Setting the clock
 
 Timer & Stopwatch
 
@@ -69,25 +73,7 @@ Bluetooth audio Chat
 
 ###
 
-Create a virtual knob with a pointer and options around the perimeter of the screen.
-
-Drag it with the touch ring, auto centers on options and maybe light them up?
-
-Reserve the bottom as an enter button.
-
-When you got enter switch to values around the perimeter of the knob. Examples, Bar for brightness, text for low power settings.
-
-Use the space at the bottom that was reserved for enter as a save or back button.
-
-Clicking sounds? Vibrator feedback?
-
 Don't forget to take a shot at the retro dialer.
-
-Need analog click still too.
-
-Test new low power mode.
-
-
 
 */
 
@@ -131,8 +117,9 @@ namespace PAGE {
     BATTERY_GRAPH       = 22,
     LED_RING_CONTROL    = 23,
     BLACK_CLOCK         = 24,
+    STARGATE            = 25,
     
-    TOTAL               = 25;
+    TOTAL               = 26;
     
     const char names[TOTAL][20] {
     
@@ -160,7 +147,8 @@ namespace PAGE {
         "TEXT_ENTRY",
         "BATTERY_GRAPH",
         "LED_RING_CONTROL",
-        "BLACK_CLOCK"
+        "BLACK_CLOCK",
+        "STARGATE"
         
     };
 
@@ -178,82 +166,12 @@ namespace BUTTON {
 
 // Globals
 
-namespace {
-
-    // Gague Page
-    
-    int lastNeedlePos = 0;
-    
-    // Pages
-
-    int const STARGATE      = 0;
-    int const CAR           = 1;
-    int const GAGUE         = 2;
-    int const WHEEL_CLOCK   = 3;
-
-    int const PAGE_TOTAL    = 4;
-
-    // Paging Mode
-
-    int const NAV       = 0;
-    int const SELECTED  = 1;
-    
-    SdFile 
-    sgLightFile,
-    sgDarkFile,
-    sgLightInvFile,
-    carFile,
-    carInvFile,
-    wheelFile,
-    carGagueFile,
-    carGagueInvFile,
-    wheelInvFile,
-    transparentStarBitmapFile,
-    transparentGradientFile;
+namespace { // General
 
     char const contactsFilename[] = "contacts.db";
     char const favoritesFilename[] = "favorites.ptr";
     char const recentFilename[] = "recent.db";
     
-    IntervalTimer touchInterruptTimer;
-    
-}
-
-struct TIME_T {
-
-    int year;
-    int month;
-    int day;
-    int hour;
-    int minute;
-    int second;
-    int hundredth;
-
-} curTime;
-
-namespace { // Library inits
-    
-    TEENSY3_LP LP = TEENSY3_LP();
-
-    HardwareSerial2_LP lpSerial2 = HardwareSerial2_LP();
-
-    PiWatch watch;
-    
-    // BC127 bt(&Serial2,bluetoothMessage);
-    BC127 bt(&lpSerial2,bluetoothMessage);
-    
-    SdFat sd;
-    
-    SdFile audioFile;
-    
-    LSM303_custom compass;
-    
-    IntervalTimer audioTimer;
-    
-}
-
-namespace { // General
-
     int z;
     bool D = true;
     bool E = true;
@@ -261,8 +179,6 @@ namespace { // General
 
     int page = -1;
 
-    bool pagingMode = NAV;
-    
     int currentHeading = 0;
     
     // int brightness = 100;
@@ -673,5 +589,6 @@ bool checkFilename(char* filename) { // Adds .WAV extension and gets rid of any 
 #include "batteryGraph.h"
 #include "ledRingControl.h"
 #include "blackClockPage.h"
+#include "stargatePage.h"
 
 #include "roundUtil.h"

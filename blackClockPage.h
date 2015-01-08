@@ -12,6 +12,7 @@ image_info smallDigitFile,largeDigitFile;
 int lastPrintedHour = -1;
 int lastPrintedMinute = -1;
 int lastPrintedSecond = -1;
+int batVoltOld = -1;
     
 void bootup() {
 
@@ -25,6 +26,7 @@ void initalize() {
     lastPrintedHour = -1;
     lastPrintedMinute = -1;
     lastPrintedSecond = -1;
+    batVoltOld = -1;
     
     watch->printImage("sbBack.raw",0,0);
     
@@ -60,12 +62,15 @@ void printTime(time_t tmpTime) {
     printHour(tmpTime);
     printMinute(tmpTime);
     printSecond(tmpTime);
+    printVoltage();
 
 }
 
 void printHour(time_t tmpTime) {
 
     if(lastPrintedHour == hourFormat12(tmpTime)) return;
+    
+    lastPrintedHour = hourFormat12(tmpTime);
 
     largeDigitFile.y = 78;
     
@@ -81,6 +86,8 @@ void printHour(time_t tmpTime) {
 void printMinute(time_t tmpTime) {
 
     if(lastPrintedMinute == minute(tmpTime)) return;
+    
+    lastPrintedMinute = minute(tmpTime);
 
     largeDigitFile.y = 78;
     
@@ -95,14 +102,41 @@ void printMinute(time_t tmpTime) {
 void printSecond(time_t tmpTime) {
 
     if(lastPrintedSecond == second(tmpTime)) return;
+    
+    lastPrintedSecond = second(tmpTime);
 
-    smallDigitFile.y = 40;
+    smallDigitFile.y = 30;
     
     smallDigitFile.x = 90;
     watch->printImage(&smallDigitFile,decDigit(second(tmpTime),1));
     
     smallDigitFile.x = 111;
     watch->printImage(&smallDigitFile,decDigit(second(tmpTime),0));
+
+}
+
+
+void printVoltage() {
+    
+    int batVolt = bluetooth->getBatteryVoltage();
+
+    if(batVoltOld == batVolt) return;
+    
+    batVoltOld = batVolt;
+
+    smallDigitFile.y = 160;
+    
+    smallDigitFile.x = 70;
+    watch->printImage(&smallDigitFile,decDigit(batVolt,3));
+    
+    smallDigitFile.x = 90;
+    watch->printImage(&smallDigitFile,decDigit(batVolt,2));
+
+    smallDigitFile.x = 110;
+    watch->printImage(&smallDigitFile,decDigit(batVolt,1));
+
+    smallDigitFile.x = 130;
+    watch->printImage(&smallDigitFile,decDigit(batVolt,0));
 
 }
 
