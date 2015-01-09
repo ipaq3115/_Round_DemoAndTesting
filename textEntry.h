@@ -17,7 +17,7 @@ int cursorIndex = -1;
 // This will hold the index of the second touch, the 'select' touch
 int selectIndex = -1;
 
-SdFile font;
+image_info font;
 
 TextEntryPage() {}
 
@@ -38,7 +38,9 @@ void initalize() {
     
     strLen = 0;
     
-    if(!font.open("dsm22x41.gci",O_READ)) if(E) db.println("Couldn't load dsm22x41.gci");
+    watch->loadImage("dsm22x41.gci",&font);
+    
+    // if(!font.open("dsm22x41.gci",O_READ)) if(E) db.println("Couldn't load dsm22x41.gci");
     
 }
 
@@ -85,7 +87,7 @@ void drawLetters(int index,int color) {
 
 void leavingPage() {
 
-    font.close();
+    font->file.close();
 
 }
 
@@ -153,8 +155,8 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
                 // Detecting a change in letter that we are on
                 if(pos != posOld) {
                 
-                    watch->printRaw(font,99, 55,'A' + pos - '!');
-                    watch->printRaw(font,99,124,'A' + pos - '!');
+                    watch->printImage(&font,99, 55,'A' + pos - '!');
+                    watch->printImage(&font,99,124,'A' + pos - '!');
                     
                     // watch->clrScr();
                     drawLetters(posOld,VGA_BLACK);

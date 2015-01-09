@@ -15,18 +15,20 @@ int currentSecond = -1;
 
 RadianClockPage CONSTRUCTOR_MACRO
 
-SdFile secondsFile;
+image_info secondsFile;
 
 elapsedMillis time;
 
 void initalize() {
 
     if(D) USB.println("initalize RadianClockPage");
+    
+    watch->loadImage("bentlyS.gci",&secondsFile);
 
-    if(secondsFile.isOpen()) secondsFile.close();
-
-    // if(!secondsFile.open("blusec.gci",O_RDWR)) USB.println("File open fail");
-    if(!secondsFile.open("bentlyS.gci",O_RDWR)) USB.println("File open fail");
+    // if(secondsFile.isOpen()) secondsFile.close();
+    // 
+    // // if(!secondsFile.open("blusec.gci",O_RDWR)) USB.println("File open fail");
+    // if(!secondsFile.open("bentlyS.gci",O_RDWR)) USB.println("File open fail");
     
     // watch->clrBackground();
     // watch->setBackground("test.gci",0,0);
@@ -37,7 +39,7 @@ void initalize() {
     watch->setBackground(cacheFilename,0,0);
     watch->printBackground();
     
-    watch->printRaw(secondsFile,0,0,second());
+    watch->printImage(&secondsFile,0,0,second());
     
     currentHour = -1;
     currentMinute = -1;
@@ -103,7 +105,7 @@ void loop() {
             
             watch->printBackground();
 
-            watch->printRaw(secondsFile,0,0,second(newTime));
+            watch->printImage(&secondsFile,0,0,second(newTime));
             
             if(second(newTime) == 59) mergeBackground(newTime + 1);
             

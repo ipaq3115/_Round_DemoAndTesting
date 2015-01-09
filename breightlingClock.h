@@ -15,7 +15,7 @@ int currentSecond = -1;
 
 BreightlingClockPage CONSTRUCTOR_MACRO
 
-SdFile secondsFile;
+image_info secondsFile;
 
 elapsedMillis time;
 
@@ -23,16 +23,18 @@ void initalize() {
     
     if(D) USB.println("initalize BreightlingClockPage");
 
-    if(secondsFile.isOpen()) secondsFile.close();
+    // if(secondsFile.isOpen()) secondsFile.close();
+    // 
+    // if(!secondsFile.open("bentlyS.gci",O_RDWR)) USB.println("File open fail");
     
-    if(!secondsFile.open("bentlyS.gci",O_RDWR)) USB.println("File open fail");
+    watch->loadImage("bentlyS.gci",&secondsFile);
     
     mergeBackground(now());
     
     watch->setBackground(cacheFilename,0,0);
     watch->printBackground();
     
-    watch->printRaw(secondsFile,0,0,second());
+    watch->printImage(&secondsFile,0,0,second());
     
     currentHour = -1;
     currentMinute = -1;
@@ -99,7 +101,7 @@ void loop() {
             
             watch->printBackground();
 
-            watch->printRaw(secondsFile,0,0,second(newTime));
+            watch->printImage(&secondsFile,0,0,second(newTime));
             
             if(second(newTime) == 59) mergeBackground(newTime + 1);
             

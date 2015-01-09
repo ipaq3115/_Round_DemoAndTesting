@@ -11,7 +11,7 @@ bool pressedState = false;
 char numberStr[15] {0};
 int numberLength = 0;
 
-SdFile callScreensImage;
+image_info callScreensImage;
 bool callScreen = false;
 
 public:
@@ -22,17 +22,21 @@ NumberPadPage CONSTRUCTOR_MACRO
 
 void initalize() {
     
-    SdFile backgroundImageFile;
+    // SdFile backgroundImageFile;
+    // 
+    // if(backgroundImageFile.isOpen()) backgroundImageFile.close();
+    // 
+    // if(!backgroundImageFile.open("numpad.bmp",O_RDWR)) USB.println("File open fail");
+    // 
+    // watch->printBitmap(backgroundImageFile,0,0);
 
-    if(backgroundImageFile.isOpen()) backgroundImageFile.close();
+    watch->printImage("numpad.bmp",0,0);
     
-    if(!backgroundImageFile.open("numpad.bmp",O_RDWR)) USB.println("File open fail");
+    // if(callScreensImage.isOpen()) callScreensImage.close();
     
-    watch->printBitmap(backgroundImageFile,0,0);
-
-    if(callScreensImage.isOpen()) callScreensImage.close();
+    // if(!callScreensImage.open("callBack.gci",O_RDWR)) USB.println("File open fail");
     
-    if(!callScreensImage.open("callBack.gci",O_RDWR)) USB.println("File open fail");
+    watch->loadImage("callBack.gci",&callScreensImage);
     
     printNumber(numberStr);
     
@@ -40,7 +44,7 @@ void initalize() {
 
 void leavingPage() {
 
-    callScreensImage.close();
+    callScreensImage->file.close();
 
 }
 
@@ -174,7 +178,7 @@ void newDigit(char value) {
         
             // Print the new background image
         
-            watch->printRaw(callScreensImage,0,0,0);
+            watch->printImage(&callScreensImage,0,0,0);
             
             // Print the phone number
             

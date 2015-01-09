@@ -10,7 +10,7 @@ class SettingsPage : public Page {
 
     protected:
     
-        SdFile 
+        image_info 
         backgroundImageFile,
         brightnessFile,
         batteryBarFile,
@@ -43,8 +43,8 @@ void SettingsPage::printBrightness(int percent) {
     
     if(D) USB.printf("printBrightness value %d percent %d\r\n",value,percent);
 
-    watch->printRaw(brightnessFile,7,38,0,0,0,45,144 - value,false);
-    watch->printRaw(brightnessFile,7,38,1,0,144 - value + 1,45,144,false);
+    watch->printImage(&brightnessFile,7,38,0,0,0,45,144 - value,false);
+    watch->printImage(&brightnessFile,7,38,1,0,144 - value + 1,45,144,false);
     
 }
 
@@ -54,26 +54,31 @@ void SettingsPage::printBattery(int percent) {
     
     if(D) USB.printf("printBattery value %d percent %d\r\n",value,percent);
 
-    watch->printRaw(batteryBarFile,68,7,1,0,0,value,23,false);
-    watch->printRaw(batteryBarFile,68,7,0,value + 1,0,83,23,false);
+    watch->printImage(&batteryBarFile,68,7,1,0,0,value,23,false);
+    watch->printImage(&batteryBarFile,68,7,0,value + 1,0,83,23,false);
     
-    watch->printRaw(batteryPercentFile,74,25,percent);
+    watch->printImage(&batteryPercentFile,74,25,percent);
     
 }
 
 void SettingsPage::initalize() {
     
-    if(backgroundImageFile.isOpen()) backgroundImageFile.close();
-    if(brightnessFile.isOpen()) brightnessFile.close();
-    if(batteryBarFile.isOpen()) batteryBarFile.close();
-    if(batteryPercentFile.isOpen()) batteryPercentFile.close();
+    watch->loadImage("settings.bmp",&backgroundImageFile);
+    watch->loadImage("setBrgt.Gci",&brightnessFile);
+    watch->loadImage("setBatB.Gci",&batteryBarFile);
+    watch->loadImage("setBatP.Gci",&batteryPercentFile);
     
-    if(!backgroundImageFile.open("settings.bmp",O_RDWR)) USB.println("File open fail");
-    if(!brightnessFile.open("setBrgt.Gci",O_RDWR)) USB.println("File open fail");
-    if(!batteryBarFile.open("setBatB.Gci",O_RDWR)) USB.println("File open fail");
-    if(!batteryPercentFile.open("setBatP.Gci",O_RDWR)) USB.println("File open fail");
+    // if(backgroundImageFile.isOpen()) backgroundImageFile.close();
+    // if(brightnessFile.isOpen()) brightnessFile.close();
+    // if(batteryBarFile.isOpen()) batteryBarFile.close();
+    // if(batteryPercentFile.isOpen()) batteryPercentFile.close();
     
-    watch->printBitmap(backgroundImageFile,0,0);
+    // if(!backgroundImageFile.open("settings.bmp",O_RDWR)) USB.println("File open fail");
+    // if(!brightnessFile.open("setBrgt.Gci",O_RDWR)) USB.println("File open fail");
+    // if(!batteryBarFile.open("setBatB.Gci",O_RDWR)) USB.println("File open fail");
+    // if(!batteryPercentFile.open("setBatP.Gci",O_RDWR)) USB.println("File open fail");
+    
+    watch->printImage(&backgroundImageFile,0,0);
     
     printBrightness(watch->getBrightness());
     printBattery(42);

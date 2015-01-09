@@ -132,8 +132,8 @@ void setup() {
     // goPage(PAGE::SETTINGS);
     // goPage(PAGE::BATTERY_GRAPH);
     // goPage(PAGE::LED_RING_CONTROL);
-    // goPage(PAGE::BLACK_CLOCK);
-    goPage(PAGE::STARGATE);
+    goPage(PAGE::BLACK_CLOCK);
+    // goPage(PAGE::STARGATE);
 
     for(int i=0;i<PAGE::TOTAL;i++) pageArray[i]->bootup();
     
@@ -634,20 +634,19 @@ void loadSdCard() {
 
 void showSplash() {
 
-    SdFile splashImage;
+    watch.printImage("hackaday.gci",0,0);
+
+    // SdFile splashImage;
     
-    if(!splashImage.open("hackaday.gci",O_RDWR)) if(E) db.println("hackaday.gci not opened");
-    watch.printRaw(splashImage,0,0);
+    // if(!splashImage.open("hackaday.gci",O_RDWR)) if(E) db.println("hackaday.gci not opened");
+    // watch.printRaw(splashImage,0,0);
     
     // if(!splashImage.open("PiSplash.bmp",O_RDWR)) USB.println("PiSplash not opened");
     // watch.printBitmap(splashImage,0,0);
     
     watch.rampBrightness(UP);
     
-    while(1);
-    delay(500);
-    
-    splashImage.close();
+    // splashImage.close();
     
 }
 

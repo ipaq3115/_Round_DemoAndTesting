@@ -26,11 +26,13 @@ class ControlSimplePage : public Page {
 
 void ControlSimplePage::initalize() {
 
-    if(backgroundImageFile.isOpen()) backgroundImageFile.close();
+    // if(backgroundImageFile.isOpen()) backgroundImageFile.close();
+    // 
+    // if(!backgroundImageFile.open("controlS.gci",O_RDWR)) USB.println("File open fail");
     
-    if(!backgroundImageFile.open("controlS.gci",O_RDWR)) USB.println("File open fail");
+    watch->loadImage("controlS.gci",&backgroundImageFile);
     
-    watch->printRaw(backgroundImageFile,0,0,0);    
+    watch->printImage(&backgroundImageFile,0,0,0);    
     
     firstTouchIndex = -1;
     
@@ -51,7 +53,7 @@ void ControlSimplePage::loop() {
     
         currentQuadrant = newQuadrant;
         
-        watch->printRaw(backgroundImageFile,0,0,currentQuadrant);
+        watch->printImage(&backgroundImageFile,0,0,currentQuadrant);
         
     }
 
@@ -84,7 +86,7 @@ void controlSimplePageInitialize() {
     
     if(!backgroundImageFile.open("controlS.gci",O_RDWR)) USB.println("File open fail");
     
-    watch.printRaw(backgroundImageFile,0,0,0);    
+    watch.printImage(&backgroundImageFile,0,0,0);    
     
     firstTouchIndex = -1;
     
@@ -103,7 +105,7 @@ void controlSimplePageLoop() {
     
         currentQuadrant = newQuadrant;
         
-        watch.printRaw(backgroundImageFile,0,0,currentQuadrant);
+        watch.printImage(&backgroundImageFile,0,0,currentQuadrant);
         
     }
 
@@ -143,7 +145,7 @@ void controlSimplePageTouch(int touchType,int finePos,int activeTouches,int touc
                 
                     currentQuadrant = newQuadrant;
                     
-                    watch.printRaw(backgroundImageFile,0,0,currentQuadrant);
+                    watch.printImage(&backgroundImageFile,0,0,currentQuadrant);
                     
                 }
             

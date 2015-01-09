@@ -11,7 +11,7 @@ public:
 
 int touchIndex = -1;
 
-SdFile 
+image_info
 
 ringFile,
 ringA,
@@ -31,12 +31,18 @@ BarClockPage CONSTRUCTOR_MACRO
 
 void initalize() {
 
-    if(!ringFile.isOpen()) if(!ringFile.open("ringBack.Gci",O_RDWR)) if(D) USB.println("Couldn't open file");
-    if(!ringA.isOpen())    if(!ringA.open("ringA.Gci",O_RDWR)) if(D) USB.println("Couldn't open file");
-    if(!ringB.isOpen())    if(!ringB.open("ringB.Gci",O_RDWR)) if(D) USB.println("Couldn't open file");
-    if(!ringC.isOpen())    if(!ringC.open("ringC.Gci",O_RDWR)) if(D) USB.println("Couldn't open file");
+    watch->loadImage("ringBack.Gci",&ringFile);
+    watch->loadImage("ringA.Gci",&ringA);
+    watch->loadImage("ringB.Gci",&ringB);
+    watch->loadImage("ringC.Gci",&ringC);
+
+    // if(!ringFile.isOpen()) if(!ringFile.open("ringBack.Gci",O_RDWR)) if(D) USB.println("Couldn't open file");
+    // if(!ringA.isOpen())    if(!ringA.open("ringA.Gci",O_RDWR)) if(D) USB.println("Couldn't open file");
+    // if(!ringB.isOpen())    if(!ringB.open("ringB.Gci",O_RDWR)) if(D) USB.println("Couldn't open file");
+    // if(!ringC.isOpen())    if(!ringC.open("ringC.Gci",O_RDWR)) if(D) USB.println("Couldn't open file");
+    // watch->printRaw(ringFile,0,0);
     
-    watch->printRaw(ringFile,0,0);
+    watch->printImage(&ringFile,0,0);
     
     curSecO = -1;
     curMinO = -1;
@@ -64,7 +70,7 @@ void loop() {
     
         int tmp = curSec + 1;
         if(tmp >= 119) tmp -= 119;
-        watch->printRaw(ringA,0,0,tmp);
+        watch->printImage(&ringA,0,0,tmp);
     
     }
 
@@ -83,13 +89,13 @@ void loop() {
      
         if(curSec != curSecO) {
          
-            watch->printRaw(ringA,0,0,curSec);
+            watch->printImage(&ringA,0,0,curSec);
 
             lastSecondUpdate = millis();
             
         }
-        if(curMin != curMinO) watch->printRaw(ringB,0,0,curMin);
-        if(curHour != curHourO) watch->printRaw(ringC,0,0,curHour);
+        if(curMin != curMinO) watch->printImage(&ringB,0,0,curMin);
+        if(curHour != curHourO) watch->printImage(&ringC,0,0,curHour);
         
         curSecO = curSec;
         curMinO = curMin;

@@ -36,15 +36,15 @@ class PhonePage : public Page {
 
 void PhonePage::initalize() {
     
-    SdFile backgroundImageFile;
-
-    if(!backgroundImageFile.isOpen()) {
-        
-        if(!backgroundImageFile.open("callBack.gci",O_RDWR)) USB.println("File open fail");
-
-    }
+    // SdFile backgroundImageFile;
+    // 
+    // if(!backgroundImageFile.isOpen()) {
+    //     
+    //     if(!backgroundImageFile.open("callBack.gci",O_RDWR)) USB.println("File open fail");
+    // 
+    // }
     
-    watch->printRaw(backgroundImageFile,0,0,4);
+    watch->printImage("callBack.gci",0,0,4);
     
 }
 

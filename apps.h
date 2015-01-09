@@ -10,7 +10,7 @@ class AppsPage : public Page {
 
     protected:
     
-        SdFile backgroundImageFile;
+        image_info backgroundImageFile;
 
         int page = 0;
         
@@ -30,14 +30,14 @@ class AppsPage : public Page {
 
 
 void AppsPage::initalize() {
+
+    watch->loadImage("homeBack.Gci",&backgroundImageFile);
     
-    if(backgroundImageFile.isOpen()) backgroundImageFile.close();
+    // if(!backgroundImageFile.open("homeBack.Gci",O_RDWR)) USB.println("File open fail");
     
-    if(!backgroundImageFile.open("homeBack.Gci",O_RDWR)) USB.println("File open fail");
+    watch->printImage(&backgroundImageFile,0,0,page);
     
-    watch->printRaw(backgroundImageFile,0,0,page);
-    
-    if(D) USB.println("apps page initalize is done");
+    // if(D) USB.println("apps page initalize is done");
     
 }
 
@@ -90,7 +90,7 @@ void AppsPage::touch(int touchType,int finePos,int activeTouches,int touchIndex)
                     page++;
                     page %= 2;
                     
-                    watch->printRaw(backgroundImageFile,0,0,page);
+                    watch->printImage(&backgroundImageFile,0,0,page);
                 
                 } else if(page == 0) {
                 

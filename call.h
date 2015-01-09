@@ -39,12 +39,6 @@ class CallPage : public Page {
 
 void CallPage::initalize() {
 
-    if(!backgroundImageFile.isOpen()) {
-        
-        if(!backgroundImageFile.open("callBack.gci",O_RDWR)) USB.println("File open fail");
-
-    }
-    
     currentPhoneState = bluetooth->phoneState;
     
 
@@ -54,22 +48,26 @@ void CallPage::initalize() {
     
     switch(bluetooth->phoneState) {
     
-        case PHONE_IDLE:     watch->printRaw(backgroundImageFile,0,0,4); break;
+        case PHONE_IDLE:     
+        
+            watch->printImage("callBack.gci",0,0,4); 
+            
+            break;
         case PHONE_RINGING:  
         
-            watch->printRaw(backgroundImageFile,0,0,1);
+            watch->printImage("callBack.gci",0,0,1);
             printFormattedPhoneNumber(63);
             
             break;
         case PHONE_IN_CALL:  
         
-            watch->printRaw(backgroundImageFile,0,0,3);
+            watch->printImage("callBack.gci",0,0,3);
             printFormattedPhoneNumber(63);
             
             break;
         case PHONE_DIALING:  
         
-            watch->printRaw(backgroundImageFile,0,0,2); 
+            watch->printImage("callBack.gci",0,0,2); 
             printFormattedPhoneNumber(63);
             
             break;

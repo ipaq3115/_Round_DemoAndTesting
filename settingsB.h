@@ -22,7 +22,7 @@ public:
 
     int oldResponseRate = 0;
 
-    SdFile 
+    image_info 
     backgroundImageFile,
     knobFile,
     vibrateFile,
@@ -46,18 +46,25 @@ SettingsPageB() {}
 SettingsPageB CONSTRUCTOR_MACRO
 
 void initalize() {
+
+    watch->loadImage("setB.bmp",&backgroundImageFile);
+    watch->loadImage("knob.Gci",&knobFile);
+    watch->loadImage("setvib.Gci",&vibrateFile);
+    watch->loadImage("setvol.Gci",&volumeFile);
     
-    if(backgroundImageFile.isOpen()) backgroundImageFile.close();
-    if(knobFile.isOpen()) knobFile.close();
-    if(vibrateFile.isOpen()) vibrateFile.close();
-    if(volumeFile.isOpen()) volumeFile.close();
+    // if(backgroundImageFile.isOpen()) backgroundImageFile.close();
+    // if(knobFile.isOpen()) knobFile.close();
+    // if(vibrateFile.isOpen()) vibrateFile.close();
+    // if(volumeFile.isOpen()) volumeFile.close();
+    // 
+    // if(!backgroundImageFile.open("setB.bmp",O_RDWR)) USB.println("File open fail");
+    // if(!knobFile.open("knob.Gci",O_RDWR)) USB.println("File open fail");
+    // if(!vibrateFile.open("setvib.Gci",O_RDWR)) USB.println("File open fail");
+    // if(!volumeFile.open("setvol.Gci",O_RDWR)) USB.println("File open fail");
     
-    if(!backgroundImageFile.open("setB.bmp",O_RDWR)) USB.println("File open fail");
-    if(!knobFile.open("knob.Gci",O_RDWR)) USB.println("File open fail");
-    if(!vibrateFile.open("setvib.Gci",O_RDWR)) USB.println("File open fail");
-    if(!volumeFile.open("setvol.Gci",O_RDWR)) USB.println("File open fail");
+    // watch->printBitmap(backgroundImageFile,0,0);
     
-    watch->printBitmap(backgroundImageFile,0,0);
+    watch->printImage(&backgroundImageFile,0,0);
     
     // printBrightness(brightness);
     // printBattery(42);
@@ -76,10 +83,10 @@ void initalize() {
 
 void leavingPage() {
 
-    backgroundImageFile.close();
-    knobFile.close();
-    vibrateFile.close();
-    volumeFile.close();
+    backgroundImageFile->file.close();
+    knobFile->file.close();
+    vibrateFile->file.close();
+    volumeFile->file.close();
 
     // Return the response rate to the previous condition
     watch->setResponseRateRaw(oldResponseRate);
@@ -110,7 +117,7 @@ void loop() {
             if(count == 0) dir = true;
         }
         
-        watch->printRaw(vibrateFile,19,126,count);
+        watch->printImage(&vibrateFile,19,126,count);
         // watch->printRaw(knobFile,44,44,count);
         
         // printBrightness(count);
@@ -128,7 +135,7 @@ void updateVolume(int dir) {
     if(volume > 4) volume = 4;
     if(volume < 0) volume = 0;
     
-    watch->printRaw(volumeFile,170,53,volume ? volume + 1 : 0);
+    watch->printImage(&volumeFile,170,53,volume ? volume + 1 : 0);
     
 }
 
@@ -201,7 +208,7 @@ void touchMoving(int finePos) {
         if(knobPos > 229) knobPos = 229;
         if(knobPos < 0) knobPos = 0;
         
-        watch->printRaw(knobFile,44,44,knobPos);
+        watch->printImage(&knobFile,44,44,knobPos);
         
     // Touched the 'tap to change' button
     } else {
@@ -260,7 +267,7 @@ void touchReleased(int finePos) {
         // Snap the knob to the icon that was determined to be the closest
         // to the position it was realesed at
         knobPos = iconPosions[iconID];
-        watch->printRaw(knobFile,44,44,knobPos);
+        watch->printImage(&knobFile,44,44,knobPos);
     
     // Touched the 'tap to change' button
     } else {
