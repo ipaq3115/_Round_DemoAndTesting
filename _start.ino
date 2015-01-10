@@ -10,6 +10,7 @@ void setup() {
 
     // This needs to be one of the first things done because it sets
     // pin states and keeps the watch on
+    // watch.init();
     watch.init(touch);
     watch.speaker(OFF);
 
@@ -46,36 +47,34 @@ void setup() {
     
     loadSdCard();
     
-    pageArray[PAGE::HOME]               = new HomePage(ARGS_MACRO);
-    pageArray[PAGE::GRAVITY_BALL]       = new GravityBallPage(ARGS_MACRO);
-    pageArray[PAGE::CONTROL_SIMPLE]     = new ControlSimplePage(ARGS_MACRO);
-    pageArray[PAGE::NUMBER_PAD]         = new NumberPadPage(ARGS_MACRO);
-    pageArray[PAGE::PHONE]              = new PhonePage(ARGS_MACRO);
-    pageArray[PAGE::CALL]               = new CallPage(ARGS_MACRO);
-    pageArray[PAGE::TOUCH_DEMO]         = new TouchDemoPage(ARGS_MACRO);
-    pageArray[PAGE::CONTACTS]           = new ContactsPage(ARGS_MACRO);
-    pageArray[PAGE::BLUE_CLOCK]         = new BlueClockPage(ARGS_MACRO);
-    pageArray[PAGE::XKCD_CLOCK]         = new XKCDclockPage(ARGS_MACRO);
-    pageArray[PAGE::BAR_CLOCK]          = new BarClockPage(ARGS_MACRO);
-    pageArray[PAGE::CLOCKS]             = new ClockSelectPage(ARGS_MACRO);
-    pageArray[PAGE::VIDEO]              = new VideoPlayerPage(ARGS_MACRO);
-    pageArray[PAGE::APPS]               = new AppsPage(ARGS_MACRO);
-    pageArray[PAGE::SETTINGS]           = new SettingsPage(ARGS_MACRO);
-    pageArray[PAGE::SETTINGS_B]         = new SettingsPageB(ARGS_MACRO);
-    pageArray[PAGE::BLUISH_CLOCK]       = new BluishClockPage(ARGS_MACRO);
-    pageArray[PAGE::BREIGHTLING_CLOCK]  = new BreightlingClockPage(ARGS_MACRO);
-    pageArray[PAGE::KICKSTARTER_CLOCK]  = new KickstarterClockPage(ARGS_MACRO);
-    pageArray[PAGE::RADIAN_CLOCK]       = new RadianClockPage(ARGS_MACRO);
-    pageArray[PAGE::KICKSTARTER_DEMO]   = new KickstarterDemoPage(ARGS_MACRO);
-    pageArray[PAGE::TEXT_ENTRY]         = new TextEntryPage(ARGS_MACRO);
-    pageArray[PAGE::BATTERY_GRAPH]      = new BatteryGraphPage(ARGS_MACRO);
-    pageArray[PAGE::LED_RING_CONTROL]   = new ledRingControlPage(ARGS_MACRO);
-    pageArray[PAGE::BLACK_CLOCK]        = new BlackClockPage(ARGS_MACRO);
-    pageArray[PAGE::STARGATE]           = new StargatePage(ARGS_MACRO);
+    #define initPage(name,class) pageArray[PAGE::name] = new class(ARGS_MACRO);
     
-    // digitalWrite(PIN::LCD_BACKLIGHT, HIGH);
-    
-    // animateNotificationTest();
+    initPage(HOME,              HomePage)
+    initPage(GRAVITY_BALL,      GravityBallPage)
+    initPage(CONTROL_SIMPLE,    ControlSimplePage)
+    initPage(NUMBER_PAD,        NumberPadPage)
+    initPage(PHONE,             PhonePage)
+    initPage(CALL,              CallPage)
+    initPage(TOUCH_DEMO,        TouchDemoPage)
+    initPage(CONTACTS,          ContactsPage)
+    initPage(BLUE_CLOCK,        BlueClockPage)
+    initPage(XKCD_CLOCK,        XKCDclockPage)
+    initPage(BAR_CLOCK,         BarClockPage)
+    initPage(CLOCKS,            ClockSelectPage)
+    initPage(VIDEO,             VideoPlayerPage)
+    initPage(APPS,              AppsPage)
+    initPage(SETTINGS,          SettingsPage)
+    initPage(SETTINGS_B,        SettingsPageB)
+    initPage(BLUISH_CLOCK,      BluishClockPage)
+    initPage(BREIGHTLING_CLOCK, BreightlingClockPage)
+    initPage(KICKSTARTER_CLOCK, KickstarterClockPage)
+    initPage(RADIAN_CLOCK,      RadianClockPage)
+    initPage(KICKSTARTER_DEMO,  KickstarterDemoPage)
+    initPage(TEXT_ENTRY,        TextEntryPage)
+    initPage(BATTERY_GRAPH,     BatteryGraphPage)
+    initPage(LED_RING_CONTROL,  ledRingControlPage)
+    initPage(BLACK_CLOCK,       BlackClockPage)
+    initPage(STARGATE,          StargatePage)
     
     fillDemoContacts();
     
@@ -84,6 +83,9 @@ void setup() {
     analogWriteResolution(8);
     
     // showSplash();
+    
+    // Let all of the pages go through their bootup
+    for(int i=0;i<PAGE::TOTAL;i++) pageArray[i]->bootup();
     
     // goPage(PAGE::TEXT_ENTRY);
     // goPage(PAGE::VIDEO);
@@ -97,9 +99,6 @@ void setup() {
     // goPage(PAGE::LED_RING_CONTROL);
     goPage(PAGE::BLACK_CLOCK);
     // goPage(PAGE::STARGATE);
-
-    // Let all of the pages go through their bootup
-    for(int i=0;i<PAGE::TOTAL;i++) pageArray[i]->bootup();
 
     // Turn up the brightness
     watch.rampBrightness(100);

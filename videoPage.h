@@ -125,7 +125,7 @@ void loadVideo(char * name,int x,int y) {
     
     // watch->clrScr();
     watch->videoFrame(x,y,0);
-    startPlay(name);
+    // startPlay(name);
     
     vidX = x;
     vidY = y;
