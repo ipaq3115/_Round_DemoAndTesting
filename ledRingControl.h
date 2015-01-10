@@ -168,22 +168,18 @@ void loop() {
         updateRing(myTouchPos,watch->RGBto565(r,g,b));
         // updateRing(-1,watch->RGBto565(0,0,b));
         
-        // if(deviceConnected) {
-
-            r /= 10;
-            g /= 10;
-            b /= 10;
-            
-            char str[] = "COLOR FFFFFFFF";
-            
-            hexbytetostring(r,str,6);
-            hexbytetostring(g,str,8);
-            hexbytetostring(b,str,10);
-            hexbytetostring(myTouchPos == -1 ? 255 : 15 - (myTouchPos / 24),str,12);
-            
-            bt.sendData(strlen(str),(byte*)str);
+        r /= 10;
+        g /= 10;
+        b /= 10;
         
-        // }
+        char str[] = "COLOR FFFFFFFF";
+        
+        hexbytetostring(r,str,6);
+        hexbytetostring(g,str,8);
+        hexbytetostring(b,str,10);
+        hexbytetostring(myTouchPos == -1 ? 255 : 15 - (myTouchPos / 24),str,12);
+        
+        bt.sendData(strlen(str),(byte*)str);
         
         // static int myTouchPosOld = -1;
         // 

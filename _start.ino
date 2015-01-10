@@ -1,43 +1,28 @@
 
 IntervalTimer blinktimer;
 
-bool timeSetWorked = false;
-
 #include <EEPROM.h>
 
 void setup() {
 
-    // EEPROM.write(0, HARDWARE_REVA);
-    // EEPROM.write(0, HARDWARE_REVB);
-    // return;
-    
     // set the Time library to use Teensy 3.0's RTC to keep time
     setSyncProvider((long int (*)())Teensy3Clock.get);
 
-    // Make sure this is the first thing you do because it sets
-    // pin states up for the device
+    // This needs to be one of the first things done because it sets
+    // pin states and keeps the watch on
     watch.init(touch);
-    
+    watch.speaker(OFF);
+
     USB.begin(300000); 
     // while(!USB); // Wait for PC to open the USB serial port before running this program
     delay(100);
     
     // elapsedMillis time; while(1) { if(time > 500) { Serial.println("Send char to start"); time = 0; } if(Serial.read() != -1) break; }
     
-    // if(D) USB.println("## SETUP START ##");
-    // hVer = EEPROM.read(0);
-    // if(D) db.printf("hardware %d %s\r\n",hVer,hVer == 0 ? "REVA" : "REVB");
-    // if(hVer != HARDWARE_REVA && hVer != HARDWARE_REVB) hVer = HARDWARE_REVB;
-    // hVer = HARDWARE_REVA;
-    
-    // if(hVer == HARDWARE_REVB) blinktimer.begin(blinkled, 200000);
-    
     if (timeStatus() != timeSet) {
-        Serial.println("Unable to sync with the RTC");
-        timeSetWorked = false;
+        if(D) db.println("Unable to sync with the RTC");
     } else {
-        Serial.println("RTC has set the system time");
-        timeSetWorked = true;
+        if(D) db.println("RTC has set the system time");
     }
     
     loadCompileTime();
@@ -60,21 +45,6 @@ void setup() {
     watch.setOrientation(currentRotation);
     
     loadSdCard();
-    
-    // showSplash();
-    
-    // SdFile file;
-    // 
-    // file.open("hellopi.Gci",O_READ);
-    // 
-    // watch.printRaw(file,0,0,0);
-    // watch.rampBrightness(UP);
-    // 
-    // delay(1000);
-    // 
-    // watch.printRaw(file,0,0,1);
-    // 
-    // while(1) pollButtons();
     
     pageArray[PAGE::HOME]               = new HomePage(ARGS_MACRO);
     pageArray[PAGE::GRAVITY_BALL]       = new GravityBallPage(ARGS_MACRO);
@@ -105,12 +75,6 @@ void setup() {
     
     // digitalWrite(PIN::LCD_BACKLIGHT, HIGH);
     
-    // startPlay("rally");
-    // startPlay("rdkill");
-    // startPlay("rdkill3");
-    // startPlay("drift");
-    // startPlay("drift2");
-    
     // animateNotificationTest();
     
     fillDemoContacts();
@@ -118,12 +82,11 @@ void setup() {
     // analogReference(INTERNAL);
     analogReadResolution(8);
     analogWriteResolution(8);
-
-    watch.speaker(ON);
+    
+    // showSplash();
     
     // goPage(PAGE::TEXT_ENTRY);
     // goPage(PAGE::VIDEO);
-    // startPlay("paul2");
     // goPage(PAGE::TOUCH_DEMO);
     // goPage(PAGE::KICKSTARTER_DEMO);
     // goPage(PAGE::KICKSTARTER_CLOCK);
@@ -132,62 +95,28 @@ void setup() {
     // goPage(PAGE::SETTINGS);
     // goPage(PAGE::BATTERY_GRAPH);
     // goPage(PAGE::LED_RING_CONTROL);
-    // goPage(PAGE::BLACK_CLOCK);
-    goPage(PAGE::STARGATE);
+    goPage(PAGE::BLACK_CLOCK);
+    // goPage(PAGE::STARGATE);
 
+    // Let all of the pages go through their bootup
     for(int i=0;i<PAGE::TOTAL;i++) pageArray[i]->bootup();
+
+    // Turn up the brightness
+    watch.rampBrightness(100);
     
     if(D) USB.println("## LOOP START ##");
     
 }
 
-void blinkled() {
-
-    static bool state;
-    
-    pinMode(26, OUTPUT);
-    digitalWrite(26, state);
-
-    state = !state;
-    
-}
-
-time_t getTeensy3Time() {
-
-    return Teensy3Clock.get();
-
-}
-
-bool deviceConnected = false;
-
 void loop() {
-
-    // static elapsedMillis time54;
-    // 
-    // if(time54 > 100) {
-    // 
-    //     time54 = 0;
-    //     
-    //     compass.read();
-    //     
-    //     Serial.printf("%d %d %d\r\n",compass.a.x,compass.a.y,compass.a.z);
-    // 
-    // }
     
     // static elapsedMillis timey;
-    // if(timey > 10000 && !deviceConnected) {
+    // if(timey > 10000) {
     // 
     //     timey = 0;
     // 
     //     bt.connect(0x20FABB01862E);
     //     // bt.connect(0x20FABB018005);
-    //     
-    // 
-    // 
-    //     // Serial2.print("GET BAUD\r");
-    //     // Serial.println("sent GET BAUD");
-    // 
-    //     // bt.getBattery();
     // 
     // }
     
@@ -509,7 +438,7 @@ void pollButtons() {
         
         }
         
-        if(buttonStates[i] == STATE_UP && millis() - buttonTime[i] > 2000) {
+        if(buttonStates[i] == STATE_UP && millis() - buttonTime[i] > 1000) {
 
             buttonEvent(buttonStates[i],i,true);
             
@@ -612,6 +541,8 @@ void fillDemoContacts() {
 void loadSdCard() {
 
     bool onoff = true;
+    
+    int b = watch.getBrightness();
 
     retry1:
     if(sd.begin(PIN::SD_CHIP_SELECT, SPI_FULL_SPEED)) {
@@ -631,6 +562,8 @@ void loadSdCard() {
         goto retry1;
         
     }
+
+    watch.rampBrightness(b);
     
 }
 
@@ -665,16 +598,6 @@ void bluetoothMessage(bt_event event) {
         case DISCOVERABLE: break;
         case LIST: break;
         case CONNECT: 
-        
-            if(!event.error) {
-            
-                deviceConnected = true;
-            
-            } else {
-            
-                deviceConnected = false;
-            
-            }
         
             if(D) db.printf("%s to %llu\r\n",event.error ? "Connect failed" : "Connected",event.mac);
         
@@ -795,8 +718,12 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
             if(lastTouchPos[i] <= touchWidth || lastTouchPos[i] >= 360 - touchWidth) topTouch = true;
             if(lastTouchPos[i] <= 180 + touchWidth && lastTouchPos[i] >= 180 - touchWidth) bottomTouch = true;
 
-            if(topTouch && bottomTouch && pageTrailLength > 1) backActivated = true;
-
+            if(topTouch && bottomTouch /*&& pageTrailLength > 1*/ && !backActivated) {
+                
+                backActivated = true;
+            
+            }
+            
         }
 
     }
@@ -852,12 +779,15 @@ void buttonEvent(int dir,int index,bool longPress) {
             
             } else if(!dir) {
             
+                static int oldPage = PAGE::HOME;
+            
                 if(page == PAGE::BLACK_CLOCK) {
                 
-                    goBack();
+                    goPage(oldPage);
                 
                 } else {
                 
+                    oldPage = page;
                     goPage(PAGE::BLACK_CLOCK);
                 
                 }
@@ -975,7 +905,7 @@ int pageTrailRemove() {
         
         pageTrail[pageTrailLocation] = 0xFF;
         
-    } else return PAGE::HOME;
+    }
     
     int tempPageTrailLocation = pageTrailLocation - 1;
     if(tempPageTrailLocation < 0) tempPageTrailLocation = PAGE_TRAIL_SIZE - 1;
@@ -1056,91 +986,6 @@ void printNeedleFast(int frame,int undrawFrame) {
 
 #endif
 
-void updateStargate(bool onoff) {
-
-    for(int i=0;i<9;i++) {
-    
-    
-    }
-
-}
-
-// Compass Circles and orbit calculations
-
-void partyCircles() {
-
-    static int count = 0;
-    static int spin = 0;
-    static int spinB = 0;
-    static int spinC = 234;
-    static int spinD = 65;
-
-    static int angleA = 0;
-    static int angleB = 0;
-    
-    // Undraw last circles
-    // drawCompass(120,110,angleA,0);
-    drawpointer(110,110,90,spinB,0);
-    drawpointer(110,110,90,spinC,0);
-    drawpointer(110,110,90,spinD,0);
-    drawpointer(110,110,90,spin,0);
-    
-    // Increment pointers
-    spin+=5; if(spin>=360) spin-=360;
-    spinB-=2; if(spinB<0) spinB=359;
-    spinC+=4; if(spinC>=360) spinC=0;
-    spinD-=6; if(spinD<0) spinD=359;
-    // angleA-=10; if(angleA<0) angleA += 360;
-    
-    // watch.setColor(random(255), random(255), random(255));
-    
-    // Build number string for one of the pointers
-    // char tempString[20];
-    // inttostring(spin,tempString,0,3);
-    // tempString[3]=0;
-    
-    // Build number string for one of the pointers
-    // char tempString2[20];
-    // inttostring(angleA,tempString2,0,3);
-    // tempString2[3]=0;
-    
-    // Print number string to the screen
-    // watch.print(tempString,70,60);
-    
-    // Print number string to the screen
-    // watch.print(tempString2,70,110);
-    
-    // Draw new circles
-    // drawCompass(120,110,angleA,1);
-    drawpointer(110,110,90,spin,1);
-    drawpointer(110,110,90,spinB,1);
-    drawpointer(110,110,90,spinC,1); 
-    drawpointer(110,110,90,spinD,1);
-    
-    
-    // Don't loop too fast
-    delay(7);
-
-
-}
-
-void drawpointer(int centerx,int centery,int radius,int angle,int color) {
-
-    // if(color) { watch.setColor(random(255), random(255), random(255)); } 
-    if(color) { watch.setColor(255, 255, 255); }
-    else { watch.setColor(0, 0, 0); }
-    
-    angle-=180;
-
-    int xoffset = sin(MyUtils::degreestoradians(angle))*radius;
-    int yoffset = cos(MyUtils::degreestoradians(angle))*radius;
-
-    if(color) { watch.fillCircle(centerx-xoffset,centery+yoffset,5); }
-    // else { watch.printBitmap(carFile,10,0,centerx-xoffset-6,centery+yoffset-6,centerx-xoffset+6,centery+yoffset+6,false); } 
-    else { watch.fillCircle(centerx-xoffset,centery+yoffset,6); }
-    
-}
-
 void drawCompass(int x,int y,int angle,int enabled) {
 
     int polygon[10][2];
@@ -1150,329 +995,10 @@ void drawCompass(int x,int y,int angle,int enabled) {
     MyUtils::orbitPoint(x,y,angle + 180, 100, polygon[2][0],polygon[2][1]);
     MyUtils::orbitPoint(x,y,angle - 90,  30,  polygon[3][0],polygon[3][1]);
     
-    // if(enabled) { watch.setColor(random(255), random(255), random(255)); } else { watch.setColor(0,0,0); } 
     if(enabled) { watch.setColor(255,255,255); } else { watch.setColor(0,0,0); }
     for(int i=0;i<4;i++) watch.drawLine(polygon[i][0],polygon[i][1],polygon[(i+1)%4][0],polygon[(i+1)%4][1]);
     
-    // watch.drawLine(polygon[0][0],polygon[0][1],polygon[1][0],polygon[1][1]);
-
 }
-
-// Bluetooth Functions
-
-void btStrt() {
-
-    // if(D) db << pstr("btStrt") << endl;
-
-}
-
-void btAvailibleDevice(long long address,int linkIndex,char * name) {
-
-    if(D) USB.printf("btAvailibleDevice %d %s %012llX\r\n",linkIndex,name,address);
-
-    // if(address == (long long)0x3017C88BA738) {
-    
-        // bt.connect(address);
-    
-    // }
-
-
-}
-
-void btConnected(long long address) {
-
-    // if(D) db << pstr("btConnected") << endl;
-
-}
-
-void btDisconnected(long long address) {
-
-    // if(D) db << pstr("btDisconnected") << endl;
-
-}
-
-// Other
-
-void flipBitmap(char *filename) {
-
-    // Realized after I built this that an image can be flipped much more easily in gimp
-
-    if(D) Serial.printf("flipBitmap %s\r\n",filename);
-
-    /*
-    Turns this:   Into this:
-    p o n m       a e i m
-    l k j i       b f j n 
-    h g f e       c g k o 
-    d c b a       d h l p 
-    */
-    
-    // Takes a bitmap that is filled row by row and fills it column by column for faster vertical screen writes [trying to minimize seek curTime on the sdcard]
-
-    SdFile tmpFileSrc,tmpFileDest;
-    
-    // Verify that this is a bitmap file
-    if(MyUtils::strMatch(filename,".bmp") == -1) { if(D) Serial.println("No BMP extension"); return; }
-    
-    // Open the bitmap to be flipped
-    if(!tmpFileSrc.open(filename,O_READ)) if(D) Serial.println("File open fail");
-    
-    // Verify that this file has a bitmap header
-    
-    // Read the header for the bitmap that needs to be flipped
-    
-    int imageStart;
-    
-    tmpFileSrc.seekSet(10);
-    
-    // The location where useful image data starts
-    imageStart  = tmpFileSrc.read() + (tmpFileSrc.read() << 8) + (tmpFileSrc.read() << 16) + (tmpFileSrc.read() << 24);
-    
-    if(D) Serial.printf("imageStart %d\r\n",imageStart);
-    
-    int imageWidth,imageHeight;
-    
-    tmpFileSrc.seekSet(18);
-    
-    // Width
-    imageWidth = tmpFileSrc.read() + (tmpFileSrc.read() << 8) + (tmpFileSrc.read() << 16) + (tmpFileSrc.read() << 24);
-    
-    // Height
-    imageHeight = tmpFileSrc.read() + (tmpFileSrc.read() << 8) + (tmpFileSrc.read() << 16) + (tmpFileSrc.read() << 24);
-    
-    if(D) Serial.printf("imageWidth %d imageHeight %d\r\n",imageWidth,imageHeight);
-    
-    int dataBits;
-    
-    tmpFileSrc.seekSet(28);
-    
-    // Bits of data in a single image pixel
-    dataBits  = ((tmpFileSrc.read()      ) & 0x00FF);
-    dataBits += ((tmpFileSrc.read() <<  8) & 0xFF00);
-    
-    int dataBytes = dataBits/8; // works for 16 and 24 bit images
-    
-    // Create a new file on the sdcard with a bm2 extension
-    char newFilename[15]; for(int i=0;i<12;i++) { newFilename[i] = filename[i]; if(filename[i]==0) break; }
-    
-    newFilename[MyUtils::strMatch(filename,".bmp")+3] = 'b';
-    
-    if(D) Serial.printf("new filename is %s\r\n",newFilename);
-    
-    if(sd.exists(newFilename)) sd.remove(newFilename);
-    
-    if(!tmpFileDest.open(newFilename,O_RDWR | O_CREAT)) if(D) Serial.println("File open fail");
-    
-    // Copy all of the header data into the new file just for functions
-    tmpFileDest.seekSet(0); tmpFileSrc.seekSet(0);
-    for(int i=0;i<imageStart;i++) tmpFileDest.write(tmpFileSrc.read());
-    
-    if(D) Serial.println("header written");
-    
-    // Change a data field in the bitmap header somewhere to indicate the flipped format
-    
-    // Seek to the start of the destination file, should already be here but this makes sure
-    tmpFileDest.seekSet(imageStart);
-    
-    int const COL_TO_BUFFER = 100;
-    
-    byte buffer[COL_TO_BUFFER*imageHeight*dataBytes];
-    
-    // Iterate through the columns of the image
-    for(int col=0;col<imageWidth;col+=COL_TO_BUFFER) {
-        
-        int total = COL_TO_BUFFER;
-        if(col + (total-1) > imageWidth) total = imageWidth - col;
-    
-        if(D) Serial.printf("col %d\r\n",col);
-    
-        // Iterate through all the rows in a column and write them to the new file in the new order
-        for(int row=0;row<imageHeight;row++) {
-        
-            tmpFileSrc.seekSet(imageStart + ((imageHeight - 1 - row) * imageWidth*dataBytes) + (imageWidth - 1 - col)*dataBytes);
-            
-            for(int i=total-1;i>=0;i--) {
-            
-                buffer[i] = tmpFileSrc.read();
-                buffer[i] = tmpFileSrc.read();
-            
-            }
-    
-        }
-        
-        for(int i=0;i<total;i++) {
-        
-            for(int row=0;row<imageHeight;row++) {
-        
-                tmpFileDest.write(buffer[ (row*total*dataBytes) + (i*dataBytes) ]);
-                tmpFileDest.write(buffer[ (row*total*dataBytes) + (i*dataBytes) + 1 ]);
-
-            }
-            
-        }
-        
-    }
-    
-    // Close files
-    tmpFileDest.close();
-    tmpFileSrc.close();
-    
-    if(D) Serial.println("images closed... done");
-    
-}
-
-void calculateCircle() {
-
-    static int curve[300][2];
-
-    for(int i=0;i<300;i++) for(int k=0;k<2;k++) curve[i][k] = -1;
-
-    int x[300],y[300];
-    
-    int angle = 0;
-    
-    watch.setColor(255, 255, 255);
-    
-    int tmpx,tmpy;
-    
-    // Get values for 360 degrees around the circle
-    for(int i=0;i<360;i++) {
-    
-        // Get an x and a y from the sin and cos functions
-        tmpx = (sin(MyUtils::degreestoradians(i))*100)+120;
-        tmpy = (cos(MyUtils::degreestoradians(i))*100)+110;
-        
-        // if(D) db << pstr("X: ") << dec << tmpx << pstr(" Y: ") << dec << tmpy << endl;
-        
-        // Storing a high and a low value of x for every y value
-        if(curve[tmpy][0] == -1) {
-        
-            curve[tmpy][0] = tmpx;
-            
-        } else if(curve[tmpy][1] == -1) {
-        
-            curve[tmpy][1] = tmpx;
-            
-            // Swap the values of the high and low if they are backwards
-            if(curve[tmpy][0] > curve[tmpy][1]) {
-            
-                int temp = curve[tmpy][0];
-                curve[tmpy][0] = curve[tmpy][1];
-                curve[tmpy][1] = temp;
-            
-            }
-        
-        }
-        
-        //watch.drawPixel(120+x[i],110+y[i]);
-        
-    }
-    
-    curve[0][1] = 120;
-    curve[0][1] = 121;
-    
-    for(int i=0;i<220;i++) {
-    
-        bool continueflg = false;
-        
-        for(int k=0;k<2;k++) {
-            if(curve[i][k] == 0 || curve[i][k] == -1) {
-            
-                if(curve[i-1][k] == 0 || curve[i-1][k] == -1) {
-                
-                    if(continueflg == false) {
-                        i-=2;
-                        continueflg = true;
-                    }
-                
-                } else {
-                
-                    curve[i][k] = curve[i-1][k];
-                
-                }
-            
-            }
-        }
-        if(continueflg) continue;
-    
-        watch.drawPixel(curve[i][0],i);
-        watch.drawPixel(curve[i][1],i);
-        
-        // if(D) db << pstr("X: ") << dec << curve[i][0] << pstr(" X: ") << dec << curve[i][1] << pstr(" Y: ") << dec << i << endl;
-    
-    }
-
-}
-
-int analogReadR(int index){
-
-    switch(index){
-        case  0: return analogRead( A0); break;
-        case  1: return analogRead( A1); break;
-        case  2: return analogRead( A2); break;
-        case  3: return analogRead( A3); break;
-        case  4: return analogRead( A4); break;
-        case  5: return analogRead( A5); break;
-        case  6: return analogRead( A6); break;
-        case  7: return analogRead( A7); break;
-        case  8: return analogRead( A8); break;
-        case  9: return analogRead( A9); break;
-        case 10: return analogRead(A10); break;
-        case 11: return analogRead(A11); break;
-        case 12: return analogRead(A12); break;
-        case 13: return analogRead(A13); break;
-        case 14: return analogRead(A14); break;
-        case 15: return analogRead(A15); break;
-        case 16: return analogRead(A16); break;
-        case 17: return analogRead(A17); break;
-        case 18: return analogRead(A18); break;
-        case 19: return analogRead(A19); break;
-        case 20: return analogRead(A20); break;
-    }
-
-    return -1;
-
-}
-
-int getDayOfTheWeek(int day,int month,int year) {
-
-    // 1-based day, 0-based month, year since 1900
-    // std::tm time_in = { 0, 0, 0, day, month, year - 1900 }; 
-    // 
-    // std::time_t time_temp = std::mktime( & time_in );
-    // 
-    // std::tm const *time_out = std::localtime( & time_temp );
-    // 
-    // return time_out->tm_wday;
-
-}
-
-void animateNotificationTest() {
-
-    for(int i=0;i<70;i++) {
-    
-        for(int n=0;n<5;n++) {
-        
-        
-        }
-    
-        watch.setColor(0xFFFF);
-        watch.fillRect(0,219 - i,219,219);
-        
-        watch.setColor(0);
-        watch.setBackColor(0xFFFF);
-        watch.setFont(BigFont);
-        watch.print("Hello",CENTER,219 - i + 10);
-        watch.print("World!",CENTER,219 - i + 25);
-        
-        delay(2);
-        
-    }
-    
-    while(1);
-
-}
-
 
 // Debug
 
@@ -1883,241 +1409,3 @@ void errS(char * msgStr,char * arga,char * argb,char * argc,bool hard) {
 
 }
 
-
-void setupOld() {
-
-    // curTime.day = 29;
-    // curTime.month = 10;
-    // curTime.year = 2014;
-    
-    // digitalWrite(PIN::LCD_BACKLIGHT, HIGH);
-    
-    // testb();
-    
-    // while(true);
-    
-    // int day = getDayOfTheWeek(29,9,2014);
-    
-    // USB.printf("Day of the week %d\r\n",day);
-    
-    // for(int i=5;i<=360;i+=10) test(1000,1000,i);
-    
-    // while(true);
-    
-    // Wait for a start character before running this program
-    // if(D) { static int tmpTime = millis() + 1000; while(Serial.read() == -1) { if(millis() > tmpTime) { db << pstr("Waiting on start command...") << endl; tmpTime = millis() + 1000; } } }
-    
-    // while(true) {
-    // 
-    //     COM.println("RESET");
-    //     delay(2000);+
-    // 
-    // }
-    
-    // showSplash();
-    
-    // watch.clrScr();
-    
-    // watch.rampBrightness(UP);
-    
-    // SdFile tmpFile;
-    
-    // if(!tmpFile.open("PiSplash.bmp",O_RDWR)) USB.println("File open fail");
-    
-    // watch.printBitmap(tmpFile,0,0);
-    
-    // while(true);
- 
-    // SdFile A,B;
-    // 
-    // if(!A.open("needleA.Gci",O_RDWR)) if(D) USB.println("Couldn't open video");
-    // if(!B.open("xkcdnowb.Gci",O_RDWR)) if(D) USB.println("Couldn't open video");
-    // 
-    // delay(750);
-    // 
-    // watch.rampBrightness(DOWN);
-    // 
-    // watch.printRawTransparent(0x001F,A,0,0,45,B,0,0,0); 
-    // 
-    // watch.rampBrightness(UP);
-    // 
-    // int count = 0;
-    // while(true) {
-    //     
-    //     count+=15;
-    //     if(count >= 360) count -= 360;
-    // 
-    //     // watch.printRaw(A,0,0,count); 
-    //     watch.printRawTransparent(0x001F,A,0,0,count,B,0,0,0); 
-    //     // watch.printRawTransparent(0x001F,A,0,0,count,B,0,0,359 - count); 
-    //     
-    // 
-    // 
-    // }
-
-    // SdFile video,video2;
-    
-    // if(!video.open("shipVid.Gci",O_RDWR)) if(D) USB.println("Couldn't open video");
-    
-    // while(true) watch.playGci(video,0,0,0);
-    
-    
-    // // if(!video.open("test.Gci",O_RDWR)) if(D) USB.println("Couldn't open video");
-    // if(!video.open("xkcdnow.Gci",O_RDWR)) if(D) USB.println("Couldn't open video");
-    // if(!video2.open("xkcdnowb.Gci",O_RDWR)) if(D) USB.println("Couldn't open video");
-    // // if(!video2.open("xkcdnowi.Gci",O_RDWR)) if(D) USB.println("Couldn't open video");
-    // 
-    
-    // analogWrite(PIN::LCD_BACKLIGHT, 50);
-    
-    
-    // watch.loadVideo(video2,0,0);
-    // 
-    // int count = 0;
-    // while(true) {
-    //     
-    //     count+=10;
-    //     if(count > 359) count -= 360;
-    //     watch.videoFrame(count);
-    //     // watch.playGci(video2,0,0,0);
-    //     
-    //     // delay(5000);
-    //     
-    //     // watch.playGci(video,0,0,0);
-    //     
-    //     // delay(5000);
-    // 
-    // }
-    
-    
-    // for(int i=0;i<1236;i++) {
-    // 
-    //     int timeA = micros();
-    // 
-    //     watch.printRaw(video,0,0,i);
-    //  
-    //     int timeB = micros();
-    //     
-    //     if(D) USB.printf("fps %05.3f\r\n",(double)1000000/(timeB-timeA));
-    //     // if(D) USB.printf("curTime %05d\r\n",timeB-timeA);
-    //     
-    // }
-    /*
-    
-    SdFile back;
-    
-    if(!back.open("blue.bmp",O_RDWR)) if(D) USB.println("Couldn't open video");
-    
-    watch.printBitmap(back,0,0);
-    
-    SdFile numbers;
-    
-    if(!numbers.open("tst.Gci",O_RDWR)) if(D) USB.println("Couldn't open video");
-    
-    while(true) {
-    
-        watch.printRaw(numbers,32,77,1);
-        watch.printRaw(numbers,64,77,1 * 11 + 1);
-        // watch.printRaw(numbers,32,77,9);
-        
-        delay(500);
-        
-        // watch.printBitmap(back,0,0);
-        watch.printRaw(numbers,32,77,10);
-        watch.printRaw(numbers,64,77,1 * 11 + 10);
-        
-        delay(500);
-        
-        // for(int x=0;x<11;x++) {
-        
-            // watch.printRaw(numbers,32,77,x);
-            
-            // delay(500);
-        
-        // }
-    }
-    */
-    // pageArray[PAGE::HOME] = new HomePage(&bt,&watch);
-    
-    // if(D) USB.printf("freeMemory %d\r\n",mallinfo().uordblks);
-    
-    
-    // if(!backgroundImageFile.open("numpad.bmp",O_RDWR)) if(D) db << pstr("File open fail") << endl;
-    
-    // SdFile backgroundImageFile;
-    // 
-    // if(!backgroundImageFile.open("numpad.bmp",O_RDWR)) {
-    // 
-    //     Serial.println("File open fail");
-    //     
-    // } else {
-    // 
-    //     Serial.println("Background file is opened");
-    // 
-    // }
-    
-    // myHomePageTest.initalize();
-    // pageArray[page]->initalize(backgroundImageFile);
-    
-    
-    // if(!backgroundImageFile.open("testTem.bmp",O_RDWR)) if(D) db << pstr("File open fail") << endl;
-
-//     
-//     
-    // if(!backgroundImageFile.open("car2.bmp",O_RDWR)) if(D) db << pstr("File open fail") << endl;
-//     if(!transparentStarBitmapFile.open("tstar.bmp",O_RDWR)) if(D) db << pstr("File open fail") << endl;
-//     if(!transparentGradientFile.open("gradient.bmp",O_RDWR)) if(D) db << pstr("File open fail") << endl;
-//     
-//     if(!carGagueFile.open("needles.gci",O_RDWR)) if(D) db << pstr("File open fail") << endl;
-//     if(!carGagueInvFile.open("needlesR.bmp",O_RDWR)) if(D) db << pstr("File open fail") << endl;
-//     
-//     // printRaw(carGagueFile,10,0);
-//     
-//     if(!wheelFile.open("wheelB.bmp",O_RDWR)) if(D) db << pstr("File open fail") << endl;
-//     if(!wheelInvFile.open("wheelR.bmp",O_RDWR)) if(D) db << pstr("File open fail") << endl;
-//     // watch.printBitmap(wheelFile,10,0);
-//     
-//     if(!carFile.open("car2.bmp",O_RDWR)) if(D) db << pstr("File open fail") << endl;
-//     if(!carInvFile.open("car2.bmf",O_RDWR)) if(D) db << pstr("File open fail") << endl;
-//     if(!sgDarkFile.open("sgdark.bmp",O_READ)) if(D) db << pstr("File open fail") << endl;
-//     if(!sgLightFile.open("sglight.bmp",O_READ)) if(D) db << pstr("File open fail") << endl;
-//     if(!sgLightInvFile.open("sglightR.bmp",O_READ)) if(D) db << pstr("File open fail") << endl;
-//     
-//     if(D) db << pstr("Files open") << endl;
-//     
-//     
-//     
-    // watch.printBitmapBackGround(backgroundImageFile,10,0);
-    // watch.printBitmap(backgroundImageFile,10,0);
-    // watch.printBitmap(sgLightFile,10,0);
-//     watch.printBitmap(transparentStarBitmapFile,50,40);
-//     watch.printBitmap(transparentGradientFile,50,120);
-    
-    // while(1);
-    
-    // while(1);
-    
-    // timeA = micros()-timeA;
-    // if(D) db << pstr("Time: ") << dec << timeA << endl;
-    
-    // delay(1000);
-    
-    // int chevC=0;
-    
-    // while(1) {
-
-        // watch.printBitmap(imageFile,10,0,chevPos[chevC][0],chevPos[chevC][1],chevPos[chevC][2],chevPos[chevC][3]);
-        
-        // chevC++; if(chevC>=9) chevC=0;
-        
-        // watch.printBitmap(imageFileB,10,0,chevPos[chevC][0],chevPos[chevC][1],chevPos[chevC][2],chevPos[chevC][3]);
-        
-        // delay(111);
-
-    // }
-    
-    // if(D) db << pstr("top to bottom") << endl;
-    
-    // for(int i=0;i<220;i+=4) { watch.printBitmap(imageFile,10,0,0,i,220,i+3); delay(15); }
-    
-}
