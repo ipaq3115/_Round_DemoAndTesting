@@ -238,15 +238,15 @@ void printSetItem(int index,bool state) {
         case TIME_MINUTE_B: watch->printImage(&numbFile,160,77,11 * 3 + (!state ? 10 : timeArray[TIME_MINUTE_B])); break;
         case TIME_AMPM:
             if(state)   watch->printImage(&ampmFile,190,104,timeArray[TIME_AMPM]); 
-            else        watch->printImage(&backgroundImageFile,0,0,1,190,104,211,117,false);
+            else        watch->printImage(&backgroundImageFile,0,0,1,190,104,211,117);
             break;
         case TIME_MONTH:
             if(state)   printMonth(timeArray[TIME_MONTH]);
-            else        watch->printImage(&backgroundImageFile,0,0,1,45,157,141,175,false);
+            else        watch->printImage(&backgroundImageFile,0,0,1,45,157,141,175);
             break;
         case TIME_DAY:
             if(state)   printDay(timeArray[TIME_DAY]);
-            else        watch->printImage(&backgroundImageFile,0,0,1,144,158,165,171,false);
+            else        watch->printImage(&backgroundImageFile,0,0,1,144,158,165,171);
             break;
         case TIME_YEAR:
             if(state)   printYear(timeArray[TIME_YEAR]);
@@ -661,7 +661,7 @@ void printDay(int day) {
     byte dayB = day - dayA * 10;
 
     if(day > 9) watch->printImage(&dayAFile,144,158,dayA);
-    else        watch->printImage(&backgroundImageFile,0,0,1,144,158,154,171,false);
+    else        watch->printImage(&backgroundImageFile,0,0,1,144,158,154,171);
     watch->printImage(&dayBFile,155,158,dayB);
     
     timeArray[TIME_DAY] = day;

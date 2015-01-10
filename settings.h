@@ -8,60 +8,45 @@
 
 class SettingsPage : public Page {
 
-    protected:
-    
-        image_info 
-        backgroundImageFile,
-        brightnessFile,
-        batteryBarFile,
-        batteryPercentFile;
-        
-        int firstTouch = -1;
-        // int brightness;
+public:
 
-    public:
+image_info 
+backgroundImageFile,
+brightnessFile,
+batteryBarFile,
+batteryPercentFile;
 
-        SettingsPage() {}
-        
-        SettingsPage CONSTRUCTOR_MACRO
+int firstTouch = -1;
+// int brightness;
 
-        void initalize();
-        void leavingPage();
-        void loop();
-        void touch(int touchType,int finePos,int activeTouches,int touchIndex);
-        void button(int dir,int index);
-        
-        void printBrightness(int percent);
-        void printBattery(int percent);
+SettingsPage CONSTRUCTOR_MACRO
 
-};
-
-void SettingsPage::printBrightness(int percent) {
+void printBrightness(int percent) {
 
     int value = 1.44 * percent;
     // int value = 144 * ((float)percent/(float)100);
     
     if(D) USB.printf("printBrightness value %d percent %d\r\n",value,percent);
 
-    watch->printImage(&brightnessFile,7,38,0,0,0,45,144 - value,false);
-    watch->printImage(&brightnessFile,7,38,1,0,144 - value + 1,45,144,false);
+    watch->printImage(&brightnessFile,7,38,0,0,0,45,144 - value);
+    watch->printImage(&brightnessFile,7,38,1,0,144 - value + 1,45,144);
     
 }
 
-void SettingsPage::printBattery(int percent) {
+void printBattery(int percent) {
 
     int value = 0.83 * percent;
     
     if(D) USB.printf("printBattery value %d percent %d\r\n",value,percent);
 
-    watch->printImage(&batteryBarFile,68,7,1,0,0,value,23,false);
-    watch->printImage(&batteryBarFile,68,7,0,value + 1,0,83,23,false);
+    watch->printImage(&batteryBarFile,68,7,1,0,0,value,23);
+    watch->printImage(&batteryBarFile,68,7,0,value + 1,0,83,23);
     
     watch->printImage(&batteryPercentFile,74,25,percent);
     
 }
 
-void SettingsPage::initalize() {
+void initalize() {
     
     watch->loadImage("settings.bmp",&backgroundImageFile);
     watch->loadImage("setBrgt.Gci",&brightnessFile);
@@ -89,11 +74,11 @@ void SettingsPage::initalize() {
     
 }
 
-void SettingsPage::leavingPage() {
+void leavingPage() {
 
 }
 
-void SettingsPage::loop() {
+void loop() {
 
     // static elapsedMillis time;
     // static int count = 0;
@@ -114,7 +99,7 @@ void SettingsPage::loop() {
 
 }
 
-void SettingsPage::touch(int touchType,int finePos,int activeTouches,int touchIndex) {
+void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
     
     if(D && touchType != MOVING) USB.printf("homePageTouch\r\n");
     
@@ -161,29 +146,12 @@ void SettingsPage::touch(int touchType,int finePos,int activeTouches,int touchIn
     }
 }
 
-void SettingsPage::button(int dir,int index) {
-
-    using namespace BUTTON;
-    
-    static bool screenState = 0;
-
-    switch(index) {
-    
-        case POWER_BUTTON:
-        
-            if(dir) {
-            
-                screenState = !screenState;
-                
-                watch->rampBrightness(screenState);
-            
-            }
-        
-            break;
-    
-    }
+void button(int dir,int index) {
 
 }
 
+
+
+};
 
 #endif

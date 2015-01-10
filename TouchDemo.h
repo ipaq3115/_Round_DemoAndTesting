@@ -7,13 +7,9 @@
 
 class TouchDemoPage : public Page {
 
-private:
-
-int oldResponseRate = 0;
-
 public:
 
-TouchDemoPage() {}
+int oldResponseRate = 0;
 
 TouchDemoPage CONSTRUCTOR_MACRO
 

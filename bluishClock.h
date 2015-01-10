@@ -53,7 +53,7 @@ void initalize() {
 
 void leavingPage() {
 
-    secondsFile->file.close();
+    secondsFile.file.close();
 
 }
 

@@ -132,8 +132,8 @@ void setup() {
     // goPage(PAGE::SETTINGS);
     // goPage(PAGE::BATTERY_GRAPH);
     // goPage(PAGE::LED_RING_CONTROL);
-    goPage(PAGE::BLACK_CLOCK);
-    // goPage(PAGE::STARGATE);
+    // goPage(PAGE::BLACK_CLOCK);
+    goPage(PAGE::STARGATE);
 
     for(int i=0;i<PAGE::TOTAL;i++) pageArray[i]->bootup();
     
@@ -611,6 +611,8 @@ void fillDemoContacts() {
 
 void loadSdCard() {
 
+    bool onoff = true;
+
     retry1:
     if(sd.begin(PIN::SD_CHIP_SELECT, SPI_FULL_SPEED)) {
         
@@ -618,18 +620,18 @@ void loadSdCard() {
         
     } else {
     
-        watch.print("No sdcard",CENTER,100);
+        watch.rampBrightness(100);
+        
+        if(onoff) watch.print("No sdcard",CENTER,100); else watch.clrScr();
+        
+        onoff = !onoff;
         
         if(D) USB.println("No sdcard");
-        
-        delay(750);
-        
-        watch.clrScr();
         
         goto retry1;
         
     }
-  
+    
 }
 
 void showSplash() {
@@ -644,7 +646,7 @@ void showSplash() {
     // if(!splashImage.open("PiSplash.bmp",O_RDWR)) USB.println("PiSplash not opened");
     // watch.printBitmap(splashImage,0,0);
     
-    watch.rampBrightness(UP);
+    watch.rampBrightness(100);
     
     // splashImage.close();
     
@@ -931,11 +933,13 @@ bool goPage(int pg,bool goingback,int mode,char * data) {
     
     if(!goingback) pageTrailAdd(page);
     
-    watch.rampBrightness(DOWN);
+    int b = watch.getBrightness();
+    
+    watch.rampBrightness(0);
     
     pageArray[page]->initalize(mode,data);
     
-    watch.rampBrightness(UP);
+    watch.rampBrightness(b);
     
     return true;
 

@@ -87,7 +87,7 @@ void drawLetters(int index,int color) {
 
 void leavingPage() {
 
-    font->file.close();
+    font.file.close();
 
 }
 

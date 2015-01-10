@@ -126,26 +126,6 @@ void AppsPage::touch(int touchType,int finePos,int activeTouches,int touchIndex)
 
 void AppsPage::button(int dir,int index) {
 
-    using namespace BUTTON;
-    
-    static bool screenState = 0;
-
-    switch(index) {
-    
-        case POWER_BUTTON:
-        
-            if(dir) {
-            
-                screenState = !screenState;
-                
-                watch->rampBrightness(screenState);
-            
-            }
-        
-            break;
-    
-    }
-
 }
 
 

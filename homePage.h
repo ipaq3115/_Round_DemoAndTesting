@@ -8,48 +8,39 @@
 
 class HomePage : public Page {
 
-    protected:
+public:
+
+HomePage CONSTRUCTOR_MACRO
+
+image_info backgroundImageFile;
+
+void initalize() {
+
+    watch->loadImage("home.bmp",&backgroundImageFile);
     
-        SdFile backgroundImageFile;
-
-    public:
-
-        HomePage() {}
-        
-        HomePage CONSTRUCTOR_MACRO
-
-        void initalize();
-        void leavingPage();
-        void loop();
-        void touch(int touchType,int finePos,int activeTouches,int touchIndex);
-        void button(int dir,int index);
-
-};
-
-
-void HomePage::initalize() {
+    watch->printImage(&backgroundImageFile,0,0);
     
-    if(backgroundImageFile.isOpen()) backgroundImageFile.close();
-    
-    if(!backgroundImageFile.open("home.bmp",O_RDWR)) USB.println("File open fail");
-    
-    watch->printBitmap(backgroundImageFile,0,0);
+    // if(backgroundImageFile.isOpen()) backgroundImageFile.close();
+    // 
+    // if(!backgroundImageFile.open("home.bmp",O_RDWR)) USB.println("File open fail");
+    // 
+    // watch->printBitmap(backgroundImageFile,0,0);
     
     if(D) { USB.println("homepage initalize is done"); }
     
 }
 
-void HomePage::leavingPage() {
+void leavingPage() {
     
-    if(backgroundImageFile.isOpen()) backgroundImageFile.close();
+    backgroundImageFile.file.close();
 
 }
 
-void HomePage::loop() {
+void loop() {
 
 }
 
-void HomePage::touch(int touchType,int finePos,int activeTouches,int touchIndex) {
+void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
 
     int iconIndex = (finePos / 45) + 1;
     if(iconIndex == 8) iconIndex = 0;
@@ -93,29 +84,13 @@ void HomePage::touch(int touchType,int finePos,int activeTouches,int touchIndex)
     }
 }
 
-void HomePage::button(int dir,int index) {
-
-    using namespace BUTTON;
-    
-    static bool screenState = 0;
-
-    switch(index) {
-    
-        case POWER_BUTTON:
-        
-            if(dir) {
-            
-                screenState = !screenState;
-                
-                watch->rampBrightness(screenState);
-            
-            }
-        
-            break;
-    
-    }
+void button(int dir,int index) {
 
 }
+
+
+
+};
 
 
 #endif

@@ -8,14 +8,14 @@ class CallPage : public Page {
 
     protected:
     
-        SdFile backgroundImageFile;
+        image_info backgroundImageFile;
         
         int currentPhoneState;
         int pressIndex = 0;
         int pressIndexFine = 0;
         bool pressedState = false;
         
-        SdFile callScreensImage;
+        image_info callScreensImage;
         bool callScreen = false;
 
     public:
@@ -112,20 +112,21 @@ void CallPage::printFormattedPhoneNumber(int height) {
     
     }
     
-    SdFile fontFile;
+    image_info fontFile;
     
-    if(!fontFile.open("font22.Gci",O_RDWR)) Serial.println("Error: no font22.Gci");
+    watch->loadImage("font22.Gci",&fontFile);
+    // if(!fontFile.open("font22.Gci",O_RDWR)) Serial.println("Error: no font22.Gci");
     
     switch(bluetooth->phoneState) {
     
-        case PHONE_IDLE:     watch->print(numberPrintStr,fontFile,CENTER,height,backgroundImageFile,0,0,4,0x001F); break;
-        case PHONE_RINGING:  watch->print(numberPrintStr,fontFile,CENTER,height,backgroundImageFile,0,0,1,0x001F); break;
-        case PHONE_IN_CALL:  watch->print(numberPrintStr,fontFile,CENTER,height,backgroundImageFile,0,0,3,0x001F); break;
-        case PHONE_DIALING:  watch->print(numberPrintStr,fontFile,CENTER,height,backgroundImageFile,0,0,2,0x001F); break;
+        case PHONE_IDLE:     watch->print(numberPrintStr,&fontFile,CENTER,height,&backgroundImageFile,0,0,4,0x001F); break;
+        case PHONE_RINGING:  watch->print(numberPrintStr,&fontFile,CENTER,height,&backgroundImageFile,0,0,1,0x001F); break;
+        case PHONE_IN_CALL:  watch->print(numberPrintStr,&fontFile,CENTER,height,&backgroundImageFile,0,0,3,0x001F); break;
+        case PHONE_DIALING:  watch->print(numberPrintStr,&fontFile,CENTER,height,&backgroundImageFile,0,0,2,0x001F); break;
     
     }
     
-    fontFile.close();
+    fontFile.file.close();
     
 }
 

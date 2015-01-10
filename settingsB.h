@@ -83,10 +83,10 @@ void initalize() {
 
 void leavingPage() {
 
-    backgroundImageFile->file.close();
-    knobFile->file.close();
-    vibrateFile->file.close();
-    volumeFile->file.close();
+    backgroundImageFile.file.close();
+    knobFile.file.close();
+    vibrateFile.file.close();
+    volumeFile.file.close();
 
     // Return the response rate to the previous condition
     watch->setResponseRateRaw(oldResponseRate);
@@ -289,26 +289,6 @@ void touchReleased(int finePos) {
 }
 
 void button(int dir,int index) {
-
-    using namespace BUTTON;
-    
-    static bool screenState = 0;
-
-    switch(index) {
-    
-        case POWER_BUTTON:
-        
-            if(dir) {
-            
-                screenState = !screenState;
-                
-                watch->rampBrightness(screenState);
-            
-            }
-        
-            break;
-    
-    }
 
 }
 

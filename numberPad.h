@@ -16,8 +16,6 @@ bool callScreen = false;
 
 public:
 
-NumberPadPage() {}
-
 NumberPadPage CONSTRUCTOR_MACRO
 
 void initalize() {
@@ -44,7 +42,7 @@ void initalize() {
 
 void leavingPage() {
 
-    callScreensImage->file.close();
+    callScreensImage.file.close();
 
 }
 
@@ -198,15 +196,17 @@ void newDigit(char value) {
             
             numberPrintStr[writePtr++] = 0;
             
-            SdFile fontFile;
+            image_info fontFile;
             
-            if(!fontFile.open("dsm22b.Gci",O_RDWR)) Serial.println("Error: no dsm22b.Gci");
+            watch->loadImage("dsm22b.Gci",&fontFile);
+            
+            // if(!fontFile.open("dsm22b.Gci",O_RDWR)) Serial.println("Error: no dsm22b.Gci");
             // if(!fontFile.open("font22.Gci",O_RDWR)) Serial.println("Error: no font22.Gci");
             
-            watch->print(numberPrintStr,fontFile,CENTER,80,callScreensImage,0,0,0);
+            watch->print(numberPrintStr,&fontFile,CENTER,80,&callScreensImage,0,0,0);
             // watch->print(numberPrintStr,fontFile,CENTER,80,callScreensImage,0,0,0,0x001F);
             
-            fontFile.close();
+            fontFile.file.close();
             
         }
         
