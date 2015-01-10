@@ -127,6 +127,21 @@ void testBubbles() {
     
 }
 
+void drawpointer(int centerx,int centery,int radius,int angle,int color) {
+
+    if(color) watch->setColor(255, 255, 255);
+    else watch->setColor(0, 0, 0);
+    
+    angle-=180;
+
+    int xoffset = sin(MyUtils::degreestoradians(angle))*radius;
+    int yoffset = cos(MyUtils::degreestoradians(angle))*radius;
+
+    if(color) watch->fillCircle(centerx-xoffset,centery+yoffset,5);
+    else watch->fillCircle(centerx-xoffset,centery+yoffset,6);
+    
+}
+
 
 };
 
