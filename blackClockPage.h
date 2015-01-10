@@ -115,7 +115,6 @@ void printSecond(time_t tmpTime) {
 
 }
 
-
 void printVoltage() {
     
     int batVolt = bluetooth->getBatteryVoltage();
@@ -142,12 +141,11 @@ void printVoltage() {
 
 void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
 
-    if(touchType == RELEASED) {
-        
-        if(D) db.printf("back from black clock page\r\n");
-        goPage(PAGE::HOME);
-        
-    }
+    // if(touchType == RELEASED) {
+    //     
+    //     goPage(PAGE::HOME);
+    //     
+    // }
     
 }
 
