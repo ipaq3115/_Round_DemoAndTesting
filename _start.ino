@@ -15,13 +15,14 @@ void setup() {
     watch.speaker(OFF);
 
     USB.begin(300000); 
-    // while(!USB); // Wait for PC to open the USB serial port before running this program
+    while(!USB); // Wait for PC to open the USB serial port before running this program
     delay(100);
+    if(D) db.println("### startup ###");
     
     // elapsedMillis time; while(1) { if(time > 500) { Serial.println("Send char to start"); time = 0; } if(Serial.read() != -1) break; }
     
     if (timeStatus() != timeSet) {
-        if(D) db.println("Unable to sync with the RTC");
+        if(D) db.println("Unable to sync with the RTC"); 
     } else {
         if(D) db.println("RTC has set the system time");
     }
@@ -170,22 +171,11 @@ void checkOrientation() {
         compass.read();
         
         int lastRotation = currentRotation;
-        
-        if(hVer == HARDWARE_REVA) {
-            
-            if(compass.a.x > 1000 && currentRotation != PORTRAIT)     currentRotation = PORTRAIT;
-            else if(compass.a.x < -1000 && currentRotation != PORTRAIT_R)  currentRotation = PORTRAIT_R;
-            else if(compass.a.y > 1000 && currentRotation != LANDSCAPE)    currentRotation = LANDSCAPE;
-            else if(compass.a.y < -1000 && currentRotation != LANDSCAPE_R) currentRotation = LANDSCAPE_R;
-            
-        } else if(hVer == HARDWARE_REVB) {
-            
-            if(compass.a.y < -1000 && currentRotation != PORTRAIT)    currentRotation = PORTRAIT;
-            else if(compass.a.y > 1000 && currentRotation != PORTRAIT_R)   currentRotation = PORTRAIT_R;
-            else if(compass.a.x < -1000 && currentRotation != LANDSCAPE)   currentRotation = LANDSCAPE;
-            else if(compass.a.x > 1000 && currentRotation != LANDSCAPE_R)  currentRotation = LANDSCAPE_R;
-        
-        }
+    
+        if(compass.a.y < -1000 && currentRotation != PORTRAIT)    currentRotation = PORTRAIT;
+        else if(compass.a.y > 1000 && currentRotation != PORTRAIT_R)   currentRotation = PORTRAIT_R;
+        else if(compass.a.x < -1000 && currentRotation != LANDSCAPE)   currentRotation = LANDSCAPE;
+        else if(compass.a.x > 1000 && currentRotation != LANDSCAPE_R)  currentRotation = LANDSCAPE_R;
         
         if(lastRotation != currentRotation) {
         
@@ -284,9 +274,9 @@ void lowPowerTimeout() {
             pageArray[page]->loop();
             
             // Looking for touch release
-            // TODO: look into using the touch library for this, need to use the low power interrupt
+            // TODO: look into using the touch library for this, need to use the interrupt with the low power clock taken into account
             bool touched = false;
-            for(int i=0;i<10;i++) if(touchRead(touchPinB[i]) > watch.calValue[i] + 50) touched = true;
+            for(int i=0;i<10;i++) if(touchRead(touchPin[i]) > watch.calValue[i] + 50) touched = true;
             if(touched) waitRelease = true; else if(waitRelease) goto out;
 
         }
@@ -758,8 +748,6 @@ void buttonEvent(int dir,int index,bool longPress) {
             if(longPress) {
             
                 // watch.rampBrightness(DOWN);
-                
-                // if(hVer == HARDWARE_REVB) blinktimer.begin(blinkled, 100000);
                 
                 watch.setColor(VGA_WHITE);
                 watch.fillRect(0,0,219,219);
