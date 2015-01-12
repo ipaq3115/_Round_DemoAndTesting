@@ -96,7 +96,7 @@ void printGraph() {
 
     // char buf[900];
 
-    int const scale = 3;
+    int const scale = 7;
     // int const scale = 80;
     
     int startIndex = logEntries - 150 * scale;
@@ -114,6 +114,7 @@ void printGraph() {
     
     int newVoltage = 0;
     int oldVoltage = 0;
+    byte flags = 0;
     
     watch->setColor(VGA_WHITE);
     
@@ -124,6 +125,26 @@ void printGraph() {
     
         batteryLog.seekSet((startIndex + i - scale) * LENGTH + OFFSET + VOLTAGE);
         oldVoltage = (batteryLog.read() << 8) + batteryLog.read();
+        
+        batteryLog.seekSet((startIndex + i) * LENGTH + OFFSET + FLAGS);
+        flags = batteryLog.read();
+        
+        if(bitRead(flags, CHARGING)) {
+        
+            watch->setColor(180,180,180);
+        
+        } else if(bitRead(flags, PLUGGED_IN)) {
+        
+            watch->setColor(WHITE);
+        
+        } else {
+            
+            if(newVoltage > 4000) watch->setColor(0,255,0); // Green
+            else if(newVoltage > 3800) watch->setColor(YELLOW);
+            else if(newVoltage > 3600) watch->setColor(0xFF, 0xA5, 0x00); // Orange
+            else watch->setColor(RED);
+            
+        }
 
         newVoltage = (newVoltage - 2500) / 20; if(newVoltage<0) newVoltage = 0;
         oldVoltage = (oldVoltage - 2500) / 20; if(oldVoltage<0) oldVoltage = 0;
