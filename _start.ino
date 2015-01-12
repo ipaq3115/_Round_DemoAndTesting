@@ -130,6 +130,26 @@ void loop() {
     
     checkPhoneState();
 
+    // Trying to shut down with a little left in the battery so that the RTC keeps on ticking
+    if(bt.getBatteryVoltage() < 3200 && bt.getBatteryVoltage() != -1) {
+    
+        watch.rampBrightnessWait(0,50);
+        
+        watch.clrScr();
+        watch.setFont(BigFont);
+        watch.setColor(WHITE);
+        watch.setColor(BLACK);
+        watch.print("Low Battery",CENTER,90);
+        watch.print("Shutting Down",CENTER,120);
+        
+        watch.rampBrightnessWait(100,50);
+        delay(500);
+        watch.rampBrightnessWait(0,1000);
+    
+        watch.powerDown();
+    
+    }
+    
     if(Page::lowPower) {
     
     } else {
