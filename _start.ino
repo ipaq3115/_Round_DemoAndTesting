@@ -15,9 +15,8 @@ void setup() {
     watch.speaker(OFF);
 
     USB.begin(300000); 
-    while(!USB); // Wait for PC to open the USB serial port before running this program
+    // while(!USB); // Wait for PC to open the USB serial port before running this program
     delay(100);
-    if(D) db.println("### startup ###");
     
     // elapsedMillis time; while(1) { if(time > 500) { Serial.println("Send char to start"); time = 0; } if(Serial.read() != -1) break; }
     
@@ -34,7 +33,6 @@ void setup() {
     
     // setupCompass();
     compass.init(LSM303C_DEVICE);
-    
     
     // Serial2.begin(38400);
     bt.init();
@@ -96,13 +94,13 @@ void setup() {
     // goPage(PAGE::BLUE_CLOCK);
     // goPage(PAGE::HOME);
     // goPage(PAGE::SETTINGS);
-    // goPage(PAGE::BATTERY_GRAPH);
+    goPage(PAGE::BATTERY_GRAPH);
     // goPage(PAGE::LED_RING_CONTROL);
-    goPage(PAGE::BLACK_CLOCK);
+    // goPage(PAGE::BLACK_CLOCK);
     // goPage(PAGE::STARGATE);
 
     // Turn up the brightness
-    watch.rampBrightness(100);
+    watch.rampBrightness(100,500);
     
     if(D) USB.println("## LOOP START ##");
     
@@ -852,11 +850,11 @@ bool goPage(int pg,bool goingback,int mode,char * data) {
     
     int b = watch.getBrightness();
     
-    watch.rampBrightness(0);
+    watch.rampBrightnessWait(0,50);
     
     pageArray[page]->initalize(mode,data);
     
-    watch.rampBrightness(b);
+    watch.rampBrightnessWait(b,50);
     
     return true;
 

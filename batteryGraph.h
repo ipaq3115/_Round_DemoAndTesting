@@ -10,7 +10,6 @@ BatteryGraphPage() {}
 
 BatteryGraphPage CONSTRUCTOR_MACRO
 
-// SdFile backFile;
 SdFile batteryLog;
 
 /*
@@ -55,7 +54,6 @@ void bootup() {
 
     bool fileExists = sd.exists("bat.log");
 
-    if(batteryLog.isOpen()) batteryLog.close();
     if(!batteryLog.open("bat.log",O_RDWR | O_CREAT)) if(E) db.println("bat.log couldn't be opened");
 
     if(fileExists) {
@@ -88,7 +86,7 @@ void bootup() {
 
 void initalize() {
 
-    watch->printImage("batGraph.gci",0,0);
+    watch->printImage("batGraph.raw",0,0);
     
     printGraph();
     
@@ -98,7 +96,7 @@ void printGraph() {
 
     // char buf[900];
 
-    int const scale = 1;
+    int const scale = 3;
     // int const scale = 80;
     
     int startIndex = logEntries - 150 * scale;
@@ -152,8 +150,6 @@ void printGraph() {
 
 void leavingPage() {
 
-    batteryLog.close();
-
 }
 
 bool newData = false;
@@ -168,7 +164,7 @@ void loop() {
     
         newData = false;
         
-        watch->printImage("batGraph.gci",0,0);
+        watch->printImage("batGraph.raw",0,0);
         
         printGraph();
     
