@@ -116,12 +116,29 @@ void printGraph() {
     int oldVoltage = 0;
     byte flags = 0;
     
+    int minBat=9999,maxBat=0;
+    int minPos=0,maxPos=0;
+    
     watch->setColor(VGA_WHITE);
     
     for(int i=scale;i<total;i+=scale) {
     
         batteryLog.seekSet((startIndex + i) * LENGTH + OFFSET + VOLTAGE);
         newVoltage = (batteryLog.read() << 8) + batteryLog.read();
+    
+        if(newVoltage < minBat) {
+        
+            minBat = newVoltage;
+            minPos = i;
+        
+        }
+        
+        if(newVoltage > maxBat) {
+        
+            maxBat = newVoltage;
+            maxPos = i;
+        
+        }
     
         batteryLog.seekSet((startIndex + i - scale) * LENGTH + OFFSET + VOLTAGE);
         oldVoltage = (batteryLog.read() << 8) + batteryLog.read();
@@ -165,7 +182,25 @@ void printGraph() {
         );
     
     }
-    if(D) db.printf("done\r\n");
+    
+    watch->setColor(WHITE);
+    int tminBat = (minBat - 2500) / 20; if(minBat<0) minBat = 0;
+    watch->drawCircle(minPos/scale + 33 + 1, 169 - tminBat, 3);
+    
+    watch->setColor(WHITE);
+    int tmaxBat = (maxBat - 2500) / 20; if(maxBat<0) maxBat = 0;
+    watch->drawCircle(maxPos/scale + 33 + 1, 169 - tmaxBat, 3);
+    
+    double maxv = maxBat / 1000.0;
+    double minv = minBat / 1000.0;
+    
+    watch->setFont(SmallFont);
+    
+    watch->printNumF(minv,3,minPos/scale + 33 + 1 - 20, 169 - tminBat + 5);
+    
+    watch->printNumF(maxv,3,maxPos/scale + 33 + 1 - 20, 169 - tmaxBat - 15);
+    
+    
     
 }
 
