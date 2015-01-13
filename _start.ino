@@ -780,7 +780,19 @@ void buttonEvent(int dir,int index,bool longPress) {
                 
                 }
             
+                // Turn off power to the device [everything should die here]
                 watch.powerDown();
+                
+                // Uhh, why are we still here??
+                watch.setColor(VGA_WHITE);
+                watch.fillRect(0,0,219,219);
+                
+                // Speaking from the grave
+                watch.setColor(BLACK);
+                watch.setBlackColor(VGA_WHITE);
+                watch.print("Shutdown failed??");
+                
+                while(1);
             
             } else if(!dir) {
             
