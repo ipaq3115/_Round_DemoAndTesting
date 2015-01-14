@@ -15,7 +15,7 @@ void setup() {
     watch.speaker(OFF);
 
     USB.begin(300000); 
-    // while(!USB); // Wait for PC to open the USB serial port before running this program
+    while(!USB); // Wait for PC to open the USB serial port before running this program
     delay(100);
     
     // elapsedMillis time; while(1) { if(time > 500) { Serial.println("Send char to start"); time = 0; } if(Serial.read() != -1) break; }
@@ -789,7 +789,7 @@ void buttonEvent(int dir,int index,bool longPress) {
                 
                 // Speaking from the grave
                 watch.setColor(BLACK);
-                watch.setBlackColor(VGA_WHITE);
+                watch.setBackColor(VGA_WHITE);
                 watch.print("Shutdown failed??");
                 
                 while(1);
