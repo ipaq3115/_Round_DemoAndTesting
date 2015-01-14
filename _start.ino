@@ -15,7 +15,7 @@ void setup() {
     watch.speaker(OFF);
 
     USB.begin(300000); 
-    while(!USB); // Wait for PC to open the USB serial port before running this program
+    // while(!USB); // Wait for PC to open the USB serial port before running this program
     delay(100);
     
     // elapsedMillis time; while(1) { if(time > 500) { Serial.println("Send char to start"); time = 0; } if(Serial.read() != -1) break; }
@@ -92,10 +92,10 @@ void setup() {
     // goPage(PAGE::TOUCH_DEMO);
     // goPage(PAGE::KICKSTARTER_DEMO);
     // goPage(PAGE::KICKSTARTER_CLOCK);
-    // goPage(PAGE::BLUE_CLOCK);
+    goPage(PAGE::BLUE_CLOCK);
     // goPage(PAGE::HOME);
     // goPage(PAGE::SETTINGS);
-    goPage(PAGE::BATTERY_GRAPH);
+    // goPage(PAGE::BATTERY_GRAPH);
     // goPage(PAGE::LED_RING_CONTROL);
     // goPage(PAGE::BLACK_CLOCK);
     // goPage(PAGE::STARGATE);

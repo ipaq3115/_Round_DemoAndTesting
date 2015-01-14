@@ -53,16 +53,6 @@ void initalize() {
     watch->loadImage("setBatB.Gci",&batteryBarFile);
     watch->loadImage("setBatP.Gci",&batteryPercentFile);
     
-    // if(backgroundImageFile.isOpen()) backgroundImageFile.close();
-    // if(brightnessFile.isOpen()) brightnessFile.close();
-    // if(batteryBarFile.isOpen()) batteryBarFile.close();
-    // if(batteryPercentFile.isOpen()) batteryPercentFile.close();
-    
-    // if(!backgroundImageFile.open("settings.bmp",O_RDWR)) USB.println("File open fail");
-    // if(!brightnessFile.open("setBrgt.Gci",O_RDWR)) USB.println("File open fail");
-    // if(!batteryBarFile.open("setBatB.Gci",O_RDWR)) USB.println("File open fail");
-    // if(!batteryPercentFile.open("setBatP.Gci",O_RDWR)) USB.println("File open fail");
-    
     watch->printImage(&backgroundImageFile,0,0);
     
     printBrightness(watch->getBrightness());

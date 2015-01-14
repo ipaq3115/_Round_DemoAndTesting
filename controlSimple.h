@@ -15,10 +15,6 @@ ControlSimplePage CONSTRUCTOR_MACRO
 
 void initalize() {
     
-    // if(backgroundImageFile.isOpen()) backgroundImageFile.close();
-    // 
-    // if(!backgroundImageFile.open("controlS.gci",O_RDWR)) USB.println("File open fail");
-    
     watch->loadImage("controlS.gci",&backgroundImageFile);
     
     watch->printImage(&backgroundImageFile,0,0,0);    

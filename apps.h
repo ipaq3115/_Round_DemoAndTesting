@@ -33,11 +33,7 @@ void AppsPage::initalize() {
 
     watch->loadImage("homeBack.Gci",&backgroundImageFile);
     
-    // if(!backgroundImageFile.open("homeBack.Gci",O_RDWR)) USB.println("File open fail");
-    
     watch->printImage(&backgroundImageFile,0,0,page);
-    
-    // if(D) USB.println("apps page initalize is done");
     
 }
 

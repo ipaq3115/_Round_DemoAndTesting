@@ -100,8 +100,6 @@ void testBubbles() {
 
     static int lastSensorValue[PI_TOUCH_PIN_TOTAL] {0,0,0,0,0,0,0,0,0,0};
     
-    // int tmpTouchArray[PI_TOUCH_PIN_TOTAL];
-    
     static elapsedMillis time;
     
     if(time < 10) return;
@@ -110,10 +108,6 @@ void testBubbles() {
     // Read touch pins
     for(int i=0;i<PI_TOUCH_PIN_TOTAL;i++) {
     
-        // Read into buffer
-        // tmpTouchArray[i] = touchRead(touchPin[i]);
-        // tmpTouchArray[i] = watch->touchVals[i];
-        
         int value = watch->touchVals[i] / 100;
         if(value > 20) value = 20;
     

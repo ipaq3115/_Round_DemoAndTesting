@@ -23,16 +23,7 @@ void initalize() {
 
     if(D) USB.println("initalize KickstarterClockPage");
 
-    // if(secondsFile.isOpen()) secondsFile.close();
-    // 
-    // // if(!secondsFile.open("blusec.gci",O_RDWR)) USB.println("File open fail");
-    // if(!secondsFile.open("bentlyS.gci",O_RDWR)) USB.println("File open fail");
-    
     watch->loadImage("bentlyS.gci",&secondsFile);
-    
-    // watch->clrBackground();
-    // watch->setBackground("test.gci",0,0);
-    // // watch->setBackground("bluish.bmp",0,0);
     
     mergeBackground(now());
     
@@ -46,8 +37,6 @@ void initalize() {
     currentSecond = -1;
     
     time = 1000;
-    
-    // loop();
     
 }
 

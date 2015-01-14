@@ -20,19 +20,7 @@ NumberPadPage CONSTRUCTOR_MACRO
 
 void initalize() {
     
-    // SdFile backgroundImageFile;
-    // 
-    // if(backgroundImageFile.isOpen()) backgroundImageFile.close();
-    // 
-    // if(!backgroundImageFile.open("numpad.bmp",O_RDWR)) USB.println("File open fail");
-    // 
-    // watch->printBitmap(backgroundImageFile,0,0);
-
     watch->printImage("numpad.bmp",0,0);
-    
-    // if(callScreensImage.isOpen()) callScreensImage.close();
-    
-    // if(!callScreensImage.open("callBack.gci",O_RDWR)) USB.println("File open fail");
     
     watch->loadImage("callBack.gci",&callScreensImage);
     
@@ -219,8 +207,6 @@ void button(int dir,int index) {
 }
 
 void printNumber(char * string) {
-
-    // using namespace FREQUENCY_ENTRY_PAGE_VARS;
 
     static int lastPrintLength = 0;
 

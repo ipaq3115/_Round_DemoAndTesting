@@ -100,24 +100,6 @@ void initalize() {
 
     if(D) USB.println("initalize");
 
-    // if(backgroundImageFile.isOpen()) backgroundImageFile.close();
-    // if(numbFile.isOpen()) numbFile.close();
-    // if(ampmFile.isOpen()) ampmFile.close();
-    // if(weekdayFile.isOpen()) weekdayFile.close();
-    // if(monthFile.isOpen()) monthFile.close();
-    // if(dayAFile.isOpen()) dayAFile.close();
-    // if(dayBFile.isOpen()) dayBFile.close();
-    // if(yearFile.isOpen()) yearFile.close();
-
-    // if(!backgroundImageFile      .open("blue.Gci",O_RDWR)) USB.println("File open fail");
-    // if(!numbFile                                  .open("blueNum.gci",O_RDWR)) USB.println("File open fail");
-    // if(!ampmFile                     
-    // if(!weekdayFile                           .open("blueDays.gci",O_RDWR)) USB.println("File open fail");
-    // if(!monthFile                                     .open("blueMon.gci",O_RDWR))    USB.println("File open fail");
-    // if(!dayAFile                              .open("blueDayA.gci",O_RDWR))    USB.println("File open fail");
-    // if(!dayBFile                              .open("blueDayB.gci",O_RDWR))    USB.println("File open fail");
-    // if(!yearFile                              .open("blueyear.gci",O_RDWR))    USB.println("File open fail");
-
     watch->loadImage("blue.Gci",     &backgroundImageFile);
     watch->loadImage("blueNum.gci",  &numbFile           );
     watch->loadImage("blueAmPm.gci", &ampmFile           );
@@ -141,14 +123,6 @@ void init() {
     printBack();
     
     fori(TIME_TOTAL) timeArray[i] = -1;
-    
-    // timeArray[TIME_HOUR]        = -1;
-    // timeArray[TIME_MINUTE_A]    = -1;
-    // timeArray[TIME_MINUTE_B]    = -1;
-    // timeArray[TIME_AMPM]        = -1;
-    // timeArray[TIME_MONTH]       = -1;
-    // timeArray[TIME_DAY]         = -1;
-    // timeArray[TIME_YEAR]        = -1;
 
     if(pageMode == MODE_SET) {
         
@@ -162,8 +136,6 @@ void init() {
         printTime(now());
         
     }
-    
-    // if(D) USB.printf("curTime %d\r\n",curTime.hour,curTime.minute,curTime.second,curTime.hundredth);
     
 }
 
@@ -429,95 +401,6 @@ void editIncrement(bool dir) {
     
     blinkTime = 250;
     
-    
-    /*
-    
-    int incr = dir ? 1 : -1;
-    
-    if(currentEdit == TIME_HOUR)            editTime += incr * SECS_PER_HOUR;
-    else if(currentEdit == TIME_AMPM)       editTime += (isPM(editTime) ? -1 : 1) * 12 * SECS_PER_HOUR;
-    else if(currentEdit == TIME_MINUTE_A)   editTime += incr * SECS_PER_MIN * 10; 
-    else if(currentEdit == TIME_MINUTE_B)   editTime += incr * SECS_PER_MIN;
-    else if(currentEdit == TIME_DAY)        editTime += incr * SECS_PER_DAY; 
-    else if(currentEdit == TIME_YEAR)       editTime += incr * SECS_PER_YEAR;
-    else if(currentEdit == TIME_MONTH)      editTime += incr * SECS_PER_DAY * monthLength(month(editTime),year(editTime));
-    
-    printTime(editTime);
-    
-    blinkState = true;
-    
-    blinkTime = 250;
-    
-    */
-    
-    
-    /*
-    
-//     int incr = dir ? 1 : -1;
-//     
-//     timeArray[currentEdit] += incr;
-//     
-//     if(currentEdit == TIME_HOUR) {
-//     
-//         if(timeArray[currentEdit] > 12) timeArray[currentEdit] = 1;
-//         if(timeArray[currentEdit] < 1) timeArray[currentEdit] = 12;
-//         
-//     } else if(currentEdit == TIME_AMPM) {
-//     
-//         if(timeArray[currentEdit] > 1) timeArray[currentEdit] = 0;
-//         if(timeArray[currentEdit] < 0) timeArray[currentEdit] = 1;
-//         
-//     } else if(currentEdit == TIME_MINUTE_A) {
-//     
-//         if(timeArray[currentEdit] > 5) timeArray[currentEdit] = 0;
-//         if(timeArray[currentEdit] < 0) timeArray[currentEdit] = 5;
-//     
-//     } else if(currentEdit == TIME_MINUTE_B) {
-//     
-//         if(timeArray[currentEdit] > 9) timeArray[currentEdit] = 0;
-//         if(timeArray[currentEdit] < 0) timeArray[currentEdit] = 9;
-//     
-//     } else if(currentEdit == TIME_MONTH) {
-//     
-//         if(timeArray[currentEdit] > 12) timeArray[currentEdit] = 1;
-//         if(timeArray[currentEdit] < 1) timeArray[currentEdit] = 12;
-//     
-//     } else if(currentEdit == TIME_DAY) {
-//     
-//         int monthLen = monthLength(timeArray[TIME_MONTH],curTime.year);
-//     
-//         if(timeArray[currentEdit] > monthLen + 1) timeArray[currentEdit] = 1;
-//         if(timeArray[currentEdit] < 1) timeArray[currentEdit] = monthLen + 1;
-//     
-//     } else if(currentEdit == TIME_YEAR) {
-//     
-//         if(timeArray[currentEdit] > 9999) timeArray[currentEdit] = 9999;
-//         if(timeArray[currentEdit] < 0) timeArray[currentEdit] = 0;
-//     
-//     }
-//     
-//     printSetItem(currentEdit,true);
-//     
-//     blinkState = true;
-//     
-//     blinkTime = 250;
-//     
-//     if(timeArray[TIME_DAY] > monthLength(timeArray[TIME_MONTH],curTime.year) + 1) {
-//         
-//         timeArray[TIME_DAY] = monthLength(timeArray[TIME_MONTH],curTime.year) + 1;
-//         printSetItem(TIME_DAY,true);
-//     
-//     }
-//     
-//     if(currentEdit == TIME_DAY || currentEdit == TIME_MONTH || currentEdit == TIME_YEAR) {
-//     
-//         printWeekday(timeArray[TIME_DAY],timeArray[TIME_MONTH],timeArray[TIME_YEAR]);
-//     
-//     }
-//     
-
-*/
-
 }
 
 int buttonID(int d) {
@@ -540,11 +423,6 @@ int buttonID(int d) {
             splitpoints[buttons++] =   0; // MAIN_TIMER
             splitpoints[buttons++] =  90; // MAIN_STOPWATCH
             splitpoints[buttons++] = 180; // MAIN_HOME
-            
-            // if(     inrg(270,360)) return MAIN_SET;
-            // else if(inrg(  0, 90)) return MAIN_TIMER;
-            // else if(inrg( 91,180)) return MAIN_STOPWATCH;
-            // else                   return MAIN_HOME;
             
             buttonZero = MAIN_SET;
             
@@ -699,6 +577,7 @@ void printYear(int year) {
     inttostring(year,yearstring,0,4,'0');
     
     yearstring[4] = 0;
+    
     if(D) db.printf("yearstring %s\r\n",yearstring);
     
     fori(4) watch->printImage(&yearFile,89,179,yearstring[i] + 1 - '0',i * 11,0,(i + 1) * 11 - 2,12);

@@ -20,12 +20,6 @@ void initalize() {
     
     watch->printImage(&backgroundImageFile,0,0);
     
-    // if(backgroundImageFile.isOpen()) backgroundImageFile.close();
-    // 
-    // if(!backgroundImageFile.open("home.bmp",O_RDWR)) USB.println("File open fail");
-    // 
-    // watch->printBitmap(backgroundImageFile,0,0);
-    
     if(D) { USB.println("homepage initalize is done"); }
     
 }

@@ -52,18 +52,6 @@ void initalize() {
     watch->loadImage("setvib.Gci",&vibrateFile);
     watch->loadImage("setvol.Gci",&volumeFile);
     
-    // if(backgroundImageFile.isOpen()) backgroundImageFile.close();
-    // if(knobFile.isOpen()) knobFile.close();
-    // if(vibrateFile.isOpen()) vibrateFile.close();
-    // if(volumeFile.isOpen()) volumeFile.close();
-    // 
-    // if(!backgroundImageFile.open("setB.bmp",O_RDWR)) USB.println("File open fail");
-    // if(!knobFile.open("knob.Gci",O_RDWR)) USB.println("File open fail");
-    // if(!vibrateFile.open("setvib.Gci",O_RDWR)) USB.println("File open fail");
-    // if(!volumeFile.open("setvol.Gci",O_RDWR)) USB.println("File open fail");
-    
-    // watch->printBitmap(backgroundImageFile,0,0);
-    
     watch->printImage(&backgroundImageFile,0,0);
     
     // printBrightness(brightness);
@@ -118,7 +106,6 @@ void loop() {
         }
         
         watch->printImage(&vibrateFile,19,126,count);
-        // watch->printRaw(knobFile,44,44,count);
         
         // printBrightness(count);
         // printBattery(count);

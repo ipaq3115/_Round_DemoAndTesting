@@ -41,8 +41,6 @@ VideoPlayerPage CONSTRUCTOR_MACRO
 
 void initalize() {
 
-    // if(!videoFile.open("shipVid.Gci",O_READ)) if(D) USB.println("Error: video file didn't open"); 
-    
     // if(videoState != VIDEO_PLAYING) {
         
         loadVideo(videoName,0,0);

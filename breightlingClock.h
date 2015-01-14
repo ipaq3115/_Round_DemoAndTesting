@@ -23,10 +23,6 @@ void initalize() {
     
     if(D) USB.println("initalize BreightlingClockPage");
 
-    // if(secondsFile.isOpen()) secondsFile.close();
-    // 
-    // if(!secondsFile.open("bentlyS.gci",O_RDWR)) USB.println("File open fail");
-    
     watch->loadImage("bentlyS.gci",&secondsFile);
     
     mergeBackground(now());
@@ -41,8 +37,6 @@ void initalize() {
     currentSecond = -1;
     
     time = 1000;
-    
-    // loop();
     
 }
 

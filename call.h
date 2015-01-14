@@ -41,11 +41,6 @@ void CallPage::initalize() {
 
     currentPhoneState = bluetooth->phoneState;
     
-
-    // char numberPrintStr[20];
-    // int writePtr;
-    // SdFile fontFile;
-    
     switch(bluetooth->phoneState) {
     
         case PHONE_IDLE:     
@@ -73,8 +68,6 @@ void CallPage::initalize() {
             break;
     
     }
-    
-    // printNumber(numberStr);
     
 }
 

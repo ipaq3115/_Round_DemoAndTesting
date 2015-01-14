@@ -25,15 +25,6 @@ void initalize() {
     
     watch->loadImage("bentlyS.gci",&secondsFile);
 
-    // if(secondsFile.isOpen()) secondsFile.close();
-    // 
-    // // if(!secondsFile.open("blusec.gci",O_RDWR)) USB.println("File open fail");
-    // if(!secondsFile.open("bentlyS.gci",O_RDWR)) USB.println("File open fail");
-    
-    // watch->clrBackground();
-    // watch->setBackground("test.gci",0,0);
-    // // watch->setBackground("bluish.bmp",0,0);
-    
     mergeBackground(now());
     
     watch->setBackground(cacheFilename,0,0);
@@ -46,8 +37,6 @@ void initalize() {
     currentSecond = -1;
     
     time = 1000;
-    
-    // loop();
     
 }
 

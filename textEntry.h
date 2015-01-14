@@ -40,8 +40,6 @@ void initalize() {
     
     watch->loadImage("dsm22x41.gci",&font);
     
-    // if(!font.open("dsm22x41.gci",O_READ)) if(E) db.println("Couldn't load dsm22x41.gci");
-    
 }
 
 void redraw() {

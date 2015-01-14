@@ -23,31 +23,18 @@ void initalize() {
 
     if(D) USB.println("initalize BluishClockPage");
 
-    // if(secondsFile.isOpen()) secondsFile.close();
-    // 
-    // // if(!secondsFile.open("blusec.gci",O_RDWR)) USB.println("File open fail");
-    // if(!secondsFile.open("bentlyS.gci",O_RDWR)) USB.println("File open fail");
-    
     watch->loadImage("bentlyS.gci",&secondsFile);
-    
-    // watch->clrBackground();
-    // watch->setBackground("test.gci",0,0);
-    // // watch->setBackground("bluish.bmp",0,0);
     
     mergeBackground(now());
     
     watch->setBackground(cacheFilename,0,0);
     watch->printBackground();
     
-    // watch->printRaw(secondsFile,0,0,second());
-    
     currentHour = -1;
     currentMinute = -1;
     currentSecond = -1;
     
     time = 1000;
-    
-    // loop();
     
 }
 
