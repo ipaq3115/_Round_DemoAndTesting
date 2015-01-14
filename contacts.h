@@ -41,52 +41,40 @@ union Contact {
 
 class ContactsPage : public Page {
 
-    protected:
-    
-        int mode;
-    
-        SdFile contactsFile;
-        SdFile ptrFile;
-        
-        int totalContacts = 0;
-        
-        Contact contactsBuff[BUFFER_SIZE];
-        uint16_t contactsBuffIndex[BUFFER_SIZE];
-        
-        int listPos = 0;
-        int lastPrintPos = -1;
-        int lastTouchPos = 0;
-        int firstTouchIndex = -1;
-        bool touchSpinning = false;
-        int oldIndexStart = -1;
-        int lastDirection = -1;
-        int touchTime = 0;
-        
-        int currentSelected = -1;
-        
-    public:
+public:
 
-        ContactsPage() {}
-        
-        ContactsPage CONSTRUCTOR_MACRO
+ContactsPage CONSTRUCTOR_MACRO
 
-        void initalize() { initalize(CONTACTS_ALL,0); }
-        void initalize(int mode,char * data);
-        void leavingPage() {};
-        void loop();
-        void touch(int touchType,int finePos,int activeTouches,int touchIndex);
-        void button(int dir,int index);
-        
-        void printList(int xPos,int color);
-        void printListItemNewOld(int i,int indexStart,int color,int yPos);
-        void printListItem(int yPos,int i,int index,int color,int absIndex,int indexStart,bool old);
-        void incrementListPosition(int dir);
+int mode;
 
+SdFile contactsFile;
+SdFile ptrFile;
 
+int totalContacts = 0;
 
-};
+Contact contactsBuff[BUFFER_SIZE];
+uint16_t contactsBuffIndex[BUFFER_SIZE];
 
-void ContactsPage::initalize(int mode,char * data) {
+int listPos = 0;
+int lastPrintPos = -1;
+int lastTouchPos = 0;
+int firstTouchIndex = -1;
+bool touchSpinning = false;
+int oldIndexStart = -1;
+int lastDirection = -1;
+int touchTime = 0;
+
+int currentSelected = -1;
+
+void leavingPage() {};
+
+void initalize() { 
+
+    initalize(CONTACTS_ALL,0); 
+
+}
+
+void initalize(int mode,char * data) {
 
     this->mode = mode;
     
@@ -138,7 +126,7 @@ void ContactsPage::initalize(int mode,char * data) {
     
 }
 
-void ContactsPage::loop() {
+void loop() {
 
     // Make these static so it doesn't have to be created and destroyed 
     // on each revolution of the loop
@@ -209,9 +197,9 @@ void ContactsPage::loop() {
 
 }
 
-void ContactsPage::touch(int touchType,int finePos,int activeTouches,int touchIndex) {
+void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
     
-    // if(D && touchType != MOVING) USB.printf("ContactsPage::touch\r\n");
+    // if(D && touchType != MOVING) USB.printf("touch\r\n");
     
     static int lastUpdateTime = 0;
     
@@ -293,7 +281,7 @@ void ContactsPage::touch(int touchType,int finePos,int activeTouches,int touchIn
 
 }
 
-void ContactsPage::incrementListPosition(int dir) {
+void incrementListPosition(int dir) {
 
     if(dir == DOWN) listPos += 18;
     if(dir == UP)   listPos -= 18;
@@ -305,11 +293,11 @@ void ContactsPage::incrementListPosition(int dir) {
 
 }
 
-void ContactsPage::button(int dir,int index) {
+void button(int dir,int index) {
 
 }
 
-void ContactsPage::printList(int yPos,int color) {
+void printList(int yPos,int color) {
 
     if(D) USB.printf("printList %d %d\r\n",yPos,lastPrintPos);
     
@@ -349,7 +337,7 @@ void ContactsPage::printList(int yPos,int color) {
     
 }
 
-void ContactsPage::printListItemNewOld(int i,int indexStart,int color,int yPos) {
+void printListItemNewOld(int i,int indexStart,int color,int yPos) {
 
     int absIndex = i + indexStart;
     int index = absIndex % BUFFER_SIZE;
@@ -365,7 +353,7 @@ void ContactsPage::printListItemNewOld(int i,int indexStart,int color,int yPos) 
     
 }
 
-void ContactsPage::printListItem(int yPos,int i,int index,int color,int absIndex,int indexStart,bool old) {
+void printListItem(int yPos,int i,int index,int color,int absIndex,int indexStart,bool old) {
 
     int y = yPos + i * 18;
     if(y > 87) y += 10;
@@ -392,5 +380,8 @@ void ContactsPage::printListItem(int yPos,int i,int index,int color,int absIndex
     }
 }
 
+
+
+};
 
 #endif
