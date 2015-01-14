@@ -128,6 +128,7 @@ void serviceLoop() {
         flags = batteryLog.read();
         
         if(D) db.printf("flags %d plugged in %d charging %d charged %d\r\n",flags,bluetooth->powerPluggedIn(),bluetooth->batteryCharging(),(bluetooth->powerPluggedIn() && !bluetooth->batteryCharging()));
+        if(D) db.printf("pos %d logEntries %d\r\n",(logEntries - 1) * LENGTH + OFFSET + FLAGS,logEntries);
         
         // old state is "charged" and new state is "not charged"
         if(flags == 2 && !(bluetooth->powerPluggedIn() && !bluetooth->batteryCharging())) {
@@ -202,101 +203,182 @@ void button(int dir,int index) {}
 /** Print battery history data from the current log file */
 void printGraph() {
 
-    // The scale of the graph, higher means more time is shown in total
-    int const scale = 1;
-    // int const scale = 80;
-    
-    int startIndex = logEntries - 150 * scale;
-    if(startIndex < 0) startIndex = 0;
-    
-    // batteryLog.seekSet(startIndex * LENGTH + OFFSET);
-    
-    int total = logEntries - startIndex;
-    
-    if(D) db.printf("total %d logEntries %d startIndex %d\r\n",total,logEntries,startIndex);
-    
-    // total = batteryLog.read(buf, total * LENGTH) / LENGTH;
+    if(D) db.println("##### printGraph #####");
 
-    if(D) db.printf("total %d\r\n",total);
+    int const GRAPH_WIDTH = 150;
+
+    // Get the time for the first collection in this log file
+    batteryLog.seekSet(0 * LENGTH + OFFSET + TIME);
+    time_t startTime = batteryLog.read(4);
     
-    int newVoltage = 0;
-    int oldVoltage = 0;
-    byte flags = 0;
+    // Get the time for the last collection in this log file
+    batteryLog.seekSet((logEntries - 1) * LENGTH + OFFSET + TIME);
+    time_t endTime = batteryLog.read(4);
+    
+    // Print start and stop times on the graph
+    
+    char str[20];
+    
+    watch->setFont(SmallFont);
+    watch->setColor(WHITE);
+    watch->setBackColor(TRANSPARENT);
+    
+    snprintf(str,20,"%02lu:%02lu:%02lu - %02lu:%02lu:%02lu",hourFormat12(startTime),minute(startTime),second(startTime),hourFormat12(endTime),minute(endTime),second(endTime));
+    watch->print(str,CENTER,35);
+    
+    // The time in seconds that the graph will represent
+    time_t timeTotal = endTime - startTime;
+    
+    // Calculate the seconds per pixel on the 150px graph
+    // This should give a window of time for each pixel so that collections that belong here can be easily found
+    unsigned long long millisPerPx = (double)timeTotal / (double)GRAPH_WIDTH * 1000.0; if(millisPerPx < 1) millisPerPx = 1;
+    
+    if(D) db.printf("startTime %lu endTime %lu timeTotal %lu millisPerPx %llu\r\n",startTime,endTime,timeTotal,millisPerPx);
+    
+    // Go through the file (maybe in buffered chunks) and average all the times within the window for that pixel
+    // If the time gets set during a log file this could cause a problem. Maybe just detect time going backwards
+    // and count negative time difference as zero seconds
+    
+    char buf[LENGTH];
+    int graphPx = 0;
+    int voltAvg = 0,voltAvgCount = 0;
+    int chrgAvg = 0,plugAvg = 0;
+    int time,value;
+    int lastPixelValue = -1;
+    int lastXvalue;
     
     int minBat=9999,maxBat=0;
     int minPos=0,maxPos=0;
     
-    for(int i=scale;i<total;i+=scale) {
+    // if(D) db.printf("logEntries %d\r\n",logEntries);
     
-        // Read the voltage for this position on the graph
-        batteryLog.seekSet((startIndex + i) * LENGTH + OFFSET + VOLTAGE);
-        newVoltage = batteryLog.read(2);
+    // Loop through every one of the samples in the log file
+    for(int i=0;i<logEntries;i++) {
+    
+        // Read all the data for this sample into buf
+        batteryLog.seekSet(i * LENGTH + OFFSET);
         
-        // Read the voltage for the last position [should just save this from the last loop]
-        batteryLog.seekSet((startIndex + i - scale) * LENGTH + OFFSET + VOLTAGE);
-        oldVoltage = batteryLog.read(2);
+        int bytesRead = batteryLog.read(buf, LENGTH);
+        // if(D) db.printf("bytesRead %d LENGTH %d at %d\r\n",bytesRead,LENGTH,i * LENGTH + OFFSET);
+        
+        // if(D) {
+        //     db.printf("buf %d: ",i * LENGTH + OFFSET);
+        //     for(int k=0;k<LENGTH;k++) db.printf("%02X ",buf[k]);
+        //     db.println();
+        // }
+        
+        // Get the time of this sample
+        time = 0; for(int k=0;k<4;k++) { time <<= 8; time += buf[k]; }
+        
+        // if(D) db.printf("time %lu\r\n",time);
+    
+        retry:
 
-        // Max/Min tracking
-        if(newVoltage < minBat) { minBat = newVoltage; minPos = i; }
-        if(newVoltage > maxBat) { maxBat = newVoltage; maxPos = i; }
+        // Current sample is ahead of or equal to the minium time of the window
+        if(time >= startTime + graphPx * millisPerPx / 1000) {
+
+            // Current sample is also behind the max value for this window (last element just includes all)
+            if(time < startTime + (graphPx + 1) * millisPerPx / 1000 || graphPx == GRAPH_WIDTH - 1) {
+            
+                chrgAvg += bitRead(buf[FLAGS], CHARGING) ? 1 : -1;
+                plugAvg += bitRead(buf[FLAGS], PLUGGED_IN) ? 1 : -1;
+            
+                voltAvg += (buf[VOLTAGE] << 8) + buf[VOLTAGE + 1];
+                voltAvgCount++;
+            
+                // if(D) db.printf("Take average %d vold %d chrg %d plug %d %d %d\r\n",voltAvgCount,voltAvg,chrgAvg,plugAvg,bitRead(buf[FLAGS], CHARGING),bitRead(buf[FLAGS], PLUGGED_IN));
+            
+                if(i == logEntries - 1) goto printit;
+            
+            // This means new sample is out of the window for the current pixel so we want to print this 
+            // window and retry this sample in the next pixel window
+            } else {
+            
+                printit:
+                
+                // if(D) db.printf("Window finish graphPx %d voltAvgCount %d\r\n",graphPx,voltAvgCount);
+            
+                // There might be entire windows that are empty, for instance times when the watch is off
+                // In that case we just want to skip and leave blanks in our graph, might fill these in with a different color eventually
+                if(voltAvgCount > 0) {
+            
+                    // Finish the averages
+                    value = voltAvg / voltAvgCount; 
+                    if(value > 5000) value = 5000;
+                    if(value < 2500) value = 2500;
+                    chrgAvg = chrgAvg >= 0 ? true : false;
+                    plugAvg = plugAvg >= 0 ? true : false;
+                    
+                    // if(D) db.printf("Averages value %d chrgAvg %d plugAvg %d\r\n",value,chrgAvg,plugAvg);
+                
+                    // Max/Min tracking
+                    if(value < minBat) { minBat = value; minPos = graphPx; }
+                    if(value > maxBat) { maxBat = value; maxPos = graphPx; }
+                
+                    // Set color
+                    
+                    // Charging
+                    if(chrgAvg) watch->setColor(180,180,180);
+                    
+                    // Plugged in but not charging [charged]
+                    else if(plugAvg) watch->setColor(WHITE);
+                    
+                    // Discharging
+                    else {
+                        
+                        if(value > 4000) watch->setColor(0,255,0); // Green
+                        else if(value > 3800) watch->setColor(YELLOW);
+                        else if(value > 3600) watch->setColor(0xFF, 0xA5, 0x00); // Orange
+                        else watch->setColor(RED);
+                        
+                    }
+                    
+                    // Scale for the graph
+                    value = (value - 2500) / 20; if(value<0) value = 0;
+                    
+                    if(lastPixelValue != -1) {
+                        
+                        // Draw a line from the last voltage to the new voltage
+                        watch->drawLine(
+                        lastXvalue,   169 - lastPixelValue,
+                        graphPx + 33, 169 - value
+                        );
+                        // if(D) db.printf("drawLine x %d y %d x %d y %d\r\n",graphPx + 33 + 1, 169 - value, graphPx + 33, 169 - lastPixelValue);
+                        
+                    }
+                
+                    lastXvalue = graphPx + 33;
+                    lastPixelValue = value;
+                
+                }
+            
+                voltAvg = 0;
+                voltAvgCount = 0;
+                chrgAvg = 0; plugAvg = 0;
+                
+                graphPx++;
+                // if(D) db.printf("graphPx %d\r\n",graphPx);
+                
+                if(graphPx > GRAPH_WIDTH) goto theEnd;
+                
+                goto retry;
+                
+            }
         
-        // Read the flags byte
-        batteryLog.seekSet((startIndex + i) * LENGTH + OFFSET + FLAGS);
-        flags = batteryLog.read();
-        
-        // Charging
-        if(bitRead(flags, CHARGING)) {
-        
-            watch->setColor(180,180,180);
-        
-        // Plugged in but not charging [charged]
-        } else if(bitRead(flags, PLUGGED_IN)) {
-        
-            watch->setColor(WHITE);
-        
-        // Discharging
+        // Current sample is behind the minimum time of our window so either
+        // time travel has been invented or the user set the time in between
+        // this sample and the last
         } else {
-            
-            if(newVoltage > 4000) watch->setColor(0,255,0); // Green
-            else if(newVoltage > 3800) watch->setColor(YELLOW);
-            else if(newVoltage > 3600) watch->setColor(0xFF, 0xA5, 0x00); // Orange
-            else watch->setColor(RED);
-            
+        
+            // TODO
+        
         }
-        
-        // Scale for the graph
-        newVoltage = (newVoltage - 2500) / 20; if(newVoltage<0) newVoltage = 0;
-        oldVoltage = (oldVoltage - 2500) / 20; if(oldVoltage<0) oldVoltage = 0;
-        
-        // Draw a line from the last voltage to the new voltage
-        watch->drawLine(
-        i/scale + 33,       169 - oldVoltage,
-        i/scale + 33 + 1,   169 - newVoltage
-        );
-    
+
     }
     
-    watch->setColor(WHITE);
-    watch->setBackColor(TRANSPARENT);
-    watch->setFont(SmallFont);
+    theEnd:
     
-    int xpos;
-    
-    // Draw circle at the lowest voltage on the graph
-    int tminBat = (minBat - 2500) / 20; if(minBat < 0) minBat = 0;
-    watch->drawCircle(minPos/scale + 33 + 1, 169 - tminBat, 3);
-    
-    // Print min voltage number
-    xpos = minPos/scale + 33 + 1 - 20; if(xpos < 35) xpos = 35; if(xpos > 150) xpos = 150;
-    watch->printNumF((double)minBat / 1000.0,3, xpos, 169 - tminBat + 5);
-    
-    // Draw circle at the highest voltage on the graph
-    int tmaxBat = (maxBat - 2500) / 20; if(maxBat < 0) maxBat = 0;
-    watch->drawCircle(maxPos/scale + 33 + 1, 169 - tmaxBat, 3);
-    
-    // Print max voltage number
-    xpos = maxPos/scale + 33 + 1 - 20;  if(xpos < 35) xpos = 35;  if(xpos > 150) xpos = 150;
-    watch->printNumF((double)maxBat / 1000.0,3, xpos, 169 - tmaxBat - 15);
+    return; // For some reason the complier wants a ';' after the above label
     
 }
 

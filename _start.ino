@@ -665,7 +665,7 @@ void bluetoothMessage(bt_event event) {
             break;
         case BATTERY: 
             
-            if(D) db.println("Battery updated");
+            if(D) db.printf("Battery updated plugged in %d charging %d voltage %d\r\n",bt.powerPluggedIn(),bt.batteryCharging(),bt.getBatteryVoltage());
             
             break;
 
