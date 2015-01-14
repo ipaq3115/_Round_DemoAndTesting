@@ -48,6 +48,7 @@ void setup() {
     
     #define initPage(name,class) pageArray[PAGE::name] = new class(ARGS_MACRO);
     
+    //       Page number        Class name
     initPage(HOME,              HomePage)
     initPage(GRAVITY_BALL,      GravityBallPage)
     initPage(CONTROL_SIMPLE,    ControlSimplePage)
