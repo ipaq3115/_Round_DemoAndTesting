@@ -92,13 +92,14 @@ void setup() {
     // goPage(PAGE::TOUCH_DEMO);
     // goPage(PAGE::KICKSTARTER_DEMO);
     // goPage(PAGE::KICKSTARTER_CLOCK);
-    goPage(PAGE::BLUE_CLOCK);
-    // goPage(PAGE::HOME);
+    // goPage(PAGE::BLUE_CLOCK);
+    goPage(PAGE::HOME);
     // goPage(PAGE::SETTINGS);
     // goPage(PAGE::BATTERY_GRAPH);
     // goPage(PAGE::LED_RING_CONTROL);
     // goPage(PAGE::BLACK_CLOCK);
     // goPage(PAGE::STARGATE);
+    // goPage(PAGE::CONTACTS);
 
     // Turn up the brightness
     watch.rampBrightness(100,500);
@@ -158,7 +159,7 @@ void loop() {
         audioLoop();
         
         checkOrientation();
-    
+
         // This needs to be last since it can change the low power state
         pollButtons();
     
@@ -166,17 +167,147 @@ void loop() {
     
 }
 
+int LP_page = PAGE::HOME;
+
 void lowPowerEnable() {
 
+    // Save whatever the current page is
+    LP_page = page;
+    
+    // Manually set the page to the black clock page
+    page = PAGE::BLACK_CLOCK;
+    
+    // Initialize that page
+    int b = watch.getBrightness();
+    watch.rampBrightnessWait(0,50);
+    pageArray[page]->initalize();
+    watch.rampBrightnessWait(b,50);
+
+    // Turn off touch
+    watch.touchEnd();
+
+    // Go into low power mode
     LP.CPU(TWO_MHZ);
     
+    // Set the low power flag
+    Page::lowPower = true;
+    
+    // Update the time from the RTC
     setTime(Teensy3Clock.get());
 
+    // Re initialize pins (doing this so PWM works)
+    _init_Teensyduino_internal_LP();
+    
+    // Start the touch back up
+    // watch.calCapacitive();
+    // watch.restartTouch();
+    
 }
 
 void lowPowerDisable() {
 
+    // Turn off touch
+    watch.touchEnd();
+
+    // Set CPU back up to high speed
+    LP.CPU(F_CPU);
+
+    // Set the low power flag
+    Page::lowPower = false;
+    
+    // Update time from the RTC
+    setTime(Teensy3Clock.get());
+    
+    // Re initialize pins (doing this so PWM works)
+    _init_Teensyduino_internal_LP();
+    
+    // Start the touch back up
+    watch.restartTouch();
+
+    // Manually set the page to the page before we went into low power
+    page = LP_page;
+    
+    // Initialize that page
+    int b = watch.getBrightness();
+    watch.rampBrightnessWait(0,50);
+    pageArray[page]->initalize();
+    watch.rampBrightnessWait(b,50);
+
 }
+
+void _init_Teensyduino_internal_LP(void) {
+
+    int DEFAULT_FTM_MOD;
+    int DEFAULT_FTM_PRESCALE;
+
+    if(LP._cpu == 60000000) {
+        DEFAULT_FTM_MOD = (61440 - 1);
+        DEFAULT_FTM_PRESCALE = 1;
+    } else if(LP._cpu == 56000000) {
+        DEFAULT_FTM_MOD = (57344 - 1);
+        DEFAULT_FTM_PRESCALE = 1;
+    } else if(LP._cpu == 48000000) {
+        DEFAULT_FTM_MOD = (49152 - 1);
+        DEFAULT_FTM_PRESCALE = 1;
+    } else if(LP._cpu == 40000000) {
+        DEFAULT_FTM_MOD = (40960 - 1);
+        DEFAULT_FTM_PRESCALE = 1;
+    } else if(LP._cpu == 36000000) {
+        DEFAULT_FTM_MOD = (36864 - 1);
+        DEFAULT_FTM_PRESCALE = 1;
+    } else if(LP._cpu == 24000000) {
+        DEFAULT_FTM_MOD = (49152 - 1);
+        DEFAULT_FTM_PRESCALE = 0;
+    } else if(LP._cpu == 16000000) {
+        DEFAULT_FTM_MOD = (32768 - 1);
+        DEFAULT_FTM_PRESCALE = 0;
+    } else if(LP._cpu == 8000000) {
+        DEFAULT_FTM_MOD = (16384 - 1);
+        DEFAULT_FTM_PRESCALE = 0;
+    } else if(LP._cpu == 4000000) {
+        DEFAULT_FTM_MOD = (8192 - 1);
+        DEFAULT_FTM_PRESCALE = 0;
+    } else if(LP._cpu == 2000000) {
+        DEFAULT_FTM_MOD = (4096 - 1);
+        DEFAULT_FTM_PRESCALE = 0;
+    }
+
+
+	// init_pin_interrupts();
+
+	//SIM_SCGC6 |= SIM_SCGC6_FTM0;	// TODO: use bitband for atomic read-mod-write
+	//SIM_SCGC6 |= SIM_SCGC6_FTM1;
+	FTM0_CNT = 0;
+	FTM0_MOD = DEFAULT_FTM_MOD;
+	FTM0_C0SC = 0x28; // MSnB:MSnA = 10, ELSnB:ELSnA = 10
+	FTM0_C1SC = 0x28;
+	FTM0_C2SC = 0x28;
+	FTM0_C3SC = 0x28;
+	FTM0_C4SC = 0x28;
+	FTM0_C5SC = 0x28;
+	FTM0_C6SC = 0x28;
+	FTM0_C7SC = 0x28;
+	FTM0_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
+	FTM1_CNT = 0;
+	FTM1_MOD = DEFAULT_FTM_MOD;
+	FTM1_C0SC = 0x28;
+	FTM1_C1SC = 0x28;
+	FTM1_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
+#if defined(__MK20DX256__)
+	FTM2_CNT = 0;
+	FTM2_MOD = DEFAULT_FTM_MOD;
+	FTM2_C0SC = 0x28;
+	FTM2_C1SC = 0x28;
+	FTM2_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
+#endif
+
+	analog_init();
+	//delay(100); // TODO: this is not necessary, right?
+	delay(4);
+	usb_init();
+    
+}
+
 
 // Polling routines
 
@@ -710,6 +841,10 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
         case RELEASED: 
             lastTouchPos[touchIndex] = -1; 
             if(!watch.getVibrateState() && millis() - pressTime > 500) watch.vibrate(75); 
+            if(Page::lowPower) {
+                lowPowerDisable();
+                return;
+            }
             break;
     
     }
@@ -797,18 +932,25 @@ void buttonEvent(int dir,int index,bool longPress) {
             
             } else if(!dir) {
             
-                static int oldPage = PAGE::HOME;
+                if(Page::lowPower) lowPowerDisable();
+                else               lowPowerEnable();
             
-                if(page == PAGE::BLACK_CLOCK) {
-                
-                    goPage(oldPage);
-                
-                } else {
-                
-                    oldPage = page;
-                    goPage(PAGE::BLACK_CLOCK);
-                
-                }
+                // static int oldPage = PAGE::HOME;
+                // 
+                // if(page == PAGE::BLACK_CLOCK) {
+                // 
+                //     goPage(oldPage);
+                // 
+                //     lowPowerDisable();
+                // 
+                // } else {
+                // 
+                //     oldPage = page;
+                //     goPage(PAGE::BLACK_CLOCK);
+                //     
+                //     lowPowerEnable();
+                // 
+                // }
             
             }
         
@@ -871,7 +1013,7 @@ bool goPage(int pg,bool goingback,int mode,char * data) {
         return false;
     
     }
-
+    
     // No change
     if(page == pg) { if(D) USB.println("Page is the same"); return false; }
     
