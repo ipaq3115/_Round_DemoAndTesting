@@ -15,7 +15,7 @@ ControlSimplePage CONSTRUCTOR_MACRO
 
 void initalize() {
     
-    watch->loadImage("controlS.gci",&backgroundImageFile);
+    watch->loadImage("controlS.raw",&backgroundImageFile);
     
     watch->printImage(&backgroundImageFile,0,0,0);    
     

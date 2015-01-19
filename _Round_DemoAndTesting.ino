@@ -8,7 +8,7 @@
 #include <SdFat.h>
 #include <SdFatUtil.h>
 // #include <Wire.h>
-#include <i2c_t3.h>
+#include <i2c_t3.h> 
 #include <EEPROM.h>
 #include <LSM303_custom.h>
 #include "pageClass.h"

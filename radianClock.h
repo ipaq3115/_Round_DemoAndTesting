@@ -3,7 +3,7 @@
 #ifndef RADIAN_CLOCK_PAGE_
 #define RADIAN_CLOCK_PAGE_
 
-#define cacheFilename "radianCH.gci"
+#define cacheFilename "radianCH.raw"
 
 class RadianClockPage : public Page {
 
@@ -23,7 +23,7 @@ void initalize() {
 
     if(D) USB.println("initalize RadianClockPage");
     
-    watch->loadImage("bentlyS.gci",&secondsFile);
+    watch->loadImage("bentlyS.raw",&secondsFile);
 
     mergeBackground(now());
     
@@ -54,9 +54,9 @@ void mergeBackground(time_t tmpTime) {
     
     sd.remove(cacheFilename);
     
-    if(!backfile.open("radBack.gci",O_RDWR)) Serial.println("radBack didn't load");
-    if(!frontfile.open("blumin.gci",O_RDWR)) Serial.println("blumin didn't load");
-    if(!newfile.open("tmp.gci",O_RDWR | O_CREAT)) Serial.println("test didn't load");
+    if(!backfile.open("radBack.raw",O_RDWR)) Serial.println("radBack didn't load");
+    if(!frontfile.open("blumin.raw",O_RDWR)) Serial.println("blumin didn't load");
+    if(!newfile.open("tmp.raw",O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
     watch->mergeImages(&newfile,&backfile,&frontfile,0,0,minute(tmpTime));
     
@@ -64,8 +64,8 @@ void mergeBackground(time_t tmpTime) {
     frontfile.close();
     newfile.close();
     
-    if(!backfile.open("tmp.gci",O_RDWR)) Serial.println("bluish didn't load");
-    if(!frontfile.open("bluhour.gci",O_RDWR)) Serial.println("bluhour didn't load");
+    if(!backfile.open("tmp.raw",O_RDWR)) Serial.println("bluish didn't load");
+    if(!frontfile.open("bluhour.raw",O_RDWR)) Serial.println("bluhour didn't load");
     if(!newfile.open(cacheFilename,O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
     watch->mergeImages(&newfile,&backfile,&frontfile,0,0,(hour(tmpTime) % 12)  * 5 + minute(tmpTime) / 12);
@@ -74,7 +74,7 @@ void mergeBackground(time_t tmpTime) {
     frontfile.close();
     newfile.close();
     
-    sd.remove("tmp.gci");
+    sd.remove("tmp.raw");
     
     watch->setBackground(cacheFilename,0,0);
 

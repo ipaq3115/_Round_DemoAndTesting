@@ -48,9 +48,9 @@ SettingsPageB CONSTRUCTOR_MACRO
 void initalize() {
 
     watch->loadImage("setB.bmp",&backgroundImageFile);
-    watch->loadImage("knob.Gci",&knobFile);
-    watch->loadImage("setvib.Gci",&vibrateFile);
-    watch->loadImage("setvol.Gci",&volumeFile);
+    watch->loadImage("knob.raw",&knobFile);
+    watch->loadImage("setvib.raw",&vibrateFile);
+    watch->loadImage("setvol.raw",&volumeFile);
     
     watch->printImage(&backgroundImageFile,0,0);
     

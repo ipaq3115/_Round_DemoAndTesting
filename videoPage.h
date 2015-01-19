@@ -77,7 +77,7 @@ void leavingPage() {
 
 void loadVideo(char * name,int x,int y) {
 
-    const char ext[] = ".Gci";
+    const char ext[] = ".raw";
     int extC = 0;
     char videoFileName[15];
     bool nameDone = false;

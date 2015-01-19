@@ -31,10 +31,10 @@ BarClockPage CONSTRUCTOR_MACRO
 
 void initalize() {
 
-    watch->loadImage("ringBack.Gci",&ringFile);
-    watch->loadImage("ringA.Gci",&ringA);
-    watch->loadImage("ringB.Gci",&ringB);
-    watch->loadImage("ringC.Gci",&ringC);
+    watch->loadImage("ringBack.raw",&ringFile);
+    watch->loadImage("ringA.raw",&ringA);
+    watch->loadImage("ringB.raw",&ringB);
+    watch->loadImage("ringC.raw",&ringC);
     
     watch->printImage(&ringFile,0,0);
     

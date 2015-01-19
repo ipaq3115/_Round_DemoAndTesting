@@ -22,7 +22,7 @@ void initalize() {
     
     watch->printImage("numpad.bmp",0,0);
     
-    watch->loadImage("callBack.gci",&callScreensImage);
+    watch->loadImage("callBack.raw",&callScreensImage);
     
     printNumber(numberStr);
     
@@ -186,10 +186,10 @@ void newDigit(char value) {
             
             image_info fontFile;
             
-            watch->loadImage("dsm22b.Gci",&fontFile);
+            watch->loadImage("dsm22b.raw",&fontFile);
             
-            // if(!fontFile.open("dsm22b.Gci",O_RDWR)) Serial.println("Error: no dsm22b.Gci");
-            // if(!fontFile.open("font22.Gci",O_RDWR)) Serial.println("Error: no font22.Gci");
+            // if(!fontFile.open("dsm22b.raw",O_RDWR)) Serial.println("Error: no dsm22b.raw");
+            // if(!fontFile.open("font22.raw",O_RDWR)) Serial.println("Error: no font22.raw");
             
             watch->print(numberPrintStr,&fontFile,CENTER,80,&callScreensImage,0,0,0);
             // watch->print(numberPrintStr,fontFile,CENTER,80,callScreensImage,0,0,0,0x001F);

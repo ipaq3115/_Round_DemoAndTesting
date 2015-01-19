@@ -708,11 +708,11 @@ void loadSdCard() {
 
 void showSplash() {
 
-    watch.printImage("hackaday.gci",0,0);
+    watch.printImage("hackaday.raw",0,0);
 
     // SdFile splashImage;
     
-    // if(!splashImage.open("hackaday.gci",O_RDWR)) if(E) db.println("hackaday.gci not opened");
+    // if(!splashImage.open("hackaday.raw",O_RDWR)) if(E) db.println("hackaday.raw not opened");
     // watch.printRaw(splashImage,0,0);
     
     // if(!splashImage.open("PiSplash.bmp",O_RDWR)) USB.println("PiSplash not opened");

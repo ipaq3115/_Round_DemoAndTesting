@@ -38,7 +38,7 @@ void initalize() {
     
     strLen = 0;
     
-    watch->loadImage("dsm22x41.gci",&font);
+    watch->loadImage("dsm22x41.raw",&font);
     
 }
 

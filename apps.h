@@ -31,7 +31,7 @@ class AppsPage : public Page {
 
 void AppsPage::initalize() {
 
-    watch->loadImage("homeBack.Gci",&backgroundImageFile);
+    watch->loadImage("homeBack.raw",&backgroundImageFile);
     
     watch->printImage(&backgroundImageFile,0,0,page);
     

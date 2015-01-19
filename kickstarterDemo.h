@@ -18,7 +18,7 @@ KickstarterDemoPage CONSTRUCTOR_MACRO
 
 void initalize() {
 
-    file.open("kickdemo.gci",O_RDWR);
+    file.open("kickdemo.raw",O_RDWR);
     
     watch->loadVideo(file,0,0);
     

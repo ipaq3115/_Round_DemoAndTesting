@@ -3,7 +3,7 @@
 #ifndef BREIGHTLING_CLOCK_PAGE_
 #define BREIGHTLING_CLOCK_PAGE_
 
-#define cacheFilename "breitCH.gci"
+#define cacheFilename "breitCH.raw"
 
 class BreightlingClockPage : public Page {
     
@@ -23,7 +23,7 @@ void initalize() {
     
     if(D) USB.println("initalize BreightlingClockPage");
 
-    watch->loadImage("bentlyS.gci",&secondsFile);
+    watch->loadImage("bentlyS.raw",&secondsFile);
     
     mergeBackground(now());
     
@@ -53,12 +53,12 @@ void mergeBackground(time_t tmpTime) {
     SdFile backfile,frontfile,newfile;
     
     sd.remove(cacheFilename);
-    sd.remove("tmp.gci");
+    sd.remove("tmp.raw");
     
-    // if(!backfile.open("PiSplash.gci",O_RDWR)) Serial.println("bluish didn't load");
-    if(!backfile.open("bently.gci",O_RDWR)) Serial.println("bluish didn't load");
-    if(!frontfile.open("bentlyM.gci",O_RDWR)) Serial.println("blumin didn't load");
-    if(!newfile.open("tmp.gci",O_RDWR | O_CREAT)) Serial.println("test didn't load");
+    // if(!backfile.open("PiSplash.raw",O_RDWR)) Serial.println("bluish didn't load");
+    if(!backfile.open("bently.raw",O_RDWR)) Serial.println("bluish didn't load");
+    if(!frontfile.open("bentlyM.raw",O_RDWR)) Serial.println("blumin didn't load");
+    if(!newfile.open("tmp.raw",O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
     watch->mergeImages(&newfile,&backfile,&frontfile,0,0,minute(tmpTime));
     
@@ -66,8 +66,8 @@ void mergeBackground(time_t tmpTime) {
     frontfile.close();
     newfile.close();
     
-    if(!backfile.open("tmp.gci",O_RDWR)) Serial.println("bluish didn't load");
-    if(!frontfile.open("bentlyH.gci",O_RDWR)) Serial.println("bluhour didn't load");
+    if(!backfile.open("tmp.raw",O_RDWR)) Serial.println("bluish didn't load");
+    if(!frontfile.open("bentlyH.raw",O_RDWR)) Serial.println("bluhour didn't load");
     if(!newfile.open(cacheFilename,O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
     watch->mergeImages(&newfile,&backfile,&frontfile,0,0,(hour(tmpTime) % 12)  * 5);

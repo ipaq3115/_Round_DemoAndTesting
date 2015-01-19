@@ -3,7 +3,7 @@
 #ifndef BLUISH_CLOCK_PAGE_
 #define BLUISH_CLOCK_PAGE_
 
-#define cacheFilename "bluishCH.gci"
+#define cacheFilename "bluishCH.raw"
 
 class BluishClockPage : public Page {
 
@@ -23,7 +23,7 @@ void initalize() {
 
     if(D) USB.println("initalize BluishClockPage");
 
-    watch->loadImage("bentlyS.gci",&secondsFile);
+    watch->loadImage("bentlyS.raw",&secondsFile);
     
     mergeBackground(now());
     
@@ -52,9 +52,9 @@ void mergeBackground(time_t tmpTime) {
     
     sd.remove(cacheFilename);
     
-    if(!backfile.open("bluish.gci",O_RDWR)) Serial.println("bluish didn't load");
-    if(!frontfile.open("blumin.gci",O_RDWR)) Serial.println("blumin didn't load");
-    if(!newfile.open("tmp.gci",O_RDWR | O_CREAT)) Serial.println("test didn't load");
+    if(!backfile.open("bluish.raw",O_RDWR)) Serial.println("bluish didn't load");
+    if(!frontfile.open("blumin.raw",O_RDWR)) Serial.println("blumin didn't load");
+    if(!newfile.open("tmp.raw",O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
     watch->mergeImages(&newfile,&backfile,&frontfile,0,0,minute(tmpTime));
     
@@ -62,8 +62,8 @@ void mergeBackground(time_t tmpTime) {
     frontfile.close();
     newfile.close();
     
-    if(!backfile.open("tmp.gci",O_RDWR)) Serial.println("bluish didn't load");
-    if(!frontfile.open("bluhour.gci",O_RDWR)) Serial.println("bluhour didn't load");
+    if(!backfile.open("tmp.raw",O_RDWR)) Serial.println("bluish didn't load");
+    if(!frontfile.open("bluhour.raw",O_RDWR)) Serial.println("bluhour didn't load");
     if(!newfile.open(cacheFilename,O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
     watch->mergeImages(&newfile,&backfile,&frontfile,0,0,(hour(tmpTime) % 12)  * 5 + minute(tmpTime) / 12);
@@ -72,7 +72,7 @@ void mergeBackground(time_t tmpTime) {
     frontfile.close();
     newfile.close();
     
-    sd.remove("tmp.gci");
+    sd.remove("tmp.raw");
     
     watch->setBackground(cacheFilename,0,0);
     

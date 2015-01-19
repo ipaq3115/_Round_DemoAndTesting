@@ -30,8 +30,7 @@ class XKCDclockPage : public Page {
 
 void XKCDclockPage::initalize() {
     
-    // if(!img.open("needleA.Gci",O_RDWR)) if(D) USB.println("Couldn't open video");
-    if(!img.open("xkcdnowb.Gci",O_RDWR)) if(D) USB.println("Couldn't open video");
+    if(!img.open("xkcdnowb.raw",O_RDWR)) if(D) USB.println("Couldn't open video");
     
     watch->loadVideo(img,0,0);
     

@@ -45,24 +45,24 @@ void CallPage::initalize() {
     
         case PHONE_IDLE:     
         
-            watch->printImage("callBack.gci",0,0,4); 
+            watch->printImage("callBack.raw",0,0,4); 
             
             break;
         case PHONE_RINGING:  
         
-            watch->printImage("callBack.gci",0,0,1);
+            watch->printImage("callBack.raw",0,0,1);
             printFormattedPhoneNumber(63);
             
             break;
         case PHONE_IN_CALL:  
         
-            watch->printImage("callBack.gci",0,0,3);
+            watch->printImage("callBack.raw",0,0,3);
             printFormattedPhoneNumber(63);
             
             break;
         case PHONE_DIALING:  
         
-            watch->printImage("callBack.gci",0,0,2); 
+            watch->printImage("callBack.raw",0,0,2); 
             printFormattedPhoneNumber(63);
             
             break;
@@ -107,8 +107,8 @@ void CallPage::printFormattedPhoneNumber(int height) {
     
     image_info fontFile;
     
-    watch->loadImage("font22.Gci",&fontFile);
-    // if(!fontFile.open("font22.Gci",O_RDWR)) Serial.println("Error: no font22.Gci");
+    watch->loadImage("font22.raw",&fontFile);
+    // if(!fontFile.open("font22.raw",O_RDWR)) Serial.println("Error: no font22.raw");
     
     switch(bluetooth->phoneState) {
     

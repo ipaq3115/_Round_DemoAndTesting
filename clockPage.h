@@ -26,7 +26,7 @@ void initalize() {
 
 void init() {
 
-    watch->printImage("clkBack.gci",0,0,page);
+    watch->printImage("clkBack.raw",0,0,page);
     
 }
 

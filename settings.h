@@ -49,9 +49,9 @@ void printBattery(int percent) {
 void initalize() {
     
     watch->loadImage("settings.bmp",&backgroundImageFile);
-    watch->loadImage("setBrgt.Gci",&brightnessFile);
-    watch->loadImage("setBatB.Gci",&batteryBarFile);
-    watch->loadImage("setBatP.Gci",&batteryPercentFile);
+    watch->loadImage("setBrgt.raw",&brightnessFile);
+    watch->loadImage("setBatB.raw",&batteryBarFile);
+    watch->loadImage("setBatP.raw",&batteryPercentFile);
     
     watch->printImage(&backgroundImageFile,0,0);
     

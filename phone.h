@@ -40,11 +40,11 @@ void PhonePage::initalize() {
     // 
     // if(!backgroundImageFile.isOpen()) {
     //     
-    //     if(!backgroundImageFile.open("callBack.gci",O_RDWR)) USB.println("File open fail");
+    //     if(!backgroundImageFile.open("callBack.raw",O_RDWR)) USB.println("File open fail");
     // 
     // }
     
-    watch->printImage("callBack.gci",0,0,4);
+    watch->printImage("callBack.raw",0,0,4);
     
 }
 
