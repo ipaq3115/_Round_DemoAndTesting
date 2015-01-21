@@ -121,6 +121,21 @@ void loop() {
     // }
     
     // lowPowerTimeout();
+
+    static elapsedMillis_LP timeB;
+
+    if(timeB > 200)  {
+
+        timeB = 0;
+
+        watch.setFont(BigFont);
+        watch.setColor(WHITE);
+        watch.setBackColor(BLACK);
+
+        watch.printNumI(analogRead(PIN::POWER_BUTTON),CENTER,100,10,'0');
+        watch.printNumI(touchRead(0),CENTER,115,10,'0');
+
+    }
     
     watch.loop();
     
@@ -196,11 +211,11 @@ void lowPowerEnable() {
     setTime(Teensy3Clock.get());
 
     // Re initialize pins (doing this so PWM works)
-    _init_Teensyduino_internal_LP();
+    // _init_Teensyduino_internal_LP();
     
     // Start the touch back up
     // watch.calCapacitive();
-    // watch.restartTouch();
+    watch.restartTouch();
     
 }
 
@@ -293,13 +308,13 @@ void _init_Teensyduino_internal_LP(void) {
 	FTM1_C0SC = 0x28;
 	FTM1_C1SC = 0x28;
 	FTM1_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
-#if defined(__MK20DX256__)
-	FTM2_CNT = 0;
-	FTM2_MOD = DEFAULT_FTM_MOD;
-	FTM2_C0SC = 0x28;
-	FTM2_C1SC = 0x28;
-	FTM2_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
-#endif
+    #if defined(__MK20DX256__)
+    	FTM2_CNT = 0;
+    	FTM2_MOD = DEFAULT_FTM_MOD;
+    	FTM2_C0SC = 0x28;
+    	FTM2_C1SC = 0x28;
+    	FTM2_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
+    #endif
 
 	analog_init();
 	//delay(100); // TODO: this is not necessary, right?
