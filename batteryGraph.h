@@ -215,6 +215,13 @@ void printGraph() {
     batteryLog.seekSet((logEntries - 1) * LENGTH + OFFSET + TIME);
     time_t endTime = batteryLog.read(4);
     
+    if(logEntries == -1) {
+    
+        if(D) db.printf("logEntries is -1 abort printGraph!\r\n");
+        return;
+    
+    }
+    
     // Print start and stop times on the graph
     
     char str[20];
@@ -233,7 +240,8 @@ void printGraph() {
     // This should give a window of time for each pixel so that collections that belong here can be easily found
     unsigned long long millisPerPx = (double)timeTotal / (double)GRAPH_WIDTH * 1000.0; if(millisPerPx < 1) millisPerPx = 1;
     
-    if(D) db.printf("startTime %lu endTime %lu timeTotal %lu millisPerPx %llu\r\n",startTime,endTime,timeTotal,millisPerPx);
+    if(D) db.printf("startTime %lu endTime %lu timeTotal %lu millisPerPx %llu\r\n",
+    startTime, endTime, timeTotal, millisPerPx);
     
     // Go through the file (maybe in buffered chunks) and average all the times within the window for that pixel
     // If the time gets set during a log file this could cause a problem. Maybe just detect time going backwards
@@ -250,10 +258,12 @@ void printGraph() {
     int minBat=9999,maxBat=0;
     int minPos=0,maxPos=0;
     
-    // if(D) db.printf("logEntries %d\r\n",logEntries);
+    if(D) db.printf("logEntries %d\r\n",logEntries);
     
     // Loop through every one of the samples in the log file
     for(int i=0;i<logEntries;i++) {
+    
+        if(D) db.printf("i %d\r\n", i);
     
         // Read all the data for this sample into buf
         batteryLog.seekSet(i * LENGTH + OFFSET);
@@ -273,13 +283,19 @@ void printGraph() {
         // if(D) db.printf("time %lu\r\n",time);
     
         retry:
+    
+        if(D) db.printf("retry\r\n");
 
         // Current sample is ahead of or equal to the minium time of the window
         if(time >= startTime + graphPx * millisPerPx / 1000) {
 
+            if(D) db.printf("a\r\n");
+
             // Current sample is also behind the max value for this window (last element just includes all)
             if(time < startTime + (graphPx + 1) * millisPerPx / 1000 || graphPx == GRAPH_WIDTH - 1) {
-            
+                
+                if(D) db.printf("b\r\n");
+
                 chrgAvg += bitRead(buf[FLAGS], CHARGING) ? 1 : -1;
                 plugAvg += bitRead(buf[FLAGS], PLUGGED_IN) ? 1 : -1;
             
@@ -293,8 +309,10 @@ void printGraph() {
             // This means new sample is out of the window for the current pixel so we want to print this 
             // window and retry this sample in the next pixel window
             } else {
-            
+
                 printit:
+                
+                if(D) db.printf("c\r\n");
                 
                 // if(D) db.printf("Window finish graphPx %d voltAvgCount %d\r\n",graphPx,voltAvgCount);
             
@@ -377,6 +395,8 @@ void printGraph() {
     }
     
     theEnd:
+
+    if(D) db.printf("d\r\n");
     
     return; // For some reason the complier wants a ';' after the above label
     
@@ -384,6 +404,8 @@ void printGraph() {
 
 void readBatteryConfigFile() {
 
+    if(D) db.printf("readBatteryConfigFile\r\n");
+    
     if(sd.exists("bat.cfg")) {
 
         SdFile batteryConfigFile;
@@ -438,6 +460,8 @@ void eraseLogFile(int index) {
 
 void loadLogFile() {
 
+    if(D) db.printf("loadLogFile\r\n");
+    
     char filename[20];
     
     // Create the filename based on the current index
