@@ -24,6 +24,12 @@ void initalize() {
     
 }
 
+void redraw() {
+    
+    init();
+
+}
+
 void init() {
 
     watch->printImage("clkBack.raw",0,0,page);
@@ -96,7 +102,7 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
                         switch(iconIndex) {
                         
                             case 1: goPage(PAGE::BREIGHTLING_CLOCK); return;
-                            case 2: /* this clock face still needs to be created */ return;
+                            case 2: goPage(PAGE::BLACK_CLOCK); return;
                             case 3: goPage(PAGE::RADIAN_CLOCK); return;
                             case 4: goPage(PAGE::BLUISH_CLOCK); return;
                             
