@@ -102,9 +102,9 @@ void loop() {
 
         int tmpDegreePos = ballDegreePos;
 
-        int r;
-        int g;
-        int b;
+        int r = 0;
+        int g = 0;
+        int b = 0;
         
         ballDegreePos /= 120;
 
