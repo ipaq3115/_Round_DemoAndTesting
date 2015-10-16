@@ -1199,7 +1199,7 @@ int lastUsbCommandSentTime = 0;
 bool saveD = false,saveE = false;
 bool debugHold = false;
 
-int const MAX_DEBUG_COMMANDS = 5;
+int const MAX_DEBUG_COMMANDS = 8;
 int const MAX_DEBUG_COMMAND_LENGTH = 30;
 
 char const debugCommandStrings[MAX_DEBUG_COMMANDS][MAX_DEBUG_COMMAND_LENGTH] = {
@@ -1208,15 +1208,21 @@ char const debugCommandStrings[MAX_DEBUG_COMMANDS][MAX_DEBUG_COMMAND_LENGTH] = {
 "d",
 "pbook",
 "resetbt",
-"getconfigbt"
+"getconfigbt",
+"calstart",
+"calstop",
+"calsave"
 
 };
 
 int const DEBUG_MSG_HELP        = 0;
-int const DEBUG_MSG_DEBUG        = 1;
-int const DEBUG_MSG_PBOOK        = 2;
+int const DEBUG_MSG_DEBUG       = 1;
+int const DEBUG_MSG_PBOOK       = 2;
 int const DEBUG_MSG_RESET_BT    = 3;
-int const DEBUG_MSG_CONFIG_BT    = 4;
+int const DEBUG_MSG_CONFIG_BT   = 4;
+int const DEBUG_MSG_CAL_START   = 5;
+int const DEBUG_MSG_CAL_STOP    = 6;
+int const DEBUG_MSG_CAL_SAVE    = 7;
 
 bool debugLocked = false;
 
@@ -1338,6 +1344,18 @@ void usbMessage(char *msgStr,int msgLen) {
     
         // bt.getAllConfig();
     
+    } else if(msgID == DEBUG_MSG_CAL_START) {
+    
+        compass.startCal();
+        
+        calibrating = true;
+    
+    } else if(msgID == DEBUG_MSG_CAL_SAVE) {
+    
+        compass.saveCal();
+    
+        calibrating = false;
+    
     }
     
     lastUsbCommandSentTime = millis();
@@ -1346,9 +1364,6 @@ void usbMessage(char *msgStr,int msgLen) {
         D = false; //E = false;
         debugHold = true;
     }
-    
-    
-    
     
 
 }
