@@ -14,11 +14,23 @@ HomePage CONSTRUCTOR_MACRO
 
 image_info backgroundImageFile;
 
+bool first = true;
+
 void initalize() {
 
-    watch->loadImage("home.bmp",&backgroundImageFile);
+    if(!first) {
+
+        watch->loadImage("homeBack.raw",&backgroundImageFile);
+        // watch->loadImage("home.bmp",&backgroundImageFile);
+        
+        watch->printImage(&backgroundImageFile,0,0);
+        
+    } else {
     
-    watch->printImage(&backgroundImageFile,0,0);
+        watch->setColor(BLACK);
+        watch->fillRect(0,0,219,219);
+    
+    }
     
     if(D) { USB.println("homepage initalize is done"); }
     
@@ -31,6 +43,23 @@ void leavingPage() {
 }
 
 void loop() {
+
+    if(first) {
+        
+        // watch.setBrightness(100);
+        // watch.rampBrightness(100,500);
+        
+        image_info fade_in;
+        watch->loadImage("hdyfade.raw", &fade_in);
+        for(int i=0;i<20;i++) watch->printImage(&fade_in, 0, 0, i);
+        
+        image_info fade_in_two;
+        watch->loadImage("homeFade.raw", &fade_in_two);
+        for(int i=0;i<20;i+=4) watch->printImage(&fade_in_two, 0, 0, i);
+    
+        first = false;
+    
+    }
 
 }
 
