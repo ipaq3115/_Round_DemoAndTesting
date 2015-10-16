@@ -118,8 +118,9 @@ namespace PAGE {
     LED_RING_CONTROL    = 23,
     BLACK_CLOCK         = 24,
     STARGATE            = 25,
+    TARGET_BALL         = 26,
     
-    TOTAL               = 26;
+    TOTAL               = 27;
     
     const char names[TOTAL][20] {
     
@@ -148,7 +149,8 @@ namespace PAGE {
         "BATTERY_GRAPH",
         "LED_RING_CONTROL",
         "BLACK_CLOCK",
-        "STARGATE"
+        "STARGATE",
+        "TARGET_BALL"
         
     };
 
@@ -590,5 +592,6 @@ bool checkFilename(char* filename) { // Adds .WAV extension and gets rid of any 
 #include "ledRingControl.h"
 #include "blackClockPage.h"
 #include "stargatePage.h"
+#include "TargetBallPage.h"
 
 #include "roundUtil.h"

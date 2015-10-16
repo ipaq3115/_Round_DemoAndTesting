@@ -75,6 +75,7 @@ void setup() {
     initPage(LED_RING_CONTROL,  ledRingControlPage)
     initPage(BLACK_CLOCK,       BlackClockPage)
     initPage(STARGATE,          StargatePage)
+    initPage(TARGET_BALL,       TargetBallPage)
     
     fillDemoContacts();
     
