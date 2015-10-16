@@ -13,7 +13,8 @@
 #include <LSM303_custom.h>
 #include "pageClass.h"
 #include <customUtils.h>
-#include <LowPower_Teensy3.h>
+#include <IntervalTimer_LP.h>
+#include <LowPower_PiWatch.h>
 #include <Time_LP.h>
 
 #define fori(x) for(int i=0;i<x;i++)
@@ -23,9 +24,14 @@
 #define millis LP.millis
 #define micros LP.micros
 
+#define elapsedMillis elapsedMillis_LP
+
 #define USB Serial
 #define db Serial
 #define Serial2 lpSerial2
+
+const bool old_watch = false;
+// const bool old_watch = true;
 
 /**
  * Library init namespace
@@ -45,7 +51,7 @@ namespace {
     
     SdFile audioFile;
     
-    LSM303_custom compass;
+    LSM303_custom compass(old_watch);
     
     IntervalTimer audioTimer;
     
@@ -181,7 +187,7 @@ namespace { // General
 
     int page = -1;
 
-    int currentHeading = 0;
+    // int currentHeading = 0;
     
     // int brightness = 100;
     
@@ -196,6 +202,8 @@ namespace { // General
     Page* pageArray[PAGE::TOTAL];
     
     long lastTouchTime = 0;
+    
+    bool orientation_islocked = true;
 
 }
 
