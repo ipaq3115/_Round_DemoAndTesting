@@ -111,6 +111,11 @@ void setup() {
 
 void loop() {
     
+    if(calibrating) {
+        compass.read();
+        compass.cal_mode();
+    }
+    
     // static elapsedMillis timey;
     // if(timey > 10000) {
     // 
