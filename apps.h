@@ -28,10 +28,9 @@ class AppsPage : public Page {
 
 };
 
-
 void AppsPage::initalize() {
 
-    watch->loadImage("homeBack.raw",&backgroundImageFile);
+    watch->loadImage("appBack.raw",&backgroundImageFile);
     
     watch->printImage(&backgroundImageFile,0,0,page);
     
@@ -92,7 +91,8 @@ void AppsPage::touch(int touchType,int finePos,int activeTouches,int touchIndex)
                 
                     switch(iconIndex) {
                     
-                        case 1: goPage(PAGE::GRAVITY_BALL); return;
+                        // case 1: goPage(PAGE::GRAVITY_BALL); return;
+                        case 1: goPage(PAGE::TARGET_BALL); return;
                         case 2: goPage(PAGE::PHONE); return;
                         case 3: goPage(PAGE::CONTROL_SIMPLE); return;
                         case 4: goPage(PAGE::BATTERY_GRAPH); return;
