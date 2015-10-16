@@ -706,7 +706,7 @@ void pollButtons() {
 
 // Init
 
-int loadCompileTime() {
+void loadCompileTime() {
 
     // Making time and date string more cryptic
     char workString[50]; // "Mmm dd yyyyhh:mm:ss"
@@ -1299,7 +1299,7 @@ void drawCompass(int x,int y,int angle,int enabled) {
 
 // Debug
 
-int lastUsbCommandSentTime = 0;
+unsigned long lastUsbCommandSentTime = 0;
 bool saveD = false,saveE = false;
 bool debugHold = false;
 
@@ -1336,7 +1336,7 @@ void usbCommand() {
     
     if(debugHold) {
 
-        if(millis() > (lastUsbCommandSentTime+1500)) {
+        if(millis() > (lastUsbCommandSentTime + 1500)) {
         
             debugHold = false;
             D = saveD; E = saveE;
@@ -1475,88 +1475,88 @@ void usbMessage(char *msgStr,int msgLen) {
 
 // Error
 
-void err(char * msgStr) {
+void err(char const * msgStr) {
 
     errD(msgStr,false);
 
 }
 
-void err(char * msgStr,int arga) {
+void err(char const * msgStr,int arga) {
 
     errD(msgStr,arga,false);
 
 }
 
-void err(char * msgStr,int arga,int argb) {
+void err(char const * msgStr,int arga,int argb) {
 
     errD(msgStr,arga,argb,false);
 
 }
 
-void err(char * msgStr,int arga,int argb,int argc) {
+void err(char const * msgStr,int arga,int argb,int argc) {
 
     errD(msgStr,arga,argb,argc,false);
 
 }
 
 
-void errH(char * msgStr) {
+void errH(char const * msgStr) {
 
     errD(msgStr,true);
 
 }
 
-void errH(char * msgStr,int arga) {
+void errH(char const * msgStr,int arga) {
 
     errD(msgStr,arga,true);
 
 }
 
-void errH(char * msgStr,int arga,int argb) {
+void errH(char const * msgStr,int arga,int argb) {
 
     errD(msgStr,arga,argb,true);
 
 }
 
-void errH(char * msgStr,int arga,int argb,int argc) {
+void errH(char const * msgStr,int arga,int argb,int argc) {
 
     errD(msgStr,arga,argb,argc,true);
 
 }
 
 
-void err(char * msgStr,char * arga) {
+void err(char const * msgStr,char * arga) {
 
     errS(msgStr,arga,false);
 
 }
 
-void err(char * msgStr,char * arga,char * argb) {
+void err(char const * msgStr,char * arga,char * argb) {
 
     errS(msgStr,arga,argb,false);
 
 }
 
-void err(char * msgStr,char * arga,char * argb,char * argc) {
+void err(char const * msgStr,char * arga,char * argb,char * argc) {
 
     errS(msgStr,arga,argb,argc,false);
 
 }
 
 
-void errH(char * msgStr,char * arga) {
+void errH(char const * msgStr,char * arga) {
 
     errS(msgStr,arga,true);
 
 }
 
-void errH(char * msgStr,char * arga,char * argb) {
+void errH(char const * msgStr,char * arga,char * argb) {
 
     errS(msgStr,arga,argb,true);
 
 }
 
-void errH(char * msgStr,char * arga,char * argb,char * argc) {
+void errH(char const * msgStr,char * arga,char * argb,char * argc) {
 
     errS(msgStr,arga,argb,argc,true);
 
@@ -1564,7 +1564,7 @@ void errH(char * msgStr,char * arga,char * argb,char * argc) {
 
 // Main error functions for numbers
 
-void errD(char * msgStr,bool hard) {
+void errD(char const * msgStr,bool hard) {
 
     if(E) db.println(msgStr);
     
@@ -1580,7 +1580,7 @@ void errD(char * msgStr,bool hard) {
 
 }
 
-void errD(char * msgStr,int arga,bool hard) {
+void errD(char const * msgStr,int arga,bool hard) {
 
     if(E) { 
     
@@ -1603,7 +1603,7 @@ void errD(char * msgStr,int arga,bool hard) {
 
 }
 
-void errD(char * msgStr,int arga,int argb,bool hard) {
+void errD(char const * msgStr,int arga,int argb,bool hard) {
 
     if(E) { 
     
@@ -1626,7 +1626,7 @@ void errD(char * msgStr,int arga,int argb,bool hard) {
 
 }
 
-void errD(char * msgStr,int arga,int argb,int argc,bool hard) {
+void errD(char const * msgStr,int arga,int argb,int argc,bool hard) {
 
     if(E) { 
     
@@ -1652,7 +1652,7 @@ void errD(char * msgStr,int arga,int argb,int argc,bool hard) {
 
 // Main error functions for strings
 
-void errS(char * msgStr,char * arga,bool hard) {
+void errS(char const * msgStr,char * arga,bool hard) {
 
     if(E) { 
     
@@ -1675,7 +1675,7 @@ void errS(char * msgStr,char * arga,bool hard) {
 
 }
 
-void errS(char * msgStr,char * arga,char * argb,bool hard) {
+void errS(char const * msgStr,char * arga,char * argb,bool hard) {
 
     if(E) { 
     
@@ -1698,7 +1698,7 @@ void errS(char * msgStr,char * arga,char * argb,bool hard) {
 
 }
 
-void errS(char * msgStr,char * arga,char * argb,char * argc,bool hard) {
+void errS(char const * msgStr,char * arga,char * argb,char * argc,bool hard) {
 
     if(E) { 
     

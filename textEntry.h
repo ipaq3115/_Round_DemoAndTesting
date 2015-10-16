@@ -96,7 +96,7 @@ void loop() {
 void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
 
     static int posOld = -1;
-    static int cursorStartPos = -1;
+    // static int cursorStartPos = -1;
     static long cursorStartTime = -1;
     static int diff = 0,lastFinePos = 0;
     
@@ -114,7 +114,7 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
                 forceCursorTouch:
             
                 cursorIndex = touchIndex;
-                cursorStartPos = finePos;
+                // cursorStartPos = finePos;
                 cursorStartTime = millis();
                 diff = 0;
                 lastFinePos = finePos;
@@ -185,7 +185,7 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
                 
                     if(diff > 36) {
                     
-                        cursorStartPos = -1;
+                        // cursorStartPos = -1;
                         
                         delChar();
                     

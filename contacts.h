@@ -24,7 +24,7 @@ union Contact {
     };
     
     Contact() {}
-    Contact(char * initName,char * initNumber) {
+    Contact(char const * initName, char const * initNumber) {
         bool stringDone = false;
         for(int i=0;i<16;i++) {
             if(initName[i] == 0 || i >= 15) stringDone = true;
@@ -108,10 +108,10 @@ void initalize(int mode,char * data) {
             contactsBuffIndex[i] = i;
         
             contactsFile.read(tmpBuffer,sizeof(Contact));
-            for(int k=0;k<sizeof(Contact);k++) contactsBuff[i].b[k] = tmpBuffer[k];
+            for(unsigned int k=0;k<sizeof(Contact);k++) contactsBuff[i].b[k] = tmpBuffer[k];
             
             if(D) {
-                for(int k=0;k<sizeof(Contact);k++) USB.write(tmpBuffer[k]);
+                for(unsigned int k=0;k<sizeof(Contact);k++) USB.write(tmpBuffer[k]);
                 USB.println();
             }
         
@@ -160,11 +160,11 @@ void loop() {
             
             // Put the data into an contact object in the array
             // Could skip this and have the sd read function go straight to this array
-            for(int i=0;i<sizeof(Contact);i++) contactsBuff[index].b[i] = tmpBuffer[i];
+            for(unsigned int i=0;i<sizeof(Contact);i++) contactsBuff[index].b[i] = tmpBuffer[i];
     
             if(D) {
                 USB.printf("Updated buffer pos %03d which is absolute pos %03d\r\n",index,absIndex);
-                for(int i=0;i<sizeof(Contact);i++) USB.write(tmpBuffer[i]);
+                for(unsigned int i=0;i<sizeof(Contact);i++) USB.write(tmpBuffer[i]);
                 USB.println();
             }
             
@@ -201,7 +201,7 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
     
     // if(D && touchType != MOVING) USB.printf("touch\r\n");
     
-    static int lastUpdateTime = 0;
+    // static int lastUpdateTime = 0;
     
     switch(touchType) {
     
@@ -371,7 +371,7 @@ void printListItem(int yPos,int i,int index,int color,int absIndex,int indexStar
     } else {
     
         watch->setColor(color);
-        char str[2] {i + 'A',0};
+        char str[2] {(char)(i + 'A'),0};
         watch->print(str,x-20,y);
         watch->print(contactsBuff[index].name,x,y);
         

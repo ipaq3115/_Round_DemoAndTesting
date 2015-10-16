@@ -44,8 +44,8 @@ void loop() {
     const float mmPerSecondPerMillis = 1.80665;
     // const float mmPerSecondPerMillis = 9.80665;
     
-    static int ballPosX = 0,oldBallPosX = 0; // pixels
-    static int ballPosY = 0,oldBallPosY = 0; // pixels
+    static int ballPosX = 0; //,oldBallPosX = 0; // pixels
+    static int ballPosY = 0; //,oldBallPosY = 0; // pixels
     
     static int ballDegreePos = 0;
     static double ballDegreeSpeed = 0;
@@ -194,8 +194,8 @@ void loop() {
         // drawBall(oldBallPosX,oldBallPosY,0);
         drawBall(ballPosX,ballPosY,0xFFFF);
         
-        oldBallPosX = ballPosX;
-        oldBallPosY = ballPosY;
+        // oldBallPosX = ballPosX;
+        // oldBallPosY = ballPosY;
         
         // if(D) USB.printf("%f\r\n",ballSpeed);
         
@@ -211,7 +211,7 @@ void loop() {
 
     return;
 
-    static int count = 0,lastX,lastY,lastZ;
+    static int count = 0;
 
     count++;
     
@@ -301,7 +301,7 @@ if(D) USB.println("button");
 
 using namespace BUTTON;
 
-static bool screenState = 0;
+// static bool screenState = 0;
 
 switch(index) {
 

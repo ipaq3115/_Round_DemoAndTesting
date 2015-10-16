@@ -3,7 +3,7 @@
 #ifndef BLUISH_CLOCK_PAGE_
 #define BLUISH_CLOCK_PAGE_
 
-#define cacheFilename "bluishCH.raw"
+#define cacheFilenameBluish "bluishCH.raw"
 
 class BluishClockPage : public Page {
 
@@ -27,7 +27,7 @@ void initalize() {
     
     mergeBackground(now());
     
-    watch->setBackground(cacheFilename,0,0);
+    watch->setBackground(cacheFilenameBluish,0,0);
     watch->printBackground();
     
     currentHour = -1;
@@ -50,7 +50,7 @@ void mergeBackground(time_t tmpTime) {
     
     SdFile backfile,frontfile,newfile;
     
-    sd.remove(cacheFilename);
+    sd.remove(cacheFilenameBluish);
     
     if(!backfile.open("bluish.raw",O_RDWR)) Serial.println("bluish didn't load");
     if(!frontfile.open("blumin.raw",O_RDWR)) Serial.println("blumin didn't load");
@@ -64,7 +64,7 @@ void mergeBackground(time_t tmpTime) {
     
     if(!backfile.open("tmp.raw",O_RDWR)) Serial.println("bluish didn't load");
     if(!frontfile.open("bluhour.raw",O_RDWR)) Serial.println("bluhour didn't load");
-    if(!newfile.open(cacheFilename,O_RDWR | O_CREAT)) Serial.println("test didn't load");
+    if(!newfile.open(cacheFilenameBluish,O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
     watch->mergeImages(&newfile,&backfile,&frontfile,0,0,(hour(tmpTime) % 12)  * 5 + minute(tmpTime) / 12);
     
@@ -74,7 +74,7 @@ void mergeBackground(time_t tmpTime) {
     
     sd.remove("tmp.raw");
     
-    watch->setBackground(cacheFilename,0,0);
+    watch->setBackground(cacheFilenameBluish,0,0);
     
 
 }

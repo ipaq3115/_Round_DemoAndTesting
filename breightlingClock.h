@@ -3,7 +3,7 @@
 #ifndef BREIGHTLING_CLOCK_PAGE_
 #define BREIGHTLING_CLOCK_PAGE_
 
-#define cacheFilename "breitCH.raw"
+#define cacheFilenameBreightling "breitCH.raw"
 
 class BreightlingClockPage : public Page {
     
@@ -27,7 +27,7 @@ void initalize() {
     
     mergeBackground(now());
     
-    watch->setBackground(cacheFilename,0,0);
+    watch->setBackground(cacheFilenameBreightling,0,0);
     watch->printBackground();
     
     watch->printImage(&secondsFile,0,0,second());
@@ -52,7 +52,7 @@ void mergeBackground(time_t tmpTime) {
     
     SdFile backfile,frontfile,newfile;
     
-    sd.remove(cacheFilename);
+    sd.remove(cacheFilenameBreightling);
     sd.remove("tmp.raw");
     
     // if(!backfile.open("PiSplash.raw",O_RDWR)) Serial.println("bluish didn't load");
@@ -68,7 +68,7 @@ void mergeBackground(time_t tmpTime) {
     
     if(!backfile.open("tmp.raw",O_RDWR)) Serial.println("bluish didn't load");
     if(!frontfile.open("bentlyH.raw",O_RDWR)) Serial.println("bluhour didn't load");
-    if(!newfile.open(cacheFilename,O_RDWR | O_CREAT)) Serial.println("test didn't load");
+    if(!newfile.open(cacheFilenameBreightling,O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
     watch->mergeImages(&newfile,&backfile,&frontfile,0,0,(hour(tmpTime) % 12)  * 5);
     
@@ -76,7 +76,7 @@ void mergeBackground(time_t tmpTime) {
     frontfile.close();
     newfile.close();
     
-    watch->setBackground(cacheFilename,0,0);
+    watch->setBackground(cacheFilenameBreightling,0,0);
     
 
 }

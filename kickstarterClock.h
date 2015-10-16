@@ -3,7 +3,7 @@
 #ifndef KICKSTARTER_CLOCK_PAGE_
 #define KICKSTARTER_CLOCK_PAGE_
 
-#define cacheFilename "kickCH.raw"
+#define cacheFilenameKick "kickCH.raw"
 
 class KickstarterClockPage : public Page {
 
@@ -27,7 +27,7 @@ void initalize() {
     
     mergeBackground(now());
     
-    watch->setBackground(cacheFilename,0,0);
+    watch->setBackground(cacheFilenameKick,0,0);
     watch->printBackground();
     
     watch->printImage(&secondsFile,0,0,second());
@@ -52,7 +52,7 @@ void mergeBackground(time_t tmpTime) {
     
     SdFile backfile,frontfile,newfile;
     
-    sd.remove(cacheFilename);
+    sd.remove(cacheFilenameKick);
     
     if(!backfile.open("kickBack.raw",O_RDWR)) Serial.println("kickBack didn't load");
     if(!frontfile.open("blumin.raw",O_RDWR)) Serial.println("blumin didn't load");
@@ -66,7 +66,7 @@ void mergeBackground(time_t tmpTime) {
     
     if(!backfile.open("tmp.raw",O_RDWR)) Serial.println("bluish didn't load");
     if(!frontfile.open("bluhour.raw",O_RDWR)) Serial.println("bluhour didn't load");
-    if(!newfile.open(cacheFilename,O_RDWR | O_CREAT)) Serial.println("test didn't load");
+    if(!newfile.open(cacheFilenameKick,O_RDWR | O_CREAT)) Serial.println("test didn't load");
     
     watch->mergeImages(&newfile,&backfile,&frontfile,0,0,(hour(tmpTime) % 12)  * 5 + minute(tmpTime) / 12);
     
@@ -76,7 +76,7 @@ void mergeBackground(time_t tmpTime) {
     
     sd.remove("tmp.raw");
     
-    watch->setBackground(cacheFilename,0,0);
+    watch->setBackground(cacheFilenameKick,0,0);
     
 
 }

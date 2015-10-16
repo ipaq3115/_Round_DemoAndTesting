@@ -64,7 +64,7 @@ BRIGHTNESS  = 8,
 CHARGING    = 0,
 PLUGGED_IN  = 1;
 
-unsigned long logEntries = 0;
+int logEntries = 0;
 
 bool newData = false;
 
@@ -230,7 +230,7 @@ void printGraph() {
     watch->setColor(WHITE);
     watch->setBackColor(TRANSPARENT);
     
-    snprintf(str,20,"%02lu:%02lu:%02lu - %02lu:%02lu:%02lu",hourFormat12(startTime),minute(startTime),second(startTime),hourFormat12(endTime),minute(endTime),second(endTime));
+    snprintf(str,20,"%02d:%02d:%02d - %02d:%02d:%02d",hourFormat12(startTime),minute(startTime),second(startTime),hourFormat12(endTime),minute(endTime),second(endTime));
     watch->print(str,CENTER,35);
     
     // The time in seconds that the graph will represent
@@ -251,12 +251,13 @@ void printGraph() {
     int graphPx = 0;
     int voltAvg = 0,voltAvgCount = 0;
     int chrgAvg = 0,plugAvg = 0;
-    int time,value;
+    unsigned long time;
+    int value;
     int lastPixelValue = -1;
     int lastXvalue;
     
     int minBat=9999,maxBat=0;
-    int minPos=0,maxPos=0;
+    // int minPos=0,maxPos=0;
     
     if(D) db.printf("logEntries %d\r\n",logEntries);
     
@@ -268,7 +269,7 @@ void printGraph() {
         // Read all the data for this sample into buf
         batteryLog.seekSet(i * LENGTH + OFFSET);
         
-        int bytesRead = batteryLog.read(buf, LENGTH);
+        /* int bytesRead = */ batteryLog.read(buf, LENGTH);
         // if(D) db.printf("bytesRead %d LENGTH %d at %d\r\n",bytesRead,LENGTH,i * LENGTH + OFFSET);
         
         // if(D) {
@@ -330,8 +331,8 @@ void printGraph() {
                     // if(D) db.printf("Averages value %d chrgAvg %d plugAvg %d\r\n",value,chrgAvg,plugAvg);
                 
                     // Max/Min tracking
-                    if(value < minBat) { minBat = value; minPos = graphPx; }
-                    if(value > maxBat) { maxBat = value; maxPos = graphPx; }
+                    if(value < minBat) { minBat = value; /* minPos = graphPx; */ }
+                    if(value > maxBat) { maxBat = value; /* maxPos = graphPx; */ }
                 
                     // Set color
                     

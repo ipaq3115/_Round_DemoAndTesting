@@ -148,6 +148,8 @@ void loop() {
     switch(pageMode) {
         case MODE_MAIN: mainLoop(); break;
         case MODE_SET:  setLoop();  break;
+        case MODE_STOPWATCH: break;
+        case MODE_TIMER: break;
     }
 
 }
@@ -456,7 +458,7 @@ int buttonID(int d) {
     
     }
     
-    #undef inrg(x,y)
+    #undef inrg
     
     return -1;
     
