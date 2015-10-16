@@ -174,11 +174,6 @@ void loop() {
         
         audioLoop();
         
-        checkOrientation();
-
-        // This needs to be last since it can change the low power state
-        pollButtons();
-    
     }
 
     checkOrientation();
@@ -325,10 +320,17 @@ void checkOrientation() {
         
         int lastRotation = currentRotation;
     
-        if(compass.a.y < -1000 && currentRotation != PORTRAIT)    currentRotation = PORTRAIT;
-        else if(compass.a.y > 1000 && currentRotation != PORTRAIT_R)   currentRotation = PORTRAIT_R;
-        else if(compass.a.x < -1000 && currentRotation != LANDSCAPE)   currentRotation = LANDSCAPE;
-        else if(compass.a.x > 1000 && currentRotation != LANDSCAPE_R)  currentRotation = LANDSCAPE_R;
+        // old
+        // else if(compass.a.x >  1000) currentRotation = PORTRAIT;    
+        // else if(compass.a.x < -1000) currentRotation = PORTRAIT_R;  
+        // else if(compass.a.y >  1000) currentRotation = LANDSCAPE;   
+        // if(     compass.a.y < -1000) currentRotation = LANDSCAPE_R; 
+    
+        // new
+        if(     compass.a.y < -1000) currentRotation = PORTRAIT;
+        else if(compass.a.y >  1000) currentRotation = PORTRAIT_R;
+        else if(compass.a.x < -1000) currentRotation = LANDSCAPE;
+        else if(compass.a.x >  1000) currentRotation = LANDSCAPE_R;
         
         if(lastRotation != currentRotation) {
         
