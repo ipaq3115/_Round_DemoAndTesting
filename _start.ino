@@ -3,20 +3,122 @@ IntervalTimer blinktimer;
 
 #include <EEPROM.h>
 
+bool calibrating = false;
+
+int LP_page = PAGE::HOME;
+
+void lowPowerEnable(bool changepage = true) {
+
+    if(changepage) {
+
+        // Save whatever the current page is 
+        // (so we can go back to it when we exit low power mode)
+        if(page != -1) LP_page = page;
+        
+        // Manually set the page to the black clock page
+        page = PAGE::BLACK_CLOCK;
+        
+        // Initialize that page
+        int b = watch.getBrightness();
+        watch.rampBrightnessWait(0,50);
+        pageArray[page]->initalize();
+        watch.rampBrightnessWait(b,50);
+
+    }
+    
+    // return;
+    
+    // Turn off touch
+    watch.touchEnd();
+    
+    lpSerial2.flush();
+
+    // Go into low power mode
+    LP.CPU(TWO_MHZ);
+    
+    lpSerial2.begin(9600);
+    
+    // Set the low power flag
+    Page::lowPower = true;
+    
+    // Update the time from the RTC
+    setTime(Teensy3Clock.get());
+
+    // Re initialize pins (doing this so PWM works)
+    _init_Teensyduino_internal_LP();
+    
+    // Start the touch back up
+    // watch.calCapacitive();
+    watch.restartTouch();
+    
+    analogWriteFrequency_LP(PIN::LCD_BACKLIGHT, 500);
+    
+    watch.setBrightness(watch.getBrightness());
+    
+    // analogWrite(PIN::LCD_BACKLIGHT, 20);
+
+}
+
+void lowPowerDisable(bool goback = true) {
+
+    // Turn off touch
+    watch.touchEnd();
+
+    // Set CPU back up to high speed
+    LP.CPU(F_CPU);
+
+    // Set the low power flag
+    Page::lowPower = false;
+    
+    // Update time from the RTC
+    setTime(Teensy3Clock.get());
+    
+    // Re initialize pins (doing this so PWM works)
+    _init_Teensyduino_internal_LP();
+    
+    // Start the touch back up
+    watch.restartTouch();
+
+    if(goback) {
+        
+        // Manually set the page to the page before we went into low power
+        page = LP_page;
+        
+        // Initialize that page
+        int b = watch.getBrightness();
+        watch.rampBrightnessWait(0,50);
+        pageArray[page]->initalize();
+        watch.rampBrightnessWait(b,50);
+
+    }
+    
+    analogWriteFrequency_LP(PIN::LCD_BACKLIGHT, 500);
+    
+    watch.setBrightness(watch.getBrightness());
+    
+}
+
 void setup() {
 
     // set the Time library to use Teensy 3.0's RTC to keep time
     setSyncProvider((long int (*)())Teensy3Clock.get);
 
+    if(old_watch) currentRotation = PORTRAIT;
+    
     // This needs to be one of the first things done because it sets
     // pin states and keeps the watch on
     // watch.init();
-    watch.init(touch);
-    watch.speaker(OFF);
+    watch.init(touch, old_watch);
+    watch.speaker(ON);
+    // watch.speaker(OFF);
 
     USB.begin(300000); 
     // while(!USB); // Wait for PC to open the USB serial port before running this program
     delay(100);
+    
+    // USB.printf("BOOT!\r\n");
+    
+    // delay(100);
     
     // elapsedMillis time; while(1) { if(time > 500) { Serial.println("Send char to start"); time = 0; } if(Serial.read() != -1) break; }
     
@@ -85,6 +187,8 @@ void setup() {
     
     // showSplash();
     
+    // watch.setBrightness(0);
+    
     // Let all of the pages go through their bootup
     for(int i=0;i<PAGE::TOTAL;i++) pageArray[i]->bootup();
     
@@ -94,13 +198,17 @@ void setup() {
     // goPage(PAGE::KICKSTARTER_DEMO);
     // goPage(PAGE::KICKSTARTER_CLOCK);
     // goPage(PAGE::BLUE_CLOCK);
-    goPage(PAGE::HOME);
     // goPage(PAGE::SETTINGS);
     // goPage(PAGE::BATTERY_GRAPH);
     // goPage(PAGE::LED_RING_CONTROL);
     // goPage(PAGE::BLACK_CLOCK);
     // goPage(PAGE::STARGATE);
     // goPage(PAGE::CONTACTS);
+    
+    // goPage(PAGE::BLACK_CLOCK);
+    goPage(PAGE::HOME);
+    
+    // lowPowerEnable();
 
     // Turn up the brightness
     watch.rampBrightness(100,500);
@@ -128,20 +236,7 @@ void loop() {
     
     // lowPowerTimeout();
 
-    static elapsedMillis_LP timeB;
-
-    if(timeB > 200)  {
-
-        timeB = 0;
-
-        watch.setFont(BigFont);
-        watch.setColor(WHITE);
-        watch.setBackColor(BLACK);
-
-        watch.printNumI(analogRead(PIN::POWER_BUTTON),CENTER,100,10,'0');
-        watch.printNumI(touchRead(0),CENTER,115,10,'0');
-
-    }
+    usbCommand();
     
     watch.loop();
     
