@@ -180,74 +180,11 @@ void loop() {
         pollButtons();
     
     }
-    
-}
 
-int LP_page = PAGE::HOME;
+    checkOrientation();
 
-void lowPowerEnable() {
-
-    // Save whatever the current page is
-    LP_page = page;
-    
-    // Manually set the page to the black clock page
-    page = PAGE::BLACK_CLOCK;
-    
-    // Initialize that page
-    int b = watch.getBrightness();
-    watch.rampBrightnessWait(0,50);
-    pageArray[page]->initalize();
-    watch.rampBrightnessWait(b,50);
-
-    // Turn off touch
-    watch.touchEnd();
-
-    // Go into low power mode
-    LP.CPU(TWO_MHZ);
-    
-    // Set the low power flag
-    Page::lowPower = true;
-    
-    // Update the time from the RTC
-    setTime(Teensy3Clock.get());
-
-    // Re initialize pins (doing this so PWM works)
-    // _init_Teensyduino_internal_LP();
-    
-    // Start the touch back up
-    // watch.calCapacitive();
-    watch.restartTouch();
-    
-}
-
-void lowPowerDisable() {
-
-    // Turn off touch
-    watch.touchEnd();
-
-    // Set CPU back up to high speed
-    LP.CPU(F_CPU);
-
-    // Set the low power flag
-    Page::lowPower = false;
-    
-    // Update time from the RTC
-    setTime(Teensy3Clock.get());
-    
-    // Re initialize pins (doing this so PWM works)
-    _init_Teensyduino_internal_LP();
-    
-    // Start the touch back up
-    watch.restartTouch();
-
-    // Manually set the page to the page before we went into low power
-    page = LP_page;
-    
-    // Initialize that page
-    int b = watch.getBrightness();
-    watch.rampBrightnessWait(0,50);
-    pageArray[page]->initalize();
-    watch.rampBrightnessWait(b,50);
+    // This needs to be last since it can change the low power state
+    pollButtons();
 
 }
 
@@ -286,6 +223,9 @@ void _init_Teensyduino_internal_LP(void) {
     } else if(LP._cpu == 2000000) {
         DEFAULT_FTM_MOD = (4096 - 1);
         DEFAULT_FTM_PRESCALE = 0;
+    } else {
+        DEFAULT_FTM_MOD = (49152 - 1);
+        DEFAULT_FTM_PRESCALE = 1;
     }
 
 
@@ -324,6 +264,53 @@ void _init_Teensyduino_internal_LP(void) {
     
 }
 
+void analogWriteFrequency_LP(uint8_t pin, uint32_t frequency)
+{
+	uint32_t minfreq, prescale, mod;
+
+	//serial_print("analogWriteFrequency: pin = ");
+	//serial_phex(pin);
+	//serial_print(", freq = ");
+	//serial_phex32(frequency);
+	//serial_print("\n");
+	for (prescale = 0; prescale < 7; prescale++) {
+		minfreq = (LP._cpu >> 16) >> prescale;
+		if (frequency > minfreq) break;
+	}
+	//serial_print("F_BUS = ");
+	//serial_phex32(F_BUS >> prescale);
+	//serial_print("\n");
+	//serial_print("prescale = ");
+	//serial_phex(prescale);
+	//serial_print("\n");
+	//mod = ((F_BUS >> prescale) / frequency) - 1;
+	mod = (((LP._bus >> prescale) + (frequency >> 1)) / frequency) - 1;
+	if (mod > 65535) mod = 65535;
+	//serial_print("mod = ");
+	//serial_phex32(mod);
+	//serial_print("\n");
+	if (pin == 3 || pin == 4) {
+		FTM1_SC = 0;
+		FTM1_CNT = 0;
+		FTM1_MOD = mod;
+		FTM1_SC = FTM_SC_CLKS(1) | FTM_SC_PS(prescale);
+	} else if (pin == 5 || pin == 6 || pin == 9 || pin == 10 ||
+	  (pin >= 20 && pin <= 23)) {
+		FTM0_SC = 0;
+		FTM0_CNT = 0;
+		FTM0_MOD = mod;
+		FTM0_SC = FTM_SC_CLKS(1) | FTM_SC_PS(prescale);
+	}
+#if defined(__MK20DX256__)
+	  else if (pin == 25 || pin == 32) {
+		FTM2_SC = 0;
+		FTM2_CNT = 0;
+		FTM2_MOD = mod;
+		FTM2_SC = FTM_SC_CLKS(1) | FTM_SC_PS(prescale);
+	}
+#endif
+}
+
 
 // Polling routines
 
@@ -345,8 +332,15 @@ void checkOrientation() {
         
         if(lastRotation != currentRotation) {
         
+            bool lpdance = false;
+            if(Page::lowPower) lpdance = true;
+            
+            if(lpdance) lowPowerDisable(false);
+        
             watch.setOrientation(currentRotation);
             pageArray[page]->redraw();
+        
+            if(lpdance) lowPowerEnable(false);
         
         }
         
@@ -533,7 +527,8 @@ void pollButtons() {
     
     int value = analogRead(PIN::POWER_BUTTON);
     
-    instantButtonState[POWER_BUTTON] = value > 50;
+    instantButtonState[POWER_BUTTON] = value > 127;
+    // instantButtonState[POWER_BUTTON] = value > 50;
     
     // static elapsedMillis printTM;
     // if(printTM > 100) {
@@ -906,7 +901,7 @@ void buttonEvent(int dir,int index,bool longPress) {
     
     lastTouchTime = millis();
 
-    if(D) USB.printf("buttonEvent dir %d index %d\r\n",dir,index);
+    if(D) USB.printf("buttonEvent dir %d index %d longPress %d\r\n", dir, index, longPress);
 
     switch(index) {
     
@@ -915,12 +910,20 @@ void buttonEvent(int dir,int index,bool longPress) {
             // pinMode(26, OUTPUT);
             // digitalWrite(26, dir);
         
+            // if(D) { USB.printf("power button\r\n"); USB.flush(); }
+        
             if(longPress) {
             
+                lowPowerDisable(false);
+
+                // if(D) { USB.printf("power down\r\n"); USB.flush(); }
+                
                 // watch.rampBrightness(DOWN);
                 
                 watch.setColor(VGA_WHITE);
                 watch.fillRect(0,0,219,219);
+                
+                // watch.rampBrightnessWait(50);
                 
                 watch.setColor(VGA_BLACK);
                 for(int i=0;i<110;i++) {
@@ -932,9 +935,17 @@ void buttonEvent(int dir,int index,bool longPress) {
                 
                 }
             
+                // if(D) { USB.printf("brightness off\r\n"); USB.flush(); }
+                
+                watch.setBrightness(0);
+            
                 // Turn off power to the device [everything should die here]
                 watch.powerDown();
                 
+                delay(1000);
+                
+                watch.setBrightness(100);
+            
                 // Uhh, why are we still here??
                 watch.setColor(VGA_WHITE);
                 watch.fillRect(0,0,219,219);
@@ -942,12 +953,18 @@ void buttonEvent(int dir,int index,bool longPress) {
                 // Speaking from the grave
                 watch.setColor(BLACK);
                 watch.setBackColor(VGA_WHITE);
-                watch.print("Shutdown failed??");
+                watch.print("Shutdown fail");
                 
                 while(1);
             
             } else if(!dir) {
             
+                if(D) USB.printf("low power %s\r\n", (Page::lowPower) ? "disable" : "enable");
+            
+                // watch.setColor(VGA_RED);
+                // watch.fillRect(0,0,219,219);
+                // delay(250);
+                
                 if(Page::lowPower) lowPowerDisable();
                 else               lowPowerEnable();
             
