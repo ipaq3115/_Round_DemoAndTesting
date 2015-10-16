@@ -13,7 +13,7 @@ public:
     enum {
     
         VIBRATE,
-        TIME,
+        ORIENTATION_LOCK,
         BRIGHTNESS,
         VOLUME,
         BLUETOOTH
@@ -26,7 +26,8 @@ public:
     backgroundImageFile,
     knobFile,
     vibrateFile,
-    volumeFile;
+    volumeFile,
+    lockFile;
     
     // Touch
     int lastTouchPos;
@@ -51,8 +52,11 @@ void initalize() {
     watch->loadImage("knob.raw",&knobFile);
     watch->loadImage("setvib.raw",&vibrateFile);
     watch->loadImage("setvol.raw",&volumeFile);
+    watch->loadImage("setLock.raw",&lockFile);
     
     watch->printImage(&backgroundImageFile,0,0);
+    
+    watch->printImage(&lockFile, 41, 40, orientation_islocked);
     
     // printBrightness(brightness);
     // printBattery(42);
@@ -165,8 +169,8 @@ void touch(int touchType,int finePos,int activeTouches,int touchIndex) {
         case RELEASED: 
             
             if(firstTouch == touchIndex) {
-            
                 touchReleased(finePos);
+            
             
                 firstTouch = -1;
         
@@ -262,11 +266,17 @@ void touchReleased(int finePos) {
         // Only looking for a tap action
         if(millis() - touchTime < 200) {
             
-            switch(iconID) {            
+            switch(iconID) {    
+                case ORIENTATION_LOCK:                   
+                    orientation_islocked = !orientation_islocked;
+                    watch->printImage(&lockFile, 41, 40, orientation_islocked);
+                    break;
                 case BRIGHTNESS:    
-                    watch->setBrightness(watch->getBrightness() + (finePos > 180 ? -10 : 10)); break;
+                    watch->setBrightness(watch->getBrightness() + (finePos > 180 ? -10 : 10)); 
+                    break;
                 case VOLUME:
-                    updateVolume(finePos > 180 ? DOWN : UP); break;
+                    updateVolume(finePos > 180 ? DOWN : UP); 
+                    break;
             }
 
         }
