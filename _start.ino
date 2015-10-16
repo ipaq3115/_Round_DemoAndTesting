@@ -316,6 +316,8 @@ void checkOrientation() {
     
         mytime = 0;
         
+        if(orientation_islocked) return;
+        
         compass.read();
         
         int lastRotation = currentRotation;
